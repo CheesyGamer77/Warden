@@ -39,3 +39,6 @@ dist/**/*
 
 # Ignore yarn.lock
 yarn.lock
+
+# Ignore Bot Configuration
+config.json
