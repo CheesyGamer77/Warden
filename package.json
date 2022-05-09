@@ -1,0 +1,19 @@
+{
+  "name": "warden",
+  "version": "1.0.0",
+  "description": "A content moderation bot for Discord",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CheesyGamer77/Warden.git"
+  },
+  "author": "CheesyGamer77",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/CheesyGamer77/Warden/issues"
+  },
+  "homepage": "https://github.com/CheesyGamer77/Warden#readme"
+}
