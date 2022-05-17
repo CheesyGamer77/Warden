@@ -25,9 +25,28 @@ client.on('guildMemberAdd', async (member) => {
         .setFooter({ text: 'User ID: ' + user.id })
         .setTimestamp()
 
-    await channel?.send({
-        embeds: [ embed ]
-    })
-})
+    await channel?.send({ embeds: [ embed ] });
+});
+
+client.on('guildMemberRemove', async (member) => {
+    const channel = await LoggingModule.fetchLogChannel(LogEventType.LEAVES, member.guild);
+
+    const user = member.user;
+
+    const embed = new MessageEmbed()
+        .setAuthor({ name: user.username, iconURL: user.avatarURL() ?? user.defaultAvatarURL })
+        .setTitle('Member Left')
+        .setDescription(user.username + ' left the server')
+        .setColor(0xed4245)
+        .setFooter({ text: 'User ID: ' + user.id })
+        .setTimestamp();
+    
+    // a removed member's joined at timestamp has the potential to be null
+    // we don't bother to add the 'Member Since' field in that case
+    if(member.joinedAt != null)
+        embed.addField('Member Since', Formatters.time(member.joinedAt, 'R'));
+    
+    await channel?.send({ embeds: [ embed ] });
+});
 
 client.login(config.token);
