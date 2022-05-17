@@ -1,5 +1,5 @@
 import { PrismaClient, LogConfig } from "@prisma/client";
-import { Guild, TextChannel } from "discord.js";
+import { Guild, Permissions, TextChannel } from "discord.js";
 
 const prisma = new PrismaClient();
 
@@ -64,10 +64,22 @@ export default class LoggingModule {
                 break;
         }
 
-        // resolve the said log channel
+        // resolve the said log text channel
         if(channelId != null) {
             const channel = guild.channels.cache.get(channelId);
-            return channel?.type == 'GUILD_TEXT' ? channel : null
+            
+            // text channel guard clause
+            if(channel?.type != 'GUILD_TEXT') return null;
+
+            // define required permissions
+            const requiredPermissions = [
+                Permissions.FLAGS.VIEW_CHANNEL,
+                Permissions.FLAGS.SEND_MESSAGES,
+                Permissions.FLAGS.EMBED_LINKS
+            ];
+
+            // check permissions
+            return guild.me?.permissionsIn(channel).has(requiredPermissions) ? channel : null
         }
 
         return null;
