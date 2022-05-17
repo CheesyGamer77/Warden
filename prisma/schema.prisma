@@ -11,5 +11,5 @@ datasource db {
 }
 
 model LogConfig {
-  guildId Int @id
+  guildId String @id
 }
