@@ -12,4 +12,6 @@ datasource db {
 
 model LogConfig {
   guildId String @id
+  joinsChannelId String?
+  leavesChannelId String?
 }
