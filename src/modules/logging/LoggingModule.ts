@@ -1,7 +1,12 @@
 import { PrismaClient, LogConfig } from "@prisma/client";
-import { Guild } from "discord.js";
+import { Guild, Permissions, TextChannel } from "discord.js";
 
 const prisma = new PrismaClient();
+
+export enum LogEventType {
+    JOINS,
+    LEAVES
+}
 
 export default class LoggingModule {
     /**
@@ -33,5 +38,50 @@ export default class LoggingModule {
         })
 
         return data != null ? data : await this.createBlankLogConfiguration(guild);
+    }
+
+    /**
+     * Fetches a guild's log TextChannel of a given event type
+     * @param event The type of log event to fetch the log channel of
+     * @param guild The guild to fetch the log channel from
+     * @returns The TextChannel if it exists, else null
+     */
+    static async fetchLogChannel(event: LogEventType, guild: Guild): Promise<TextChannel | null> {
+        // fetch the guild's configuration
+        const config = await this.fetchLogConfiguration(guild);
+
+        // set appropriate channel id
+        let channelId: string | null;
+        switch(event) {
+            case LogEventType.JOINS:
+                channelId = config.joinsChannelId;
+                break;
+            case LogEventType.LEAVES:
+                channelId = config.leavesChannelId;
+                break;
+            default:
+                channelId = null;
+                break;
+        }
+
+        // resolve the said log text channel
+        if(channelId != null) {
+            const channel = guild.channels.cache.get(channelId);
+            
+            // text channel guard clause
+            if(channel?.type != 'GUILD_TEXT') return null;
+
+            // define required permissions
+            const requiredPermissions = [
+                Permissions.FLAGS.VIEW_CHANNEL,
+                Permissions.FLAGS.SEND_MESSAGES,
+                Permissions.FLAGS.EMBED_LINKS
+            ];
+
+            // check permissions
+            return guild.me?.permissionsIn(channel).has(requiredPermissions) ? channel : null
+        }
+
+        return null;
     }
 }
