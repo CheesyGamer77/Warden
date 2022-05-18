@@ -1,6 +1,7 @@
 import { Client, Formatters, Intents, MessageEmbed } from 'discord.js';
 import config from '../config.json';
 import LoggingModule, { LogEventType } from './modules/logging/LoggingModule';
+import { getEmbedWithTarget } from './util/EmbedUtil';
 
 const client = new Client({intents: [
     Intents.FLAGS.GUILDS,
@@ -16,14 +17,11 @@ client.on('guildMemberAdd', async (member) => {
 
     const user = member.user;
 
-    const embed = new MessageEmbed()
-        .setAuthor({ name: user.username, iconURL: user.avatarURL() ?? user.defaultAvatarURL })
+    const embed = getEmbedWithTarget(user)
         .setTitle('Member Joined')
         .setDescription(user.tag + ' joined the server')
         .setColor(0x1f8b4c)
         .addField('Account Created', Formatters.time(user.createdAt, 'R'))
-        .setFooter({ text: 'User ID: ' + user.id })
-        .setTimestamp()
 
     await channel?.send({ embeds: [ embed ] });
 });
@@ -33,13 +31,10 @@ client.on('guildMemberRemove', async (member) => {
 
     const user = member.user;
 
-    const embed = new MessageEmbed()
-        .setAuthor({ name: user.username, iconURL: user.avatarURL() ?? user.defaultAvatarURL })
+    const embed = getEmbedWithTarget(user)
         .setTitle('Member Left')
         .setDescription(user.tag + ' left the server')
         .setColor(0xed4245)
-        .setFooter({ text: 'User ID: ' + user.id })
-        .setTimestamp();
     
     // a removed member's joined at timestamp has the potential to be null
     // we don't bother to add the 'Member Since' field in that case
