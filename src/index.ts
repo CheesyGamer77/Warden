@@ -19,7 +19,7 @@ client.on('guildMemberAdd', async (member) => {
     const embed = new MessageEmbed()
         .setAuthor({ name: user.username, iconURL: user.avatarURL() ?? user.defaultAvatarURL })
         .setTitle('Member Joined')
-        .setDescription(user.username + ' joined the server')
+        .setDescription(user.tag + ' joined the server')
         .setColor(0x1f8b4c)
         .addField('Account Created', Formatters.time(user.createdAt, 'R'))
         .setFooter({ text: 'User ID: ' + user.id })
@@ -36,7 +36,7 @@ client.on('guildMemberRemove', async (member) => {
     const embed = new MessageEmbed()
         .setAuthor({ name: user.username, iconURL: user.avatarURL() ?? user.defaultAvatarURL })
         .setTitle('Member Left')
-        .setDescription(user.username + ' left the server')
+        .setDescription(user.tag + ' left the server')
         .setColor(0xed4245)
         .setFooter({ text: 'User ID: ' + user.id })
         .setTimestamp();
@@ -45,7 +45,7 @@ client.on('guildMemberRemove', async (member) => {
     // we don't bother to add the 'Member Since' field in that case
     if(member.joinedAt != null)
         embed.addField('Member Since', Formatters.time(member.joinedAt, 'R'));
-    
+
     await channel?.send({ embeds: [ embed ] });
 });
 
