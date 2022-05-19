@@ -5,7 +5,7 @@ interface CacheOptions {
 
 interface CacheEntry<V> {
     value: V;
-    createdAt: Date;
+    createdAt: Date;  // (unused)
     lastModified: Date;
 }
 
