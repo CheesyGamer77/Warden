@@ -19,7 +19,7 @@ client.on('guildMemberAdd', async (member) => {
 
     const embed = getEmbedWithTarget(user)
         .setTitle('Member Joined')
-        .setDescription(user.tag + ' joined the server')
+        .setDescription(user.toString() + ' joined the server')
         .setColor(0x1f8b4c)
         .addField('Account Created', Formatters.time(user.createdAt, 'R'))
 
@@ -33,7 +33,7 @@ client.on('guildMemberRemove', async (member) => {
 
     const embed = getEmbedWithTarget(user)
         .setTitle('Member Left')
-        .setDescription(user.tag + ' left the server')
+        .setDescription(user.toString() + ' left the server')
         .setColor(0xed4245)
     
     // a removed member's joined at timestamp has the potential to be null
