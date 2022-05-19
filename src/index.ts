@@ -50,8 +50,8 @@ client.on('guildMemberRemove', async (member) => {
 });
 
 client.on('guildMemberUpdate', async (before, after) => {
-    if(before.displayName != after.displayName)
-        NameSanitizerModule.sanitize(after, before.displayName);
+    if(!before.partial && before.displayName != after.displayName)
+        await NameSanitizerModule.sanitize(after);
 })
 
 client.login(config.token);
