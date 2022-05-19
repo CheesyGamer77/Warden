@@ -24,7 +24,10 @@ client.on('guildMemberAdd', async (member) => {
         .setColor(0x1f8b4c)
         .addField('Account Created', Formatters.time(user.createdAt, 'R'))
 
-    await channel?.send({ embeds: [ embed ] });
+    await channel?.send({
+        content: user.id,
+        embeds: [ embed ] 
+    });
 });
 
 client.on('guildMemberRemove', async (member) => {
@@ -46,7 +49,10 @@ client.on('guildMemberRemove', async (member) => {
     
     embed.addField('Member Since', memberSince);
 
-    await channel?.send({ embeds: [ embed ] });
+    await channel?.send({
+        content: user.id,
+        embeds: [ embed ]
+    });
 });
 
 client.on('guildMemberUpdate', async (before, after) => {

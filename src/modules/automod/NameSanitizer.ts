@@ -39,15 +39,18 @@ export default class NameSanitizerModule {
 
             await member.edit({ nick: sanitized }, reason);
 
-            await channel.send({ embeds: [
-                getEmbedWithTarget(member.user)
-                    .setTitle('Nickname Filtered')
-                    .setDescription(member.toString() + ' had their display name filtered')
-                    .setColor(0xfee75c)
-                    .addField('Before', name)
-                    .addField('After', sanitized)
-                    .addField('Reason', reason)
-            ]});
+            await channel.send({
+                content: member.id,
+                embeds: [
+                    getEmbedWithTarget(member.user)
+                        .setTitle('Nickname Filtered')
+                        .setDescription(member.toString() + ' had their display name filtered')
+                        .setColor(0xfee75c)
+                        .addField('Before', name)
+                        .addField('After', sanitized)
+                        .addField('Reason', reason)
+                ]
+            });
         }
     }
 }
