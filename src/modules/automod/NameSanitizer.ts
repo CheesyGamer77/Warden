@@ -13,7 +13,7 @@ export default class NameSanitizerModule {
         let sanitized = "";
 
         for(const char of content) {
-            sanitized.concat(fancy_replacements.get(char) ?? char);
+            sanitized = sanitized.concat(fancy_replacements.get(char) ?? char);
         }
 
         return sanitized;
@@ -27,25 +27,27 @@ export default class NameSanitizerModule {
      * Sanitizes a member's display name to remove zalgo and "fancy text"
      * @param member The member who's name should be sanitized
      */
-    static async sanitize(member: GuildMember, previousName: string) {
+    static async sanitize(member: GuildMember) {
         const channel = await LoggingModule.fetchLogChannel(LogEventType.USER_FILTER, member.guild);
         if(channel == null) return;
 
         const name = member.displayName;
-        const sanitized = this.cleanFancyText(name);
+        let sanitized = this.cleanFancyText(name);
         const reason = 'Sanitizing Nickname';
         if(name != sanitized && this.canOverwriteName(member)) {
-            await member.edit({ nick: sanitized }, reason);
-        }
+            if(sanitized.trim() === '') sanitized = "Nickname";
 
-        await channel.send({ embeds: [
-            getEmbedWithTarget(member.user)
-                .setTitle('Nickname Filtered')
-                .setDescription(member.toString() + ' had their display name filtered')
-                .setColor(0xfee75c)
-                .addField('Before', previousName)
-                .addField('After', sanitized)
-                .addField('Reason', reason)
-        ]});
+            await member.edit({ nick: sanitized }, reason);
+
+            await channel.send({ embeds: [
+                getEmbedWithTarget(member.user)
+                    .setTitle('Nickname Filtered')
+                    .setDescription(member.toString() + ' had their display name filtered')
+                    .setColor(0xfee75c)
+                    .addField('Before', name)
+                    .addField('After', sanitized)
+                    .addField('Reason', reason)
+            ]});
+        }
     }
 }
