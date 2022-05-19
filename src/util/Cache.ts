@@ -24,7 +24,11 @@ export default class Cache<K, V> {
      * @returns 
      */
     getEntry(key: K): CacheEntry<V> | undefined {
-        return this.data.get(key);
+        const entry = this.data.get(key);
+        if(entry != undefined)
+            return this.isValid(entry) ? entry : undefined;
+        
+        return undefined;
     }
 
     /**
@@ -60,7 +64,7 @@ export default class Cache<K, V> {
         this.data.set(key, entryToSet);
     }
 
-    private isValid(key: K, entry: CacheEntry<V>): boolean {
+    private isValid(entry: CacheEntry<V>): boolean {
         const now = new Date().getUTCSeconds();
 
         // check TTL
@@ -69,7 +73,7 @@ export default class Cache<K, V> {
 
     private checkContents() {    
         this.data.forEach((v, k) => {
-            if(!this.isValid(k, v)) this.data.delete(k);
+            if(!this.isValid(v)) this.data.delete(k);
         });
 
         setTimeout(this.checkContents, this.options.checkPeriod * 1000);
