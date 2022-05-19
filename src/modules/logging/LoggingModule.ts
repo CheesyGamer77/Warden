@@ -5,7 +5,8 @@ const prisma = new PrismaClient();
 
 export enum LogEventType {
     JOINS,
-    LEAVES
+    LEAVES,
+    USER_FILTER
 }
 
 export default class LoggingModule {
@@ -51,6 +52,7 @@ export default class LoggingModule {
         const config = await this.fetchLogConfiguration(guild);
 
         // set appropriate channel id
+        // TODO: This is messy
         let channelId: string | null;
         switch(event) {
             case LogEventType.JOINS:
@@ -58,6 +60,9 @@ export default class LoggingModule {
                 break;
             case LogEventType.LEAVES:
                 channelId = config.leavesChannelId;
+                break;
+            case LogEventType.USER_FILTER:
+                channelId = config.userFilterChannelId;
                 break;
             default:
                 channelId = null;
