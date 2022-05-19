@@ -1,5 +1,6 @@
 import { Client, Formatters, Intents, MessageEmbed } from 'discord.js';
 import config from '../config.json';
+import NameSanitizerModule from './modules/automod/NameSanitizer';
 import LoggingModule, { LogEventType } from './modules/logging/LoggingModule';
 import { getEmbedWithTarget } from './util/EmbedUtil';
 
@@ -23,7 +24,10 @@ client.on('guildMemberAdd', async (member) => {
         .setColor(0x1f8b4c)
         .addField('Account Created', Formatters.time(user.createdAt, 'R'))
 
-    await channel?.send({ embeds: [ embed ] });
+    await channel?.send({
+        content: user.id,
+        embeds: [ embed ] 
+    });
 });
 
 client.on('guildMemberRemove', async (member) => {
@@ -45,7 +49,15 @@ client.on('guildMemberRemove', async (member) => {
     
     embed.addField('Member Since', memberSince);
 
-    await channel?.send({ embeds: [ embed ] });
+    await channel?.send({
+        content: user.id,
+        embeds: [ embed ]
+    });
 });
+
+client.on('guildMemberUpdate', async (before, after) => {
+    if(!before.partial && before.displayName != after.displayName)
+        await NameSanitizerModule.sanitize(after);
+})
 
 client.login(config.token);
