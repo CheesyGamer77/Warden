@@ -1,5 +1,6 @@
 import { Client, Formatters, Intents, MessageEmbed } from 'discord.js';
 import config from '../config.json';
+import NameSanitizerModule from './modules/automod/NameSanitizer';
 import LoggingModule, { LogEventType } from './modules/logging/LoggingModule';
 import { getEmbedWithTarget } from './util/EmbedUtil';
 
@@ -47,5 +48,10 @@ client.on('guildMemberRemove', async (member) => {
 
     await channel?.send({ embeds: [ embed ] });
 });
+
+client.on('guildMemberUpdate', async (before, after) => {
+    if(before.displayName != after.displayName)
+        NameSanitizerModule.sanitize(after, before.displayName);
+})
 
 client.login(config.token);
