@@ -37,9 +37,13 @@ client.on('guildMemberRemove', async (member) => {
         .setColor(0xed4245)
     
     // a removed member's joined at timestamp has the potential to be null
-    // we don't bother to add the 'Member Since' field in that case
+    let memberSince: string;
     if(member.joinedAt != null)
-        embed.addField('Member Since', Formatters.time(member.joinedAt, 'R'));
+        memberSince = Formatters.time(member.joinedAt, 'R');
+    else
+        memberSince = "Unknown";
+    
+    embed.addField('Member Since', memberSince);
 
     await channel?.send({ embeds: [ embed ] });
 });
