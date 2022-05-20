@@ -56,7 +56,10 @@ client.on('guildMemberRemove', async (member) => {
 });
 
 client.on('guildMemberUpdate', async (before, after) => {
-    if(!before.partial && before.displayName != after.displayName)
+    // don't compare uncached members to new state
+    if(before.partial) return;
+
+    if(before.displayName != after.displayName)
         await NameSanitizerModule.sanitize(after);
 })
 
