@@ -1,4 +1,5 @@
-import { Client, Formatters, Intents, MessageEmbed } from 'discord.js';
+import { PrismaClient } from '@prisma/client';
+import { Client, Formatters, Intents } from 'discord.js';
 import config from '../config.json';
 import NameSanitizerModule from './modules/automod/NameSanitizer';
 import LoggingModule, { LogEventType } from './modules/logging/LoggingModule';
@@ -45,7 +46,7 @@ client.on('guildMemberRemove', async (member) => {
     if(member.joinedAt != null)
         memberSince = Formatters.time(member.joinedAt, 'R');
     else
-        memberSince = "Unknown";
+        memberSince = 'Unknown';
     
     embed.addField('Member Since', memberSince);
 
@@ -59,8 +60,64 @@ client.on('guildMemberUpdate', async (before, after) => {
     // don't compare uncached members to new state
     if(before.partial) return;
 
-    if(before.displayName != after.displayName)
+    const channel = await LoggingModule.fetchLogChannel('userChanges', after.guild);
+
+    if(before.displayName != after.displayName) {
+        // check if nickname was added, changed, or removed
+        const username = after.user.username;
+        const oldNick = before.displayName === username ? null : before.displayName;
+        const newNick = after.displayName === username ? null : after.displayName;
+
+        let title: string, action: string, color: number;
+        let embed = getEmbedWithTarget(after.user);
+        if(oldNick == null && newNick != null) {
+            // nickname added
+            title = 'Nickname Set';
+            action = 'set';
+            color = 0x1f8b4c;
+
+            embed.addField('Nickname', newNick);
+        }
+        else if(oldNick != null && newNick == null) {
+            // nickname cleared
+            title = 'Nickname Cleared'
+            action = 'cleared';
+            color = 0xf1c40f;
+
+            embed.addField('Original Nickname', oldNick);
+        }
+        else {
+            // neither null guard clause
+            if(oldNick === null || newNick === null) return;
+
+            // nickname changed
+            title = 'Nickname Changed';
+            action = 'changed';
+            color = 0x1abc9c;
+
+            embed.addFields({
+                name: 'Before',
+                value: oldNick
+            },
+            {
+                name: 'After',
+                value: newNick
+            });
+        }
+
+        embed = embed
+            .setTitle(title)
+            .setDescription(`${after.toString()} ${action} their nickname`)
+            .setColor(color);
+            
+        await channel?.send({
+            content: after.id,
+            embeds: [ embed ]
+        });
+
+        // sanitize said nickname
         await NameSanitizerModule.sanitize(after);
-})
+    }
+});
 
 client.login(config.token);
