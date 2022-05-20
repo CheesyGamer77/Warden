@@ -28,7 +28,7 @@ export default class NameSanitizerModule {
      * @param member The member who's name should be sanitized
      */
     static async sanitize(member: GuildMember) {
-        const channel = await LoggingModule.fetchLogChannel(LogEventType.USER_FILTER, member.guild);
+        const channel = await LoggingModule.fetchLogChannel('userFilter', member.guild);
         if(channel == null) return;
 
         const name = member.displayName;

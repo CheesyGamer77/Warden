@@ -14,7 +14,7 @@ const client = new Client({intents: [
 client.once('ready', () => console.log('Ready'));
 
 client.on('guildMemberAdd', async (member) => {
-    const channel = await LoggingModule.fetchLogChannel(LogEventType.JOINS, member.guild);
+    const channel = await LoggingModule.fetchLogChannel('joins', member.guild);
 
     const user = member.user;
 
@@ -31,7 +31,7 @@ client.on('guildMemberAdd', async (member) => {
 });
 
 client.on('guildMemberRemove', async (member) => {
-    const channel = await LoggingModule.fetchLogChannel(LogEventType.LEAVES, member.guild);
+    const channel = await LoggingModule.fetchLogChannel('leaves', member.guild);
 
     const user = member.user;
 
