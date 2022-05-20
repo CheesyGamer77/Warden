@@ -1,8 +1,7 @@
-import { PrismaClient } from '@prisma/client';
-import { Client, Formatters, Intents } from 'discord.js';
+import { Client, Formatters, Intents, Role } from 'discord.js';
 import config from '../config.json';
 import NameSanitizerModule from './modules/automod/NameSanitizer';
-import LoggingModule, { LogEventType } from './modules/logging/LoggingModule';
+import LoggingModule from './modules/logging/LoggingModule';
 import { getEmbedWithTarget } from './util/EmbedUtil';
 
 const client = new Client({intents: [
@@ -62,6 +61,7 @@ client.on('guildMemberUpdate', async (before, after) => {
 
     const channel = await LoggingModule.fetchLogChannel('userChanges', after.guild);
 
+    // check nickname
     if(before.displayName != after.displayName) {
         // check if nickname was added, changed, or removed
         const username = after.user.username;
@@ -118,6 +118,77 @@ client.on('guildMemberUpdate', async (before, after) => {
         // sanitize said nickname
         await NameSanitizerModule.sanitize(after);
     }
+
+    // check if roles were changed
+    const oldRoles = before.roles.cache;
+    const newRoles = after.roles.cache;
+    if(oldRoles.difference(newRoles).size != 0) {
+        const addedRoles = newRoles.filter(role => !oldRoles.has(role.id));
+        const removedRoles = oldRoles.filter(role => !newRoles.has(role.id));
+
+        let embeds = [];
+        if(addedRoles.size > 0) {
+            const count = addedRoles.size;
+
+            let title, descriptor;
+            if(count == 1) {
+                title = 'Role Added';
+                descriptor = 'a role';
+            }
+            else {
+                title = `Roles Added [${count}]`;
+                descriptor = `${count} roles`;
+            }
+
+            // get string of role mentions
+            const mentions = Array.from(
+                addedRoles.sorted((string, role) => role.position)
+                .values())
+                .map(role => `${role.toString()}`)
+                .join(' ');
+            
+            embeds.push(getEmbedWithTarget(after.user)
+                .setTitle(title)
+                .setDescription(`${after.toString()} had ${descriptor} added`)
+                .setColor(0x1f8b4c)
+                .addField('Roles', mentions)
+            );
+        }
+
+        if(removedRoles.size > 0) {
+            const count = removedRoles.size;
+
+            let title, descriptor;
+            if(count == 1) {
+                title = 'Role Removed';
+                descriptor = 'a role';
+            }
+            else {
+                title = `Roles Removed ${count}`;
+                descriptor = `${count} roles`;
+            }
+
+            // get string of role mentions
+            const mentions = Array.from(
+                removedRoles.sorted((string, role) => role.position)
+                .values())
+                .map(role => `${role.toString()}`)
+                .join(' ');
+
+            embeds.push(getEmbedWithTarget(after.user)
+                .setTitle(title)
+                .setDescription(`${after.toString()} had ${descriptor} removed`)
+                .setColor(0xed4245)
+                .addField('Roles', mentions)
+            );
+        }
+
+        await channel?.send({
+            content: after.id,
+            embeds: embeds
+        });
+    }
+    
 });
 
 client.login(config.token);
