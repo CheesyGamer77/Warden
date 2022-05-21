@@ -14,5 +14,4 @@ model LogConfig {
   textFilterChannelId String?
   userFilterChannelId String?
   userChangesChannelId String?
-  textFilterChannelId String?
 }
