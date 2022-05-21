@@ -11,6 +11,7 @@ model LogConfig {
   guildId         String  @id
   joinsChannelId  String?
   leavesChannelId String?
+  textFilterChannelId String?
   userFilterChannelId String?
   userChangesChannelId String?
   textFilterChannelId String?
