@@ -90,7 +90,7 @@ export async function onGuildMemberUpdate(before: GuildMember | PartialGuildMemb
 
             // get string of role mentions
             const mentions = Array.from(
-                addedRoles.sorted((string, role) => role.position)
+                addedRoles.sorted((_, role) => role.position)
                 .values())
                 .map(role => `${role.toString()}`)
                 .join(' ');
@@ -134,6 +134,21 @@ export async function onGuildMemberUpdate(before: GuildMember | PartialGuildMemb
         await channel?.send({
             content: after.id,
             embeds: embeds
+        });
+    }
+
+    // check guild avatar
+    const avatarURL = after.displayAvatarURL();
+    if(before.displayAvatarURL() != avatarURL) {
+        const embed = getEmbedWithTarget(after.user)
+            .setTitle('Display Avatar Changed')
+            .setDescription(`${after.toString()} had their display avatar changed`)
+            .setColor(0xf1c40f)
+            .setThumbnail(avatarURL);
+        
+        await channel?.send({
+            content: after.id,
+            embeds: [ embed ]
         });
     }
 }
