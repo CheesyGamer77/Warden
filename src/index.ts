@@ -1,8 +1,6 @@
-import { Client, Formatters, Intents, MessageEmbed } from 'discord.js';
+import { Client, Intents } from 'discord.js';
 import config from '../config.json';
-import NameSanitizerModule from './modules/automod/NameSanitizer';
-import LoggingModule, { LogEventType } from './modules/logging/LoggingModule';
-import { getEmbedWithTarget } from './util/EmbedUtil';
+import * as handlers from './handlers';
 
 const client = new Client({intents: [
     Intents.FLAGS.GUILDS,
@@ -14,50 +12,15 @@ const client = new Client({intents: [
 client.once('ready', () => console.log('Ready'));
 
 client.on('guildMemberAdd', async (member) => {
-    const channel = await LoggingModule.fetchLogChannel(LogEventType.JOINS, member.guild);
-
-    const user = member.user;
-
-    const embed = getEmbedWithTarget(user)
-        .setTitle('Member Joined')
-        .setDescription(user.toString() + ' joined the server')
-        .setColor(0x1f8b4c)
-        .addField('Account Created', Formatters.time(user.createdAt, 'R'))
-
-    await channel?.send({
-        content: user.id,
-        embeds: [ embed ] 
-    });
+    await handlers.onGuildMemberAdd(member);
 });
 
 client.on('guildMemberRemove', async (member) => {
-    const channel = await LoggingModule.fetchLogChannel(LogEventType.LEAVES, member.guild);
-
-    const user = member.user;
-
-    const embed = getEmbedWithTarget(user)
-        .setTitle('Member Left')
-        .setDescription(user.toString() + ' left the server')
-        .setColor(0xed4245)
-    
-    // a removed member's joined at timestamp has the potential to be null
-    let memberSince: string;
-    if(member.joinedAt != null)
-        memberSince = Formatters.time(member.joinedAt, 'R');
-    else
-        memberSince = "Unknown";
-    
-    embed.addField('Member Since', memberSince);
-
-    await channel?.send({
-        content: user.id,
-        embeds: [ embed ]
-    });
+    await handlers.onGuildMemberRemove(member);
 });
 
 client.on('guildMemberUpdate', async (before, after) => {
-    if(!before.partial && before.displayName != after.displayName)
-        await NameSanitizerModule.sanitize(after);
-})
+    await handlers.onGuildMemberUpdate(before, after);
+});
 
 client.login(config.token);

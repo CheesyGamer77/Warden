@@ -12,4 +12,5 @@ model LogConfig {
   joinsChannelId  String?
   leavesChannelId String?
   userFilterChannelId String?
+  userChangesChannelId String?
 }

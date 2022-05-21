@@ -3,11 +3,7 @@ import { Guild, Permissions, TextChannel } from "discord.js";
 
 const prisma = new PrismaClient();
 
-export enum LogEventType {
-    JOINS,
-    LEAVES,
-    USER_FILTER
-}
+export type LogEventType = 'joins' | 'leaves' | 'userFilter' | 'userChanges';
 
 export default class LoggingModule {
     /**
@@ -50,24 +46,8 @@ export default class LoggingModule {
     static async fetchLogChannel(event: LogEventType, guild: Guild): Promise<TextChannel | null> {
         // fetch the guild's configuration
         const config = await this.fetchLogConfiguration(guild);
-
-        // set appropriate channel id
-        // TODO: This is messy
-        let channelId: string | null;
-        switch(event) {
-            case LogEventType.JOINS:
-                channelId = config.joinsChannelId;
-                break;
-            case LogEventType.LEAVES:
-                channelId = config.leavesChannelId;
-                break;
-            case LogEventType.USER_FILTER:
-                channelId = config.userFilterChannelId;
-                break;
-            default:
-                channelId = null;
-                break;
-        }
+    
+        const channelId = config[event + 'ChannelId' as keyof LogConfig];
 
         // resolve the said log text channel
         if(channelId != null) {
