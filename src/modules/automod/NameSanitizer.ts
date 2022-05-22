@@ -1,7 +1,7 @@
 import { GuildMember, Permissions } from 'discord.js';
 import replacements from '../../../data/fancy_replacements.json'
 import { getEmbedWithTarget } from '../../util/EmbedUtil';
-import LoggingModule, { LogEventType } from '../logging/LoggingModule';
+import LoggingModule from '../logging/LoggingModule';
 
 let fancy_replacements = new Map<string, string>();
 for(const pair of Object.entries(replacements)) {
