@@ -11,14 +11,14 @@ export async function onGuildMemberRemove(member: GuildMember | PartialGuildMemb
         .setTitle('Member Left')
         .setDescription(user.toString() + ' left the server')
         .setColor(0xed4245)
-    
+
     // a removed member's joined at timestamp has the potential to be null
     let memberSince: string;
     if(member.joinedAt != null)
         memberSince = Formatters.time(member.joinedAt, 'R');
     else
         memberSince = 'Unknown';
-    
+
     embed.addField('Member Since', memberSince);
 
     await channel?.send({

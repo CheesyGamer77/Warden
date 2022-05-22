@@ -57,7 +57,7 @@ export async function onGuildMemberUpdate(before: GuildMember | PartialGuildMemb
             .setTitle(title)
             .setDescription(`${after.toString()} ${action} their nickname`)
             .setColor(color);
-            
+
         await channel?.send({
             content: after.id,
             embeds: [ embed ]
@@ -94,7 +94,7 @@ export async function onGuildMemberUpdate(before: GuildMember | PartialGuildMemb
                 .values())
                 .map(role => `${role.toString()}`)
                 .join(' ');
-            
+
             embeds.push(getEmbedWithTarget(after.user)
                 .setTitle(title)
                 .setDescription(`${after.toString()} had ${descriptor} added`)
@@ -145,7 +145,7 @@ export async function onGuildMemberUpdate(before: GuildMember | PartialGuildMemb
             .setDescription(`${after.toString()} had their display avatar changed`)
             .setColor(0xf1c40f)
             .setThumbnail(avatarURL);
-        
+
         await channel?.send({
             content: after.id,
             embeds: [ embed ]

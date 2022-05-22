@@ -15,6 +15,6 @@ export async function onGuildMemberAdd(member: GuildMember) {
 
     await channel?.send({
         content: user.id,
-        embeds: [ embed ] 
+        embeds: [ embed ]
     });
 }

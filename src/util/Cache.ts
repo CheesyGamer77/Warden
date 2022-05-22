@@ -21,13 +21,13 @@ export default class Cache<K, V> {
     /**
      * Returns the cache entry at a particular key if it exists, undefined otherwise
      * @param key The key to return the cache entry of
-     * @returns 
+     * @returns
      */
     getEntry(key: K): CacheEntry<V> | undefined {
         const entry = this.data.get(key);
         if(entry != undefined)
             return this.isValid(entry) ? entry : undefined;
-        
+
         return undefined;
     }
 
@@ -71,7 +71,7 @@ export default class Cache<K, V> {
         return now >= entry.lastModified.getUTCSeconds()
     }
 
-    private checkContents() {    
+    private checkContents() {
         this.data.forEach((v, k) => {
             if(!this.isValid(v)) this.data.delete(k);
         });
