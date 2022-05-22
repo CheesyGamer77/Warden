@@ -1,6 +1,6 @@
-import LoggingModule from "../modules/logging/LoggingModule";
-import { getEmbedWithTarget } from "../util/EmbedUtil";
-import { GuildMember, Formatters, PartialGuildMember } from "discord.js";
+import LoggingModule from '../modules/logging/LoggingModule';
+import { getEmbedWithTarget } from '../util/EmbedUtil';
+import { GuildMember, Formatters, PartialGuildMember } from 'discord.js';
 
 export async function onGuildMemberRemove(member: GuildMember | PartialGuildMember) {
     const channel = await LoggingModule.fetchLogChannel('leaves', member.guild);

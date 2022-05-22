@@ -1,5 +1,5 @@
-import { PrismaClient, LogConfig } from "@prisma/client";
-import { Guild, Permissions, TextChannel } from "discord.js";
+import { PrismaClient, LogConfig } from '@prisma/client';
+import { Guild, Permissions, TextChannel } from 'discord.js';
 
 const prisma = new PrismaClient();
 

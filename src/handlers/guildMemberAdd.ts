@@ -1,6 +1,6 @@
-import { GuildMember, Formatters } from "discord.js";
-import LoggingModule from "../modules/logging/LoggingModule";
-import { getEmbedWithTarget } from "../util/EmbedUtil";
+import { GuildMember, Formatters } from 'discord.js';
+import LoggingModule from '../modules/logging/LoggingModule';
+import { getEmbedWithTarget } from '../util/EmbedUtil';
 
 export async function onGuildMemberAdd(member: GuildMember) {
     const channel = await LoggingModule.fetchLogChannel('joins', member.guild);
