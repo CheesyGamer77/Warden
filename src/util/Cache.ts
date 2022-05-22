@@ -21,7 +21,7 @@ export default class Cache<K, V> {
     /**
      * Returns the cache entry at a particular key if it exists, undefined otherwise
      * @param key The key to return the cache entry of
-     * @returns
+     * @returns The CacheEntry object at the given key
      */
     getEntry(key: K): CacheEntry<V> | undefined {
         const entry = this.data.get(key);
