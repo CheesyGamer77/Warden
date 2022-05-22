@@ -1,5 +1,5 @@
-import { PrismaClient, LogConfig } from "@prisma/client";
-import { Guild, Permissions, TextChannel } from "discord.js";
+import { PrismaClient, LogConfig } from '@prisma/client';
+import { Guild, Permissions, TextChannel } from 'discord.js';
 
 const prisma = new PrismaClient();
 
@@ -7,7 +7,7 @@ export type LogEventType = 'joins' | 'leaves' | 'userFilter' | 'userChanges';
 
 export default class LoggingModule {
     /**
-     * Creates a blank logging configuration 
+     * Creates a blank logging configuration
      * @param guild The guild to create the blank log configuration of
      */
     static async createBlankLogConfiguration(guild: Guild): Promise<LogConfig> {
@@ -21,7 +21,7 @@ export default class LoggingModule {
 
     /**
      * Fetches a guild's logging configuration.
-     * 
+     *
      * This will create a new blank configuration in the event that the config is not found.
      * @param guild The guild to fetch the config of
      * @returns The configuration
@@ -46,13 +46,13 @@ export default class LoggingModule {
     static async fetchLogChannel(event: LogEventType, guild: Guild): Promise<TextChannel | null> {
         // fetch the guild's configuration
         const config = await this.fetchLogConfiguration(guild);
-    
+
         const channelId = config[event + 'ChannelId' as keyof LogConfig];
 
         // resolve the said log text channel
         if(channelId != null) {
             const channel = guild.channels.cache.get(channelId);
-            
+
             // text channel guard clause
             if(channel?.type != 'GUILD_TEXT') return null;
 
