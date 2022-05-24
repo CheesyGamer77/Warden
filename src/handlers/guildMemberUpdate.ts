@@ -1,7 +1,7 @@
 import { GuildMember, PartialGuildMember } from 'discord.js';
 import LoggingModule from '../modules/logging/LoggingModule';
 import NameSanitizerModule from '../modules/automod/NameSanitizer';
-import { getEmbedWithTarget } from '../util/EmbedUtil';
+import { getEmbedWithTarget } from '../util/embed';
 
 export async function onGuildMemberUpdate(before: GuildMember | PartialGuildMember, after: GuildMember) {
     // don't compare uncached members to new state

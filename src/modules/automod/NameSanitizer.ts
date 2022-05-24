@@ -1,6 +1,6 @@
 import { GuildMember, Permissions } from 'discord.js';
 import replacements from '../../../data/fancy_replacements.json'
-import { getEmbedWithTarget } from '../../util/EmbedUtil';
+import { getEmbedWithTarget } from '../../util/embed';
 import LoggingModule from '../logging/LoggingModule';
 
 let fancy_replacements = new Map<string, string>();

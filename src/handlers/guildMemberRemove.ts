@@ -1,5 +1,5 @@
 import LoggingModule from "../modules/logging/LoggingModule";
-import { getEmbedWithTarget } from "../util/EmbedUtil";
+import { getEmbedWithTarget } from "../util/embed";
 import { GuildMember, Formatters, PartialGuildMember } from "discord.js";
 
 export async function onGuildMemberRemove(member: GuildMember | PartialGuildMember) {
