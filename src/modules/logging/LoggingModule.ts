@@ -1,6 +1,7 @@
-import { PrismaClient, LogConfig } from "@prisma/client";
-import { Guild, Permissions, TextChannel } from "discord.js";
-import { canMessage } from "../../util/checks";
+import { PrismaClient, LogConfig } from '@prisma/client';
+import { Guild, TextChannel, Formatters, GuildMember, Message } from 'discord.js';
+import { canMessage } from '../../util/checks';
+import { getEmbedWithTarget } from '../../util/embed';
 
 const prisma = new PrismaClient();
 
@@ -58,5 +59,22 @@ export default class LoggingModule {
         }
 
         return null;
+    }
+
+    static async logMemberJoined(member: GuildMember) {
+        const channel = await this.fetchLogChannel('joins', member.guild);
+
+        const user = member.user;
+
+        const embed = getEmbedWithTarget(user)
+            .setTitle('Member Joined')
+            .setDescription(user.toString() + ' joined the server')
+            .setColor(0x1f8b4c)
+            .addField('Account Created', Formatters.time(user.createdAt, 'R'))
+
+        await channel?.send({
+            content: user.id,
+            embeds: [ embed ]
+        });
     }
 }
