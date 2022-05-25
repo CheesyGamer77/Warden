@@ -1,5 +1,5 @@
 import { PrismaClient, LogConfig } from '@prisma/client';
-import { Guild, TextChannel, Formatters, GuildMember, Message } from 'discord.js';
+import { Guild, TextChannel, Formatters, GuildMember, PartialGuildMember } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 
@@ -71,6 +71,31 @@ export default class LoggingModule {
             .setDescription(user.toString() + ' joined the server')
             .setColor(0x1f8b4c)
             .addField('Account Created', Formatters.time(user.createdAt, 'R'))
+
+        await channel?.send({
+            content: user.id,
+            embeds: [ embed ]
+        });
+    }
+
+    static async logMemberLeft(member: GuildMember | PartialGuildMember) {
+        const channel = await LoggingModule.fetchLogChannel('leaves', member.guild);
+
+        const user = member.user;
+
+        const embed = getEmbedWithTarget(user)
+            .setTitle('Member Left')
+            .setDescription(user.toString() + ' left the server')
+            .setColor(0xed4245)
+
+        // a removed member's joined at timestamp has the potential to be null
+        let memberSince: string;
+        if(member.joinedAt != null)
+            memberSince = Formatters.time(member.joinedAt, 'R');
+        else
+            memberSince = 'Unknown';
+
+        embed.addField('Member Since', memberSince);
 
         await channel?.send({
             content: user.id,
