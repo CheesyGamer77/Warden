@@ -1,4 +1,4 @@
-import { Guild, GuildBasedChannel, GuildMember, Permissions } from 'discord.js';
+import { Guild, GuildBasedChannel, GuildMember, Message, Permissions } from 'discord.js';
 
 /**
  * Returns whether a given member is the owner of the provided guild
@@ -50,4 +50,17 @@ export function canMessage(channel: GuildBasedChannel | null): boolean {
     ];
 
     return channel?.guild.me?.permissionsIn(channel).has(requiredPermissions) ?? false;
+}
+
+/**
+ * Returns whether the bot can delete the specified message
+ * @param message The message to be deleted
+ * @returns Whether the message is able to be deleted by the bot or not
+ */
+export function canDelete(message: Message): boolean {
+    if(message.channel.type == 'DM') {
+        return message.author.id == message.client.user?.id ?? false;
+    }
+
+    return message.guild?.me?.permissionsIn(message.channel).has(Permissions.FLAGS.MANAGE_MESSAGES) ?? false;
 }
