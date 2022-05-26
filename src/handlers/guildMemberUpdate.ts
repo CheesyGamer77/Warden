@@ -1,7 +1,47 @@
-import { GuildMember, PartialGuildMember } from 'discord.js';
+import { Collection, GuildMember, MessageEmbed, PartialGuildMember, Role } from 'discord.js';
 import LoggingModule from '../modules/logging/LoggingModule';
 import NameSanitizerModule from '../modules/automod/NameSanitizer';
 import { getEmbedWithTarget } from '../util/embed';
+
+function displayNameHasChanged(before: GuildMember, after: GuildMember) {
+    return before.displayName != after.displayName;
+}
+
+function displayNameUpdateType(before: string | null, after: string | null): 'SET' | 'CHANGED' | 'CLEARED' {
+    if(before == null && after != null)
+        return 'SET';
+    else if(before != null && after == null)
+        return 'CLEARED';
+    return 'CHANGED';
+}
+
+function getSortedRoleMentions(roles: Collection<string, Role>): string {
+    return Array.from(
+        roles.sorted((_, role) => role.position)
+        .values())
+        .map(role => `${role.toString()}`)
+        .join(' ');
+}
+
+function getRoleUpdateEmbed(member: GuildMember, roles: Collection<string, Role>, action: 'Added' | 'Removed'): MessageEmbed {
+    let title, descriptor;
+
+    const count = roles.size;
+    if(count == 1) {
+        title = `Role ${action}`;
+        descriptor = 'a role';
+    }
+    else {
+        title = `Roles ${action} [${count}]`;
+        descriptor = `${count} roles`;
+    }
+
+    return getEmbedWithTarget(member.user)
+        .setTitle(title)
+        .setDescription(`${member.toString()} had ${descriptor} ${action.toLowerCase()}`)
+        .setColor(action == 'Added' ? 'GREEN' : 'RED')
+        .addField('Roles', getSortedRoleMentions(roles));
+}
 
 export async function onGuildMemberUpdate(before: GuildMember | PartialGuildMember, after: GuildMember) {
     // don't compare uncached members to new state
@@ -9,30 +49,29 @@ export async function onGuildMemberUpdate(before: GuildMember | PartialGuildMemb
 
     const channel = await LoggingModule.fetchLogChannel('userChanges', after.guild);
 
-    // check nickname
-    if(before.displayName != after.displayName) {
-        // check if nickname was added, changed, or removed
-        const username = after.user.username;
-        const oldNick = before.displayName === username ? null : before.displayName;
-        const newNick = after.displayName === username ? null : after.displayName;
+    if(displayNameHasChanged(before, after)) {
+        const oldNick = before.nickname;
+        const newNick = after.nickname;
+        const updateType = displayNameUpdateType(oldNick, newNick);
 
+        // check if nickname was added, changed, or removed
         let title: string, action: string, color: number;
         let embed = getEmbedWithTarget(after.user);
-        if(oldNick == null && newNick != null) {
-            // nickname added
+        if(updateType == 'SET') {
+            // nickname set
             title = 'Nickname Set';
             action = 'set';
             color = 0x1f8b4c;
 
-            embed.addField('Nickname', newNick);
+            embed.addField('Nickname', newNick ?? after.user.username);
         }
-        else if(oldNick != null && newNick == null) {
+        else if(updateType == 'CLEARED') {
             // nickname cleared
             title = 'Nickname Cleared'
             action = 'cleared';
             color = 0xf1c40f;
 
-            embed.addField('Original Nickname', oldNick);
+            embed.addField('Original Nickname', oldNick ?? before.user.username);
         }
         else {
             // neither null guard clause
@@ -64,6 +103,7 @@ export async function onGuildMemberUpdate(before: GuildMember | PartialGuildMemb
         });
 
         // sanitize said nickname
+        // TODO: add filter configuration for this
         await NameSanitizerModule.sanitize(after);
     }
 
@@ -76,59 +116,11 @@ export async function onGuildMemberUpdate(before: GuildMember | PartialGuildMemb
 
         let embeds = [];
         if(addedRoles.size > 0) {
-            const count = addedRoles.size;
-
-            let title, descriptor;
-            if(count == 1) {
-                title = 'Role Added';
-                descriptor = 'a role';
-            }
-            else {
-                title = `Roles Added [${count}]`;
-                descriptor = `${count} roles`;
-            }
-
-            // get string of role mentions
-            const mentions = Array.from(
-                addedRoles.sorted((_, role) => role.position)
-                .values())
-                .map(role => `${role.toString()}`)
-                .join(' ');
-
-            embeds.push(getEmbedWithTarget(after.user)
-                .setTitle(title)
-                .setDescription(`${after.toString()} had ${descriptor} added`)
-                .setColor(0x1f8b4c)
-                .addField('Roles', mentions)
-            );
+            embeds.push(getRoleUpdateEmbed(after, addedRoles, 'Added'));
         }
 
         if(removedRoles.size > 0) {
-            const count = removedRoles.size;
-
-            let title, descriptor;
-            if(count == 1) {
-                title = 'Role Removed';
-                descriptor = 'a role';
-            }
-            else {
-                title = `Roles Removed ${count}`;
-                descriptor = `${count} roles`;
-            }
-
-            // get string of role mentions
-            const mentions = Array.from(
-                removedRoles.sorted((string, role) => role.position)
-                .values())
-                .map(role => `${role.toString()}`)
-                .join(' ');
-
-            embeds.push(getEmbedWithTarget(after.user)
-                .setTitle(title)
-                .setDescription(`${after.toString()} had ${descriptor} removed`)
-                .setColor(0xed4245)
-                .addField('Roles', mentions)
-            );
+            embeds.push(getRoleUpdateEmbed(after, removedRoles, 'Removed'));
         }
 
         await channel?.send({
