@@ -8,6 +8,14 @@ const prisma = new PrismaClient();
 
 export type LogEventType = 'joins' | 'leaves' | 'userFilter' | 'userChanges' | 'textFilter' | 'escalations';
 
+interface LogMemberTimeoutOptions {
+    target: GuildMember;
+    moderator: GuildMember | undefined;
+    reason: string | undefined;
+    until: Date;
+    channelType: 'escalations';
+}
+
 export default class LoggingModule {
     private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(15 * 1000 * 60);
 
@@ -126,6 +134,29 @@ export default class LoggingModule {
 
         await channel?.send({
             content: message.author.id,
+            embeds: [ embed ]
+        });
+    }
+
+    static async logMemberTimeout(opts: LogMemberTimeoutOptions) {
+        const target = opts.target;
+        const until = opts.until;
+
+        const channel = await this.fetchLogChannel(opts.channelType, target.guild);
+
+        const embed = getEmbedWithTarget(target.user)
+            .setTitle('User in Timeout')
+            .setDescription(`${target.toString()} was put in timeout until ${Formatters.time(until, 'F')}`)
+            .setColor('ORANGE');
+
+        const mod = opts.moderator;
+        if(mod != undefined)
+            embed.addField('Moderator', `${mod.toString()} \`(${mod.id})\``);
+
+        embed.addField('Reason', opts.reason ?? 'No Reason Given');
+
+        await channel?.send({
+            content: target.id,
             embeds: [ embed ]
         });
     }
