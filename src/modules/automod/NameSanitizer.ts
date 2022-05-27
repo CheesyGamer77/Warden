@@ -11,7 +11,7 @@ for(const pair of Object.entries(replacements)) {
 
 export default class NameSanitizerModule {
     private static cleanFancyText(content: string): string {
-        let sanitized = "";
+        let sanitized = '';
 
         for(const char of content) {
             sanitized = sanitized.concat(fancy_replacements.get(char) ?? char);
@@ -35,7 +35,7 @@ export default class NameSanitizerModule {
         const name = member.displayName;
         let sanitized = this.cleanFancyText(name);
         if(name != sanitized && this.canOverwriteName(member)) {
-            if(sanitized.trim() === '') sanitized = "Nickname";
+            if(sanitized.trim() === '') sanitized = 'Nickname';
 
 
             const reason = 'Sanitizing Nickname';
