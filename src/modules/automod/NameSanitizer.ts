@@ -1,7 +1,8 @@
 import { GuildMember, Permissions } from 'discord.js';
 import replacements from '../../../data/fancy_replacements.json'
-import { getEmbedWithTarget } from '../../util/EmbedUtil';
-import LoggingModule, { LogEventType } from '../logging/LoggingModule';
+import { canModerate } from '../../util/checks';
+import { getEmbedWithTarget } from '../../util/embed';
+import LoggingModule from '../logging/LoggingModule';
 
 let fancy_replacements = new Map<string, string>();
 for(const pair of Object.entries(replacements)) {
@@ -29,14 +30,15 @@ export default class NameSanitizerModule {
      */
     static async sanitize(member: GuildMember) {
         const channel = await LoggingModule.fetchLogChannel('userFilter', member.guild);
-        if(channel == null) return;
+        if(channel == null || !canModerate(member.guild.me, member)) return;
 
         const name = member.displayName;
         let sanitized = this.cleanFancyText(name);
-        const reason = 'Sanitizing Nickname';
         if(name != sanitized && this.canOverwriteName(member)) {
             if(sanitized.trim() === '') sanitized = 'Nickname';
 
+
+            const reason = 'Sanitizing Nickname';
             await member.edit({ nick: sanitized }, reason);
 
             await channel.send({

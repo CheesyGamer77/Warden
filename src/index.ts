@@ -23,4 +23,8 @@ client.on('guildMemberUpdate', async (before, after) => {
     await handlers.onGuildMemberUpdate(before, after);
 });
 
+client.on('messageCreate', async (message) => {
+    await handlers.onMessageCreate(message);
+});
+
 client.login(config.token);
