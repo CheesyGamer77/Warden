@@ -47,10 +47,10 @@ export function canModerate(member: GuildMember | undefined | null, target: Guil
     if(member.id == target.id) return false;
 
     // owners can always moderate other members
-    if(isGuildOwner(member, guild)) return true;
+    if(isGuildOwner(member)) return true;
 
     // but other members can never moderate owners
-    if(isGuildOwner(target, guild)) return false;
+    if(isGuildOwner(target)) return false;
 
     // in all other cases, the ability to moderate depends on the member/target's top role position
     return member.roles.highest.position > target.roles.highest.position;
