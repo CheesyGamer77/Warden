@@ -6,7 +6,7 @@ import ExpiryMap from 'expiry-map';
 
 const prisma = new PrismaClient();
 
-export type LogEventType = 'joins' | 'leaves' | 'userFilter' | 'userChanges';
+export type LogEventType = 'joins' | 'leaves' | 'userFilter' | 'userChanges' | 'textFilter' | 'escalations';
 
 export default class LoggingModule {
     private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(15 * 1000 * 60);
@@ -74,7 +74,7 @@ export default class LoggingModule {
         const embed = getEmbedWithTarget(user)
             .setTitle('Member Joined')
             .setDescription(user.toString() + ' joined the server')
-            .setColor(0x1f8b4c)
+            .setColor('GREEN')
             .addField('Account Created', Formatters.time(user.createdAt, 'R'))
 
         await channel?.send({
@@ -84,14 +84,14 @@ export default class LoggingModule {
     }
 
     static async logMemberLeft(member: GuildMember | PartialGuildMember) {
-        const channel = await LoggingModule.fetchLogChannel('leaves', member.guild);
+        const channel = await this.fetchLogChannel('leaves', member.guild);
 
         const user = member.user;
 
         const embed = getEmbedWithTarget(user)
             .setTitle('Member Left')
             .setDescription(user.toString() + ' left the server')
-            .setColor(0xed4245)
+            .setColor('RED')
 
         // a removed member's joined at timestamp has the potential to be null
         let memberSince: string;
