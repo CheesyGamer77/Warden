@@ -3,6 +3,7 @@ import { createHash } from 'crypto';
 import { canDelete } from '../../util/checks';
 import LoggingModule from '../logging/LoggingModule';
 import ExpiryMap from 'expiry-map';
+import UserReputation from './UserReputation';
 
 interface MessageReference {
     readonly guildId: string;
@@ -54,8 +55,11 @@ export default class AntiSpamModule {
     }
 
     private static async deleteSpamMessage(message: Message) {
+        if(message.member == null) return;
+
         const deletedMessage = await message.delete();
         await LoggingModule.logMemberSpamming(deletedMessage);
+        await UserReputation.modifyReputation(message.member, -0.2);
     }
 
     private static async timeoutMember(member: GuildMember | null, instances: number) {
@@ -72,10 +76,11 @@ export default class AntiSpamModule {
             until: until,
             channelType: 'escalations'
         });
+        await UserReputation.modifyReputation(member, -0.3);  // -0.5 total each time they're muted hereafter
     }
 
     static async process(message: Message) {
-        if(message.guild == null || message.author.bot) return;
+        if(message.guild == null || message.author.bot || message.member == null) return;
 
         const entry = this.setAndGet(message);
         const count = entry.count;
@@ -86,6 +91,9 @@ export default class AntiSpamModule {
                 if(message.member?.moderatable)
                     await this.timeoutMember(message.member, count);
             }
+        }
+        else {
+            await UserReputation.modifyReputation(message.member, 0.035);
         }
     }
 }
