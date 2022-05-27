@@ -3,7 +3,6 @@ import { createHash } from 'crypto';
 import { canDelete } from '../../util/checks';
 import LoggingModule from '../logging/LoggingModule';
 import ExpiryMap from 'expiry-map';
-import { getEmbedWithTarget } from '../../util/embed';
 
 interface MessageReference {
     readonly guildId: string;
@@ -63,7 +62,7 @@ export default class AntiSpamModule {
         if(member == null || member.guild.me == null) return;
 
         const reason = `Spamming (${instances} instances)`;
-        const until = Date.now() + (2 * instances - 4 * 60 * 1000);
+        const until = Date.now() + (60 * 1000);
 
         await member.disableCommunicationUntil(until, reason);
         await LoggingModule.logMemberTimeout({
