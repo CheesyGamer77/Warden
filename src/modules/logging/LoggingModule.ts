@@ -146,7 +146,7 @@ export default class LoggingModule {
 
         const embed = getEmbedWithTarget(target.user)
             .setTitle('User in Timeout')
-            .setDescription(`${target.toString()} was put in timeout until ${Formatters.time(until, 'F')}`)
+            .setDescription(`${target.toString()} was put in timeout for ${Formatters.time(until, 'R')} (until ${Formatters.time(until, 'F')})`)
             .setColor('ORANGE');
 
         const mod = opts.moderator;
