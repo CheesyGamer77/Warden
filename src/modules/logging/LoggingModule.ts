@@ -136,7 +136,7 @@ export default class LoggingModule {
 
     static async logMemberTimeout(opts: LogMemberTimeoutOptions) {
         const target = opts.target;
-        const until = opts.until;
+        const until = new Date(opts.until);
 
         const channel = await this.fetchLogChannel(opts.channelType, target.guild);
 
