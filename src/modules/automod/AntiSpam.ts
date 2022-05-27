@@ -1,4 +1,4 @@
-import { GuildMember, Message } from 'discord.js';
+import { GuildMember, Message, Permissions } from 'discord.js';
 import { createHash } from 'crypto';
 import { canDelete } from '../../util/checks';
 import LoggingModule from '../logging/LoggingModule';
@@ -19,7 +19,7 @@ interface AntiSpamEntry {
 }
 
 export default class AntiSpamModule {
-    private static cache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(10 * 1000 * 60);
+    private static cache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(5 * 1000 * 60);
 
     private static getContentHash(message: Message) {
         return createHash('md5').update(message.content.toLowerCase()).digest('hex');
@@ -79,8 +79,14 @@ export default class AntiSpamModule {
         await UserReputation.modifyReputation(member, -0.3);  // -0.5 total each time they're muted hereafter
     }
 
+    private static shouldIgnore(message: Message): boolean {
+        if(message.guild == null || message.author.bot || message.channel.type == 'DM') return true;
+
+        return message.member?.permissionsIn(message.channel).has(Permissions.FLAGS.MANAGE_MESSAGES) ?? false;
+    }
+
     static async process(message: Message) {
-        if(message.guild == null || message.author.bot || message.member == null) return;
+        if(this.shouldIgnore(message) || message.member == null) return;
 
         const entry = this.setAndGet(message);
         const count = entry.count;

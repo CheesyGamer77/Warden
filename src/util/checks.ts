@@ -3,11 +3,29 @@ import { Guild, GuildBasedChannel, GuildMember, Message, Permissions } from 'dis
 /**
  * Returns whether a given member is the owner of the provided guild
  * @param member The member to check if they're owner
- * @param guild The guild to check if the member is the owner of
  * @returns Whether the member is the owner of the guild or not
  */
-export function isGuildOwner(member: GuildMember, guild: Guild): boolean {
-    return guild.ownerId != member.id;
+export function isGuildOwner(member: GuildMember): boolean {
+    return member.guild.ownerId == member.id
+}
+
+/**
+ * Returns whether a member has the following permissions:
+ * - `MANAGE_MESSAGES`
+ * - `MODERATE_MEMBERS`
+ * - `KICK_MEMBERS`
+ * - `BAN_MEMBERS`
+ * @param member The member to check if they're considered to be a guild moderator
+ * @returns Whether the member has the above permissions or not
+ */
+export function isGuildModerator(member: GuildMember) {
+    const flags = Permissions.FLAGS;
+    return member.permissions.any([
+        flags.MANAGE_MESSAGES,
+        flags.MODERATE_MEMBERS,
+        flags.KICK_MEMBERS,
+        flags.BAN_MEMBERS
+    ]);
 }
 
 /**
@@ -29,10 +47,10 @@ export function canModerate(member: GuildMember | undefined | null, target: Guil
     if(member.id == target.id) return false;
 
     // owners can always moderate other members
-    if(isGuildOwner(member, guild)) return true;
+    if(isGuildOwner(member)) return true;
 
     // but other members can never moderate owners
-    if(isGuildOwner(target, guild)) return false;
+    if(isGuildOwner(target)) return false;
 
     // in all other cases, the ability to moderate depends on the member/target's top role position
     return member.roles.highest.position > target.roles.highest.position;
