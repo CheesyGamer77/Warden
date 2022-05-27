@@ -12,18 +12,14 @@ interface LogMemberTimeoutOptions {
     target: GuildMember;
     moderator: GuildMember | undefined;
     reason: string | undefined;
-    until: Date;
+    until: number;
     channelType: 'escalations';
 }
 
 export default class LoggingModule {
     private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(15 * 1000 * 60);
 
-    /**
-     * Creates a blank logging configuration
-     * @param guild The guild to create the blank log configuration of
-     */
-    static async createBlankLogConfiguration(guild: Guild): Promise<LogConfig> {
+    private static async createBlankLogConfiguration(guild: Guild): Promise<LogConfig> {
         const data = await prisma.logConfig.create({
             data: {
                 guildId: guild.id
