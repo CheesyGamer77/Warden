@@ -64,3 +64,15 @@ export function canDelete(message: Message): boolean {
 
     return message.guild?.me?.permissionsIn(message.channel).has(Permissions.FLAGS.MANAGE_MESSAGES) ?? false;
 }
+
+/**
+ * Returns whether the bot can purge messages from a specific channel
+ * @param channel The channel to check if the bot can purge messages in
+ * @returns Whether the bot can purge messages in the given channel or not
+ */
+export function canPurgeMessages(channel: GuildBasedChannel): boolean {
+    return channel.guild.me?.permissionsIn(channel).has([
+        Permissions.FLAGS.MANAGE_MESSAGES,
+        Permissions.FLAGS.READ_MESSAGE_HISTORY
+    ]) ?? false;
+}
