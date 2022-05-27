@@ -1,5 +1,5 @@
 import { PrismaClient, LogConfig } from '@prisma/client';
-import { Guild, TextChannel, Formatters, GuildMember, PartialGuildMember } from 'discord.js';
+import { Guild, TextChannel, Formatters, GuildMember, PartialGuildMember, Message } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
@@ -104,6 +104,28 @@ export default class LoggingModule {
 
         await channel?.send({
             content: user.id,
+            embeds: [ embed ]
+        });
+    }
+
+    static async logMemberSpamming(message: Message) {
+        if(message.guild == null) return;
+
+        const channel = await this.fetchLogChannel('textFilter', message.guild);
+
+        const embed = getEmbedWithTarget(message.author)
+            .setTitle('Message Filtered')
+            .setDescription(`${message.author.toString()} was filtered for sending too many duplicate messages in ${message.channel.toString()}`)
+            .setColor('BLUE');
+
+        // splitting code below taken from https://stackoverflow.com/a/58204391
+        const parts = message.content.match(/\b[\w\s]{2000,}?(?=\s)|.+$/g) ?? [ message.content ];
+        for(const part of parts) {
+            embed.addField('Message', part.trim());
+        }
+
+        await channel?.send({
+            content: message.author.id,
             embeds: [ embed ]
         });
     }
