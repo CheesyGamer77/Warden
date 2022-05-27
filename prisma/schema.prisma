@@ -16,3 +16,10 @@ model LogConfig {
   userFilterChannelId String?
   userChangesChannelId String?
 }
+
+model Reputation {
+  guildId String
+  userId String
+  reputation Decimal
+  @@unique([guildId, userId])
+}
