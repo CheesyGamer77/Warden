@@ -3,11 +3,10 @@ import { Guild, GuildBasedChannel, GuildMember, Message, Permissions } from 'dis
 /**
  * Returns whether a given member is the owner of the provided guild
  * @param member The member to check if they're owner
- * @param guild The guild to check if the member is the owner of
  * @returns Whether the member is the owner of the guild or not
  */
-export function isGuildOwner(member: GuildMember, guild: Guild): boolean {
-    return guild.ownerId != member.id;
+export function isGuildOwner(member: GuildMember): boolean {
+    return member.guild.ownerId == member.id
 }
 
 /**
