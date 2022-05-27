@@ -19,7 +19,7 @@ interface AntiSpamEntry {
 }
 
 export default class AntiSpamModule {
-    private static cache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(10 * 1000 * 60);
+    private static cache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(5 * 1000 * 60);
 
     private static getContentHash(message: Message) {
         return createHash('md5').update(message.content.toLowerCase()).digest('hex');
