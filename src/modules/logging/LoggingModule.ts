@@ -2,23 +2,29 @@ import { PrismaClient, LogConfig } from '@prisma/client';
 import { Guild, TextChannel, Formatters, GuildMember, PartialGuildMember } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
+import ExpiryMap from 'expiry-map';
 
 const prisma = new PrismaClient();
 
 export type LogEventType = 'joins' | 'leaves' | 'userFilter' | 'userChanges';
 
 export default class LoggingModule {
+    private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(15 * 1000 * 60);
+
     /**
      * Creates a blank logging configuration
      * @param guild The guild to create the blank log configuration of
      */
     static async createBlankLogConfiguration(guild: Guild): Promise<LogConfig> {
-        // TODO: Implement caching
-        return await prisma.logConfig.create({
+        const data = await prisma.logConfig.create({
             data: {
                 guildId: guild.id
             }
-        })
+        });
+
+        this.configCache.set(guild.id, data);
+
+        return data;
     }
 
     /**
@@ -29,13 +35,13 @@ export default class LoggingModule {
      * @returns The configuration
      */
     static async fetchLogConfiguration(guild: Guild): Promise<LogConfig> {
-        // TODO: Implement caching
-        const data = await prisma.logConfig.findUnique({
+        let data = this.configCache.get(guild.id) ?? await prisma.logConfig.findUnique({
             where: {
                 guildId: guild.id
             }
         })
 
+        // fallback to new blank config if not found in cache or db
         return data != null ? data : await this.createBlankLogConfiguration(guild);
     }
 
@@ -46,7 +52,6 @@ export default class LoggingModule {
      * @returns The TextChannel if it exists, else null
      */
     static async fetchLogChannel(event: LogEventType, guild: Guild): Promise<TextChannel | null> {
-        // fetch the guild's configuration
         const config = await this.fetchLogConfiguration(guild);
 
         const channelId = config[event + 'ChannelId' as keyof LogConfig];
