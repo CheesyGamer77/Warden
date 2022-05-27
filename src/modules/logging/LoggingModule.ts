@@ -39,7 +39,7 @@ export default class LoggingModule {
      * @returns The configuration
      */
     static async fetchLogConfiguration(guild: Guild): Promise<LogConfig> {
-        let data = this.configCache.get(guild.id) ?? await prisma.logConfig.findUnique({
+        const data = this.configCache.get(guild.id) ?? await prisma.logConfig.findUnique({
             where: {
                 guildId: guild.id
             }
