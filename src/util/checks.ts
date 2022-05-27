@@ -11,6 +11,25 @@ export function isGuildOwner(member: GuildMember, guild: Guild): boolean {
 }
 
 /**
+ * Returns whether a member has the following permissions:
+ * - `MANAGE_MESSAGES`
+ * - `MODERATE_MEMBERS`
+ * - `KICK_MEMBERS`
+ * - `BAN_MEMBERS`
+ * @param member The member to check if they're considered to be a guild moderator
+ * @returns Whether the member has the above permissions or not
+ */
+export function isGuildModerator(member: GuildMember) {
+    const flags = Permissions.FLAGS;
+    return member.permissions.any([
+        flags.MANAGE_MESSAGES,
+        flags.MODERATE_MEMBERS,
+        flags.KICK_MEMBERS,
+        flags.BAN_MEMBERS
+    ]);
+}
+
+/**
  * Returns whether a member can perform moderation actions on the given target, including changing nicknames, kicking, banning, etc.
  * This does not however take into account required permissions to perform said moderation actions.
  *
