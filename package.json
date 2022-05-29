@@ -19,9 +19,12 @@
   "dependencies": {
     "@prisma/client": "^3.14.0",
     "discord.js": "^13.6.0",
-    "expiry-map": "^2.0.0"
+    "expiry-map": "^2.0.0",
+    "i18next": "^21.8.4",
+    "i18next-fs-backend": "^1.1.4"
   },
   "devDependencies": {
+    "@types/i18next-fs-backend": "^1.1.2",
     "eslint": "^8.15.0",
     "prisma": "^3.14.0",
     "typescript": "^4.6.4"
