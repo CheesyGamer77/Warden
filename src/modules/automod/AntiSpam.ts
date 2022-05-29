@@ -20,6 +20,7 @@ interface AntiSpamEntry {
 
 export default class AntiSpamModule {
     private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(5 * 1000 * 60);
+    private static ignoredChannelsCache: ExpiryMap<string, Set<string>> = new ExpiryMap(30 * 1000 * 60);
 
     private static getContentHash(message: Message) {
         return createHash('md5').update(message.content.toLowerCase()).digest('hex');
@@ -40,7 +41,7 @@ export default class AntiSpamModule {
         }
     }
 
-    private static setAndGet(message: Message): AntiSpamEntry {
+    private static setAndGetEntry(message: Message): AntiSpamEntry {
         const key = this.getSpamKey(message);
         let entry = this.entryCache.get(key) ?? {
             count: 0,
@@ -88,7 +89,7 @@ export default class AntiSpamModule {
     static async process(message: Message) {
         if(this.shouldIgnore(message) || message.member == null) return;
 
-        const entry = this.setAndGet(message);
+        const entry = this.setAndGetEntry(message);
         const count = entry.count;
 
         if(count >= 3 && canDelete(message)) {
