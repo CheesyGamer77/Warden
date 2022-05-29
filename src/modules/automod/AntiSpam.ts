@@ -19,7 +19,7 @@ interface AntiSpamEntry {
 }
 
 export default class AntiSpamModule {
-    private static cache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(5 * 1000 * 60);
+    private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(5 * 1000 * 60);
 
     private static getContentHash(message: Message) {
         return createHash('md5').update(message.content.toLowerCase()).digest('hex');
@@ -42,14 +42,14 @@ export default class AntiSpamModule {
 
     private static setAndGet(message: Message): AntiSpamEntry {
         const key = this.getSpamKey(message);
-        let entry = this.cache.get(key) ?? {
+        let entry = this.entryCache.get(key) ?? {
             count: 0,
             hash: this.getContentHash(message),
             references: [ this.getMessageReference(message) ]
         };
 
         entry.count += 1;
-        this.cache.set(key, entry);
+        this.entryCache.set(key, entry);
 
         return entry;
     }
