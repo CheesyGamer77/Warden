@@ -24,8 +24,11 @@ type IgnorableChannel = TextChannel | ThreadChannel;
 const prisma = new PrismaClient();
 
 export default class AntiSpamModule {
-    private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(5 * 1000 * 60);
-    private static ignoredChannelsCache: ExpiryMap<string, Set<string>> = new ExpiryMap(30 * 1000 * 60);
+    private static readonly ENTRY_EXPIRY_MS = 60 * 1000;  // 1 minute
+    private static readonly CONFIG_EXPIRY_MS = 30 * 60 * 1000;  // 30 minutes
+
+    private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(this.ENTRY_EXPIRY_MS);
+    private static ignoredChannelsCache: ExpiryMap<string, Set<string>> = new ExpiryMap(this.CONFIG_EXPIRY_MS);
 
     private static getContentHash(message: Message) {
         return createHash('md5').update(message.content.toLowerCase()).digest('hex');
