@@ -18,7 +18,7 @@ export function isGuildOwner(member: GuildMember): boolean {
  * @param member The member to check if they're considered to be a guild moderator
  * @returns Whether the member has the above permissions or not
  */
-export function isGuildModerator(member: GuildMember) {
+export function isGuildModerator(member: GuildMember): boolean {
     const flags = Permissions.FLAGS;
     return member.permissions.any([
         flags.MANAGE_MESSAGES,
