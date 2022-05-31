@@ -1,6 +1,6 @@
 import { PrismaClient, Reputation } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime';
-import { GuildMember, User } from 'discord.js';
+import { GuildMember } from 'discord.js';
 import ExpiryMap from 'expiry-map';
 
 const prisma = new PrismaClient();
