@@ -5,7 +5,7 @@ import ExpiryMap from 'expiry-map';
 
 const prisma = new PrismaClient();
 
-function clamp(value: number, min: number, max: number) {
+function clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
 }
 
