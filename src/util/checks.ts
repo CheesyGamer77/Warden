@@ -41,8 +41,6 @@ export function canModerate(member: GuildMember | undefined | null, target: Guil
     // same guild guard clause
     if(member?.guild != target.guild) return false;
 
-    const guild = member.guild;
-
     // moderate self guard clause
     if(member.id == target.id) return false;
 
