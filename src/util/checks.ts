@@ -1,4 +1,4 @@
-import { Guild, GuildBasedChannel, GuildMember, Message, Permissions } from 'discord.js';
+import { GuildBasedChannel, GuildMember, Message, Permissions } from 'discord.js';
 
 /**
  * Returns whether a given member is the owner of the provided guild
@@ -18,7 +18,7 @@ export function isGuildOwner(member: GuildMember): boolean {
  * @param member The member to check if they're considered to be a guild moderator
  * @returns Whether the member has the above permissions or not
  */
-export function isGuildModerator(member: GuildMember) {
+export function isGuildModerator(member: GuildMember): boolean {
     const flags = Permissions.FLAGS;
     return member.permissions.any([
         flags.MANAGE_MESSAGES,
@@ -40,8 +40,6 @@ export function isGuildModerator(member: GuildMember) {
 export function canModerate(member: GuildMember | undefined | null, target: GuildMember): boolean {
     // same guild guard clause
     if(member?.guild != target.guild) return false;
-
-    const guild = member.guild;
 
     // moderate self guard clause
     if(member.id == target.id) return false;
