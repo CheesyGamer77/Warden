@@ -4,7 +4,7 @@ import { canDelete } from '../../util/checks';
 import LoggingModule from '../logging/LoggingModule';
 import ExpiryMap from 'expiry-map';
 import UserReputation from './UserReputation';
-import { PrismaClient } from '@prisma/client';
+import { AutoModConfig, PrismaClient } from '@prisma/client';
 
 interface MessageReference {
     readonly guildId: string;
@@ -29,6 +29,9 @@ export default class AntiSpamModule {
 
     private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(this.ONE_MINUTE);
     private static ignoredEntitiesCache: ExpiryMap<string, Set<string>> = new ExpiryMap(this.THIRTY_MINUTES);
+
+    // TODO: Doesn't really belong here. Should be up one level in the heirarchy.
+    private static automodConfigCache: ExpiryMap<string, AutoModConfig> = new ExpiryMap(this.THIRTY_MINUTES);
 
     private static getContentHash(message: Message) {
         return createHash('md5').update(message.content.toLowerCase()).digest('hex');
@@ -95,6 +98,20 @@ export default class AntiSpamModule {
         return message.member?.permissionsIn(message.channel).has(Permissions.FLAGS.MANAGE_MESSAGES) ?? false;
     }
 
+    private static async fetchAutomodConfig(guild: Guild): Promise<AutoModConfig> {
+        const guildId = guild.id;
+        return this.automodConfigCache.get(guildId) ?? await prisma.autoModConfig.upsert({
+            where: {
+                guildId: guildId
+            },
+            update: {},
+            create: {
+                guildId: guildId,
+                antiSpamEnabled: false
+            }
+        });
+    }
+
     private static async setAntiSpamEnabled(guild: Guild, enabled: boolean) {
         const guildId = guild.id;
 
@@ -110,6 +127,10 @@ export default class AntiSpamModule {
                 antiSpamEnabled: false
             }
         });
+
+        let cache = await this.fetchAutomodConfig(guild);
+        cache.antiSpamEnabled = enabled;
+        this.automodConfigCache.set(guildId, cache)
     }
 
     /**
