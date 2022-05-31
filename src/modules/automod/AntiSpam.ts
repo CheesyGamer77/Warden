@@ -24,11 +24,11 @@ type IgnorableChannel = TextChannel | ThreadChannel;
 const prisma = new PrismaClient();
 
 export default class AntiSpamModule {
-    private static readonly ENTRY_EXPIRY_MS = 60 * 1000;  // 1 minute
-    private static readonly CONFIG_EXPIRY_MS = 30 * 60 * 1000;  // 30 minutes
+    private static readonly ONE_MINUTE = 60 * 1000;
+    private static readonly THIRTY_MINUTES = 30 * 60 * 1000;
 
-    private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(this.ENTRY_EXPIRY_MS);
-    private static ignoredChannelsCache: ExpiryMap<string, Set<string>> = new ExpiryMap(this.CONFIG_EXPIRY_MS);
+    private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(this.ONE_MINUTE);
+    private static ignoredEntitiesCache: ExpiryMap<string, Set<string>> = new ExpiryMap(this.THIRTY_MINUTES);
 
     private static getContentHash(message: Message) {
         return createHash('md5').update(message.content.toLowerCase()).digest('hex');
@@ -95,36 +95,39 @@ export default class AntiSpamModule {
         return message.member?.permissionsIn(message.channel).has(Permissions.FLAGS.MANAGE_MESSAGES) ?? false;
     }
 
-    private static getIgnoredChannelSet(guild: Guild): Set<string> {
-        return this.ignoredChannelsCache.get(guild.id) ?? new Set();
-    }
-
-    private static async fetchIgnoredChannels(guild: Guild): Promise<Set<string>> {
+    private static async setAntiSpamEnabled(guild: Guild, enabled: boolean) {
         const guildId = guild.id;
-        let set = this.ignoredChannelsCache.get(guildId);
 
-        if(set === undefined) {
-            set = new Set();
-
-            const data = await prisma.antiSpamIgnoredChannels.findMany({
-                where: {
-                    guildId: guildId
-                }
-            })
-
-            // TODO: Use async iteration?
-            for(const pair of data) {
-                set.add(pair.channelId);
+        await prisma.autoModConfig.upsert({
+            where: {
+                guildId: guildId
+            },
+            update: {
+                antiSpamEnabled: enabled
+            },
+            create: {
+                guildId: guildId,
+                antiSpamEnabled: false
             }
-        }
-
-        this.ignoredChannelsCache.set(guildId, set);
-
-        return set;
+        });
     }
 
-    private static async isIgnoredChannel(channel: IgnorableChannel) {
-        return (await this.fetchIgnoredChannels(channel.guild)).has(channel.id);
+    /**
+     * Disables the anti-spam for a particular guild.
+     * This automatically updates the automod config cache respectively.
+     * @param guild The guild to disable the anti-spam for
+     */
+    static async ignoreGuild(guild: Guild) {
+        await this.setAntiSpamEnabled(guild, false);
+    }
+
+    /**
+     * Enables the anti-spam for a particular guild.
+     * This automatically updates the automod config cache respectively.
+     * @param guild The guild to enable the anti-spam for
+     */
+     static async unignoreGuild(guild: Guild) {
+        await this.setAntiSpamEnabled(guild, true);
     }
 
     /**
@@ -142,9 +145,6 @@ export default class AntiSpamModule {
                 channelId: channelId
             }
         });
-
-        const set = this.getIgnoredChannelSet(channel.guild).add(channelId);
-        this.ignoredChannelsCache.set(guildId, set);
     }
 
     /**
@@ -164,10 +164,6 @@ export default class AntiSpamModule {
                 }
             }
         });
-
-        const set = this.getIgnoredChannelSet(channel.guild);
-        set.delete(channelId);
-        this.ignoredChannelsCache.set(guildId, set);
     }
 
     static async process(message: Message) {
@@ -175,8 +171,6 @@ export default class AntiSpamModule {
 
         // TODO: Really goofy guard clause
         if(channel.type == 'DM' || channel.type == 'GUILD_NEWS' || this.shouldIgnore(message) ||  message.member == null) return;
-
-        if(await this.isIgnoredChannel(channel)) return;
 
         const entry = this.setAndGetEntry(message);
         const count = entry.count;
