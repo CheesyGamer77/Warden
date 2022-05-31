@@ -6,8 +6,7 @@ import ExpiryMap from 'expiry-map';
 const prisma = new PrismaClient();
 
 function clamp(value: number, min: number, max: number) {
-    value = value < min ? min : value;
-    return value > max ? max : value;
+    return Math.min(Math.max(value, min), max);
 }
 
 type ReputationLevel = 'DANGEROUS' | 'RESTRICTED' | 'AT RISK' | 'QUESTIONABLE' | 'DEFAULT' | 'LOW RISK' | 'SLIGHTLY TRUSTED' | 'TRUSTED' | 'VERY TRUSTED' | 'SUPERUSER';
