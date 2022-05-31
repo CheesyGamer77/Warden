@@ -1,4 +1,4 @@
-import { Guild, GuildBasedChannel, GuildMember, Message, Permissions } from 'discord.js';
+import { GuildBasedChannel, GuildMember, Message, Permissions } from 'discord.js';
 
 /**
  * Returns whether a given member is the owner of the provided guild
