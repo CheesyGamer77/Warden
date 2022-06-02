@@ -22,7 +22,7 @@
     "expiry-map": "^2.0.0"
   },
   "devDependencies": {
-    "eslint": "^8.15.0",
+    "eslint": "^8.16.0",
     "prisma": "^3.14.0",
     "typescript": "^4.6.4"
   }
