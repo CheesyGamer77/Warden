@@ -95,7 +95,7 @@ export default class AntiSpamModule {
 
     private static shouldIgnore(message: Message): boolean {
         // TODO: Duplicate code (message channel type)
-        if(message.guild == null || message.author.bot || message.channel.type == 'DM') return true;
+        if (message.guild == null || message.author.bot || message.channel.type == 'DM') return true;
 
         return message.member?.permissionsIn(message.channel).has(Permissions.FLAGS.MANAGE_MESSAGES) ?? false;
     }
@@ -130,9 +130,9 @@ export default class AntiSpamModule {
             }
         });
 
-        let cache = await this.fetchAutomodConfig(guild);
+        const cache = await this.fetchAutomodConfig(guild);
         cache.antiSpamEnabled = enabled;
-        this.automodConfigCache.set(guildId, cache)
+        this.automodConfigCache.set(guildId, cache);
     }
 
     /**
@@ -149,7 +149,7 @@ export default class AntiSpamModule {
      * This automatically updates the automod config cache respectively.
      * @param guild The guild to enable the anti-spam for
      */
-     static async unignoreGuild(guild: Guild) {
+    static async unignoreGuild(guild: Guild) {
         await this.setAntiSpamEnabled(guild, true);
     }
 
@@ -193,7 +193,7 @@ export default class AntiSpamModule {
         const channel = message.channel;
 
         // TODO: Really goofy guard clause
-        if(channel.type == 'DM' || channel.type == 'GUILD_NEWS' || this.shouldIgnore(message) ||  message.member == null) return;
+        if (channel.type == 'DM' || channel.type == 'GUILD_NEWS' || this.shouldIgnore(message) || message.member == null) return;
 
         const entry = this.setAndGetEntry(message);
         const count = entry.count;
