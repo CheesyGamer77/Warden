@@ -7,5 +7,5 @@ export {
     onGuildMemberAdd,
     onGuildMemberUpdate,
     onGuildMemberRemove,
-    onMessageCreate
-}
+    onMessageCreate,
+};

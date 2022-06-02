@@ -42,22 +42,23 @@ export default class AntiSpamModule {
     }
 
     private static getMessageReference(message: Message): MessageReference {
-        if(message.guildId == null) throw new Error('Message References must have a non-null guild id');
+        if (message.guildId == null) throw new Error('Message References must have a non-null guild id');
 
         return {
             guildId: message.guildId,
             channelId: message.channelId,
             id: message.id,
-            createdAt: message.createdTimestamp
-        }
+            createdAt: message.createdTimestamp,
+        };
     }
 
     private static setAndGetEntry(message: Message): AntiSpamEntry {
         const key = this.getSpamKey(message);
-        let entry = this.entryCache.get(key) ?? {
+
+        const entry = this.entryCache.get(key) ?? {
             count: 0,
             hash: this.getContentHash(message),
-            references: [ this.getMessageReference(message) ]
+            references: [ this.getMessageReference(message) ],
         };
 
         entry.count += 1;
@@ -67,7 +68,7 @@ export default class AntiSpamModule {
     }
 
     private static async deleteSpamMessage(message: Message) {
-        if(message.member == null) return;
+        if (message.member == null) return;
 
         const deletedMessage = await message.delete();
         await LoggingModule.logMemberSpamming(deletedMessage);
@@ -75,7 +76,7 @@ export default class AntiSpamModule {
     }
 
     private static async timeoutMember(member: GuildMember | null, instances: number) {
-        if(member == null || member.guild.me == null) return;
+        if (member == null || member.guild.me == null) return;
 
         const reason = `Spamming (${instances} instances)`;
         const until = Date.now() + (60 * 1000);
@@ -86,9 +87,10 @@ export default class AntiSpamModule {
             moderator: member.guild.me,
             reason: reason,
             until: until,
-            channelType: 'escalations'
+            channelType: 'escalations',
         });
-        await UserReputation.modifyReputation(member, -0.3);  // -0.5 total each time they're muted hereafter
+
+        await UserReputation.modifyReputation(member, -0.3);
     }
 
     private static shouldIgnore(message: Message): boolean {
@@ -196,11 +198,10 @@ export default class AntiSpamModule {
         const entry = this.setAndGetEntry(message);
         const count = entry.count;
 
-        if(count >= 3 && canDelete(message)) {
-            await this.deleteSpamMessage(message)
-            if(count >= 5) {
-                if(message.member?.moderatable)
-                    await this.timeoutMember(message.member, count);
+        if (count >= 3 && canDelete(message)) {
+            await this.deleteSpamMessage(message);
+            if (count >= 5) {
+                if (message.member?.moderatable) {await this.timeoutMember(message.member, count);}
             }
         }
         else {

@@ -1,5 +1,12 @@
 {
-	"extends": "eslint:recommended",
+	"extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "plugins": [
+        "@typescript-eslint"
+    ],
 	"env": {
 		"node": true,
 		"es6": true
@@ -16,9 +23,9 @@
 		"curly": ["error", "multi-line", "consistent"],
 		"dot-location": ["error", "property"],
 		"handle-callback-err": "off",
-		"indent": ["error", "tab"],
+		"indent": ["error", 4],
 		"keyword-spacing": "error",
-        "linebreak-style": ["error", "linux"],
+        "linebreak-style": ["error", "unix"],
 		"max-nested-callbacks": ["error", { "max": 4 }],
 		"max-statements-per-line": ["error", { "max": 2 }],
 		"no-console": "off",
