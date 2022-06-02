@@ -6,7 +6,7 @@ import { GuildBasedChannel, GuildMember, Message, Permissions } from 'discord.js
  * @returns Whether the member is the owner of the guild or not
  */
 export function isGuildOwner(member: GuildMember): boolean {
-    return member.guild.ownerId == member.id
+    return member.guild.ownerId == member.id;
 }
 
 /**
@@ -24,7 +24,7 @@ export function isGuildModerator(member: GuildMember): boolean {
         flags.MANAGE_MESSAGES,
         flags.MODERATE_MEMBERS,
         flags.KICK_MEMBERS,
-        flags.BAN_MEMBERS
+        flags.BAN_MEMBERS,
     ]);
 }
 
@@ -39,16 +39,16 @@ export function isGuildModerator(member: GuildMember): boolean {
  */
 export function canModerate(member: GuildMember | undefined | null, target: GuildMember): boolean {
     // same guild guard clause
-    if(member?.guild != target.guild) return false;
+    if (member?.guild != target.guild) return false;
 
     // moderate self guard clause
-    if(member.id == target.id) return false;
+    if (member.id == target.id) return false;
 
     // owners can always moderate other members
-    if(isGuildOwner(member)) return true;
+    if (isGuildOwner(member)) return true;
 
     // but other members can never moderate owners
-    if(isGuildOwner(target)) return false;
+    if (isGuildOwner(target)) return false;
 
     // in all other cases, the ability to moderate depends on the member/target's top role position
     return member.roles.highest.position > target.roles.highest.position;
@@ -62,7 +62,7 @@ export function canMessage(channel: GuildBasedChannel | null): boolean {
     const requiredPermissions = [
         Permissions.FLAGS.VIEW_CHANNEL,
         Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS
+        Permissions.FLAGS.EMBED_LINKS,
     ];
 
     return channel?.guild.me?.permissionsIn(channel).has(requiredPermissions) ?? false;
@@ -74,7 +74,7 @@ export function canMessage(channel: GuildBasedChannel | null): boolean {
  * @returns Whether the message is able to be deleted by the bot or not
  */
 export function canDelete(message: Message): boolean {
-    if(message.channel.type == 'DM') {
+    if (message.channel.type == 'DM') {
         return message.author.id == message.client.user?.id ?? false;
     }
 
@@ -89,6 +89,6 @@ export function canDelete(message: Message): boolean {
 export function canPurgeMessages(channel: GuildBasedChannel): boolean {
     return channel.guild.me?.permissionsIn(channel).has([
         Permissions.FLAGS.MANAGE_MESSAGES,
-        Permissions.FLAGS.READ_MESSAGE_HISTORY
+        Permissions.FLAGS.READ_MESSAGE_HISTORY,
     ]) ?? false;
 }
