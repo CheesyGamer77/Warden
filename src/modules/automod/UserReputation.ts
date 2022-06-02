@@ -9,32 +9,6 @@ function clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
 }
 
-type ReputationLevel = 'DANGEROUS' | 'RESTRICTED' | 'AT RISK' | 'QUESTIONABLE' | 'DEFAULT' | 'LOW RISK' | 'SLIGHTLY TRUSTED' | 'TRUSTED' | 'VERY TRUSTED' | 'SUPERUSER';
-
-class ReputationView {
-    readonly value: number;
-    readonly level: ReputationLevel;
-    constructor(value: number, isSuperUser: boolean) {
-        this.value = clamp(value, -5, 5);
-
-        if (isSuperUser) {
-            this.level = 'SUPERUSER';
-            return;
-        }
-
-        if (value <= -4) {this.level = 'DANGEROUS';}
-        else if (value > -4 && value <= -3) {this.level = 'RESTRICTED';}
-        else if (value > -3 && value <= -2) {this.level = 'AT RISK';}
-        else if (value > -2 && value <= -1) {this.level = 'QUESTIONABLE';}
-        else if (value > -1 && value < 1) {this.level = 'DEFAULT';}
-        else if (value >= 1 && value < 2) {this.level = 'LOW RISK';}
-        else if (value >= 2 && value < 3) {this.level = 'SLIGHTLY TRUSTED';}
-        else if (value >= 3 && value < 4) {this.level = 'TRUSTED';}
-        else if (value >= 4) {this.level = 'VERY TRUSTED';}
-        else {this.level = 'DEFAULT';}
-    }
-}
-
 export default class {
     private static reputationCache: ExpiryMap<string, Reputation> = new ExpiryMap(15 * 60 * 1000);
 
