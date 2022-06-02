@@ -76,7 +76,8 @@ export default class AntiSpamModule {
             until: until,
             channelType: 'escalations',
         });
-        await UserReputation.modifyReputation(member, -0.3); // -0.5 total each time they're muted hereafter
+
+        await UserReputation.modifyReputation(member, -0.3);
     }
 
     private static shouldIgnore(message: Message): boolean {
