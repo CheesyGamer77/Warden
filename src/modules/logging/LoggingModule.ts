@@ -22,8 +22,8 @@ export default class LoggingModule {
     private static async createBlankLogConfiguration(guild: Guild): Promise<LogConfig> {
         const data = await prisma.logConfig.create({
             data: {
-                guildId: guild.id
-            }
+                guildId: guild.id,
+            },
         });
 
         this.configCache.set(guild.id, data);
@@ -41,9 +41,9 @@ export default class LoggingModule {
     static async fetchLogConfiguration(guild: Guild): Promise<LogConfig> {
         const data = this.configCache.get(guild.id) ?? await prisma.logConfig.findUnique({
             where: {
-                guildId: guild.id
-            }
-        })
+                guildId: guild.id,
+            },
+        });
 
         // fallback to new blank config if not found in cache or db
         return data != null ? data : await this.createBlankLogConfiguration(guild);
@@ -61,10 +61,10 @@ export default class LoggingModule {
         const channelId = config[event + 'ChannelId' as keyof LogConfig];
 
         // resolve the said log text channel
-        if(channelId != null) {
+        if (channelId != null) {
             const channel = guild.channels.cache.get(channelId) ?? null;
 
-           return canMessage(channel) && channel?.type == 'GUILD_TEXT' ? channel : null;
+            return canMessage(channel) && channel?.type == 'GUILD_TEXT' ? channel : null;
         }
 
         return null;
@@ -79,11 +79,11 @@ export default class LoggingModule {
             .setTitle('Member Joined')
             .setDescription(user.toString() + ' joined the server')
             .setColor('GREEN')
-            .addField('Account Created', Formatters.time(user.createdAt, 'R'))
+            .addField('Account Created', Formatters.time(user.createdAt, 'R'));
 
         await channel?.send({
             content: user.id,
-            embeds: [ embed ]
+            embeds: [ embed ],
         });
     }
 
@@ -95,25 +95,23 @@ export default class LoggingModule {
         const embed = getEmbedWithTarget(user)
             .setTitle('Member Left')
             .setDescription(user.toString() + ' left the server')
-            .setColor('RED')
+            .setColor('RED');
 
         // a removed member's joined at timestamp has the potential to be null
         let memberSince: string;
-        if(member.joinedAt != null)
-            memberSince = Formatters.time(member.joinedAt, 'R');
-        else
-            memberSince = 'Unknown';
+        if (member.joinedAt != null) {memberSince = Formatters.time(member.joinedAt, 'R');}
+        else {memberSince = 'Unknown';}
 
         embed.addField('Member Since', memberSince);
 
         await channel?.send({
             content: user.id,
-            embeds: [ embed ]
+            embeds: [ embed ],
         });
     }
 
     static async logMemberSpamming(message: Message) {
-        if(message.guild == null) return;
+        if (message.guild == null) return;
 
         const channel = await this.fetchLogChannel('textFilter', message.guild);
 
@@ -124,13 +122,13 @@ export default class LoggingModule {
 
         // splitting code below taken from https://stackoverflow.com/a/58204391
         const parts = message.content.match(/\b[\w\s]{2000,}?(?=\s)|.+$/g) ?? [ message.content ];
-        for(const part of parts) {
+        for (const part of parts) {
             embed.addField('Message', part.trim());
         }
 
         await channel?.send({
             content: message.author.id,
-            embeds: [ embed ]
+            embeds: [ embed ],
         });
     }
 
@@ -146,14 +144,13 @@ export default class LoggingModule {
             .setColor('ORANGE');
 
         const mod = opts.moderator;
-        if(mod != undefined)
-            embed.addField('Moderator', `${mod.toString()} \`(${mod.id})\``);
+        if (mod != undefined) {embed.addField('Moderator', `${mod.toString()} \`(${mod.id})\``);}
 
         embed.addField('Reason', opts.reason ?? 'No Reason Given');
 
         await channel?.send({
             content: target.id,
-            embeds: [ embed ]
+            embeds: [ embed ],
         });
     }
 }

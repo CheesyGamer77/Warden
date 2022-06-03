@@ -1,49 +1,12 @@
 import { PrismaClient, Reputation } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime';
-import { GuildMember, User } from 'discord.js';
+import { GuildMember } from 'discord.js';
 import ExpiryMap from 'expiry-map';
 
 const prisma = new PrismaClient();
 
-function clamp(value: number, min: number, max: number) {
-    value = value < min ? min : value;
-    return value > max ? max : value;
-}
-
-type ReputationLevel = 'DANGEROUS' | 'RESTRICTED' | 'AT RISK' | 'QUESTIONABLE' | 'DEFAULT' | 'LOW RISK' | 'SLIGHTLY TRUSTED' | 'TRUSTED' | 'VERY TRUSTED' | 'SUPERUSER';
-
-class ReputationView {
-    readonly value: number;
-    readonly level: ReputationLevel;
-    constructor(value: number, isSuperUser: boolean) {
-        this.value = clamp(value, -5, 5);
-
-        if(isSuperUser) {
-            this.level = 'SUPERUSER';
-            return;
-        }
-
-        if(value <= -4)
-            this.level = 'DANGEROUS';
-        else if(value > -4 && value <= -3)
-            this.level = 'RESTRICTED';
-        else if(value > -3 && value <= -2)
-            this.level = 'AT RISK';
-        else if(value > -2 && value <= -1)
-            this.level = 'QUESTIONABLE';
-        else if (value > -1 && value < 1)
-            this.level = 'DEFAULT';
-        else if(value >= 1 && value < 2)
-            this.level = `LOW RISK`;
-        else if(value >= 2 && value < 3)
-            this.level = 'SLIGHTLY TRUSTED';
-        else if(value >= 3 && value < 4)
-            this.level = 'TRUSTED';
-        else if(value >= 4)
-            this.level = 'VERY TRUSTED';
-        else
-            this.level = 'DEFAULT';
-    }
+function clamp(value: number, min: number, max: number): number {
+    return Math.min(Math.max(value, min), max);
 }
 
 export default class {
@@ -59,8 +22,8 @@ export default class {
             data: {
                 guildId: member.guild.id,
                 userId: member.id,
-                reputation: defaultRep
-            }
+                reputation: defaultRep,
+            },
         });
 
         this.reputationCache.set(this.getKey(member), data);
@@ -79,9 +42,9 @@ export default class {
             where: {
                 guildId_userId: {
                     guildId: member.guild.id,
-                    userId: member.id
-                }
-            }
+                    userId: member.id,
+                },
+            },
         });
 
         return data != null ? data : await this.createDefaultReputation(member);
@@ -93,7 +56,7 @@ export default class {
      * @param offset The number to add to the reputation. Use negative numbers to subtract reputation
      */
     static async modifyReputation(member: GuildMember, offset: number) {
-        let data = await this.fetchReputation(member);
+        const data = await this.fetchReputation(member);
 
         data.reputation = new Decimal(clamp(data.reputation.toNumber() + offset, -5, 5));
 
@@ -103,12 +66,12 @@ export default class {
             where: {
                 guildId_userId: {
                     guildId: member.guild.id,
-                    userId: member.id
-                }
+                    userId: member.id,
+                },
             },
             data: {
-                reputation: data.reputation
-            }
+                reputation: data.reputation,
+            },
         });
     }
 }

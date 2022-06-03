@@ -1,11 +1,11 @@
 import { GuildMember, Permissions } from 'discord.js';
-import replacements from '../../../data/fancy_replacements.json'
+import replacements from '../../../data/fancy_replacements.json';
 import { canModerate } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import LoggingModule from '../logging/LoggingModule';
 
-let fancy_replacements = new Map<string, string>();
-for(const pair of Object.entries(replacements)) {
+const fancy_replacements = new Map<string, string>();
+for (const pair of Object.entries(replacements)) {
     fancy_replacements.set(pair[0], pair[1]);
 }
 
@@ -13,7 +13,7 @@ export default class NameSanitizerModule {
     private static cleanFancyText(content: string): string {
         let sanitized = '';
 
-        for(const char of content) {
+        for (const char of content) {
             sanitized = sanitized.concat(fancy_replacements.get(char) ?? char);
         }
 
@@ -30,12 +30,12 @@ export default class NameSanitizerModule {
      */
     static async sanitize(member: GuildMember) {
         const channel = await LoggingModule.fetchLogChannel('userFilter', member.guild);
-        if(channel == null || !canModerate(member.guild.me, member)) return;
+        if (channel == null || !canModerate(member.guild.me, member)) return;
 
         const name = member.displayName;
         let sanitized = this.cleanFancyText(name);
-        if(name != sanitized && this.canOverwriteName(member)) {
-            if(sanitized.trim() === '') sanitized = 'Nickname';
+        if (name != sanitized && this.canOverwriteName(member)) {
+            if (sanitized.trim() === '') sanitized = 'Nickname';
 
 
             const reason = 'Sanitizing Nickname';
@@ -50,8 +50,8 @@ export default class NameSanitizerModule {
                         .setColor(0xfee75c)
                         .addField('Before', name)
                         .addField('After', sanitized)
-                        .addField('Reason', reason)
-                ]
+                        .addField('Reason', reason),
+                ],
             });
         }
     }
