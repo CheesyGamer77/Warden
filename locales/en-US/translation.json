@@ -11,6 +11,16 @@
                     "name": "Account Created"
                 }
             }
+        },
+        "leaves": {
+            "title": "Member Left",
+            "description": "{{- userMention}} left the server",
+            "fields": {
+                "memberSince": {
+                    "name": "Member Since",
+                    "unknown": "Unknown"
+                }
+            }
         }
     }
 }
