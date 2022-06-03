@@ -3,6 +3,7 @@ import { Guild, TextChannel, Formatters, GuildMember, PartialGuildMember, Messag
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
+import i18next from 'i18next';
 
 const prisma = new PrismaClient();
 
@@ -72,14 +73,21 @@ export default class LoggingModule {
 
     static async logMemberJoined(member: GuildMember) {
         const channel = await this.fetchLogChannel('joins', member.guild);
+        const lng = member.guild.preferredLocale;
 
         const user = member.user;
 
-        const embed = getEmbedWithTarget(user)
-            .setTitle('Member Joined')
-            .setDescription(user.toString() + ' joined the server')
+        const embed = getEmbedWithTarget(user, lng)
+            .setTitle(i18next.t('logging.joins.title', { lng: lng }))
+            .setDescription(i18next.t('logging.joins.description', {
+                lng: lng,
+                userMention: user.toString()
+            }))
             .setColor('GREEN')
-            .addField('Account Created', Formatters.time(user.createdAt, 'R'));
+            .addField(
+                i18next.t('logging.joins.fields.accountCreated.name', { lng: lng }),
+                Formatters.time(user.createdAt, 'R')
+            );
 
         await channel?.send({
             content: user.id,

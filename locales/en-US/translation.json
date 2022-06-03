@@ -2,6 +2,15 @@
     "logging": {
         "common": {
             "footer": "User ID: {{userId}}"
+        },
+        "joins": {
+            "title": "Member Joined",
+            "description": "{{- userMention}} joined the server",
+            "fields": {
+                "accountCreated": {
+                    "name": "Account Created"
+                }
+            }
         }
     }
 }
