@@ -75,8 +75,8 @@ export default class AntiSpamModule {
         await UserReputation.modifyReputation(message.member, -0.2);
     }
 
-    private static async timeoutMember(member: GuildMember | null, instances: number) {
-        if (member == null || member.guild.me == null) return;
+    private static async timeoutMember(member: GuildMember, instances: number) {
+        if (member.guild.me == null) return;
 
         const reason = `Spamming (${instances} instances)`;
         const until = Date.now() + (60 * 1000);
@@ -91,13 +91,6 @@ export default class AntiSpamModule {
         });
 
         await UserReputation.modifyReputation(member, -0.3);
-    }
-
-    private static shouldIgnore(message: Message): boolean {
-        // TODO: Duplicate code (message channel type)
-        if (message.guild == null || message.author.bot || message.channel.type == 'DM') return true;
-
-        return message.member?.permissionsIn(message.channel).has(Permissions.FLAGS.MANAGE_MESSAGES) ?? false;
     }
 
     private static async fetchAutomodConfig(guild: Guild): Promise<AutoModConfig> {
@@ -191,21 +184,26 @@ export default class AntiSpamModule {
 
     static async process(message: Message) {
         const channel = message.channel;
+        const member = message.member;
 
-        // TODO: Really goofy guard clause
-        if (channel.type == 'DM' || channel.type == 'GUILD_NEWS' || this.shouldIgnore(message) || message.member == null) return;
+        // ignore DM and news channels, and messages with a null member author
+        if (channel.type == 'DM' || channel.type == 'GUILD_NEWS' || member == null) return;
 
+        // ignore bots and members with manage message perms
+        if (member.user.bot || member.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
+
+        // get and handle antispam entry
         const entry = this.setAndGetEntry(message);
         const count = entry.count;
 
         if (count >= 3 && canDelete(message)) {
             await this.deleteSpamMessage(message);
             if (count >= 5) {
-                if (message.member?.moderatable) {await this.timeoutMember(message.member, count);}
+                if (member.moderatable) {await this.timeoutMember(member, count);}
             }
         }
         else {
-            await UserReputation.modifyReputation(message.member, 0.035);
+            await UserReputation.modifyReputation(member, 0.035);
         }
     }
 }
