@@ -1,4 +1,6 @@
 import { Client, Intents } from 'discord.js';
+import i18next from 'i18next';
+import Backend from 'i18next-fs-backend';
 import config from '../config.json';
 import * as handlers from './handlers';
 
@@ -27,4 +29,11 @@ client.on('messageCreate', async (message) => {
     await handlers.onMessageCreate(message);
 });
 
-client.login(config.token);
+i18next.use(Backend).init({
+    lng: 'en-US',
+    fallbackLng: 'en-US',
+    cleanCode: true,
+    backend: {
+        loadPath: './locales/{{lng}}/translation.json'
+    }
+}).then(() => client.login(config.token));
