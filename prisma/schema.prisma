@@ -23,3 +23,14 @@ model Reputation {
   reputation Decimal
   @@unique([guildId, userId])
 }
+
+model AutoModConfig {
+  guildId String @id
+  antiSpamEnabled Boolean? @default(false)
+}
+
+model AntiSpamIgnoredChannels {
+  guildId String
+  channelId String
+  @@unique([guildId, channelId])
+}
