@@ -47,6 +47,37 @@
                     "unknown": "Unknown"
                 }
             }
+        },
+        "userChanges": {
+            "roles": {
+                "add": {
+                    "single": {
+                        "title": "Role Added",
+                        "description": "{{- userMention}} had a role added"
+                    },
+                    "multi": {
+                        "title": "Roles Added [{{count}}]",
+                        "description": "{{- userMention}} had {{count}} roles added"
+                    }
+                },
+                "remove": {
+                    "common": {
+                        "fields": {
+                            "roles": {
+                                "name": "Roles"
+                            }
+                        }
+                    },
+                    "single": {
+                        "title": "Role Removed",
+                        "description": "{{- userMention}} had a role removed"
+                    },
+                    "multi": {
+                        "title": "Roles Removed [{{count}}]",
+                        "description": "{{- userMention}} had {{count}} roles removed"
+                    }
+                }
+            }
         }
     }
 }
