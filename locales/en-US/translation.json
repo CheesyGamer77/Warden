@@ -1,1 +1,7 @@
-{}
+{
+    "logging": {
+        "common": {
+            "footer": "User ID: {{userId}}"
+        }
+    }
+}
