@@ -93,9 +93,15 @@ export default class AntiSpamModule {
         await UserReputation.modifyReputation(member, -0.3);
     }
 
-    private static async fetchAutomodConfig(guild: Guild): Promise<AutoModConfig> {
+    private static async retrieveAutomodConfig(guild: Guild): Promise<AutoModConfig> {
         const guildId = guild.id;
-        return this.automodConfigCache.get(guildId) ?? await prisma.autoModConfig.upsert({
+        return this.automodConfigCache.get(guildId) ?? await this.fetchAutomodConfig(guild);
+    }
+
+    private static async fetchAutomodConfig(guild: Guild) {
+        const guildId = guild.id;
+
+        const data = await prisma.autoModConfig.upsert({
             where: {
                 guildId: guildId
             },
@@ -105,6 +111,10 @@ export default class AntiSpamModule {
                 antiSpamEnabled: false
             }
         });
+
+        this.automodConfigCache.set(guildId, data);
+
+        return data;
     }
 
     private static async setAntiSpamEnabled(guild: Guild, enabled: boolean) {
@@ -123,7 +133,7 @@ export default class AntiSpamModule {
             }
         });
 
-        const cache = await this.fetchAutomodConfig(guild);
+        const cache = await this.retrieveAutomodConfig(guild);
         cache.antiSpamEnabled = enabled;
         this.automodConfigCache.set(guildId, cache);
     }
@@ -206,7 +216,7 @@ export default class AntiSpamModule {
 
         // ignore if the antispam is disabled for the guild
         const guild = message.guild;
-        if (guild != null && !(await this.fetchAutomodConfig(guild)).antiSpamEnabled) return;
+        if (guild != null && !(await this.retrieveAutomodConfig(guild)).antiSpamEnabled) return;
 
         // ignore DM and news channels, non-guild messages, and messages with a null member author
         if (channel.type == 'DM' || channel.type == 'GUILD_NEWS' || member == null) return;
