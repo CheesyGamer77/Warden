@@ -3,6 +3,32 @@
         "common": {
             "footer": "User ID: {{userId}}"
         },
+        "automod": {
+            "antispam": {
+                "filtered": {
+                    "title": "Message Filtered",
+                    "description": "{{- userMention}} was filtered for sending too many duplicate messages in {{- channelMention}}",
+                    "fields": {
+                        "message": {
+                            "name": "Message"
+                        }
+                    }
+                },
+                "timeout": {
+                    "title": "User in Timeout",
+                    "description": "{{- userMention}} was put in timeout for {{- untilTimeMentionLong}} ({{- untilTimeMentionRelative}})",
+                    "fields": {
+                        "moderator": {
+                            "name": "Moderator"
+                        },
+                        "reason": {
+                            "name": "Reason",
+                            "noneGiven": "No Reason Given"
+                        }
+                    }
+                }
+            }
+        },
         "joins": {
             "title": "Member Joined",
             "description": "{{- userMention}} joined the server",
