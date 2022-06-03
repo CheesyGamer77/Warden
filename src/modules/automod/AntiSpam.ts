@@ -129,16 +129,16 @@ export default class AntiSpamModule {
     }
 
     private static async channelIsIgnored(channel: IgnorableChannel) {
-        const guildId = channel.guildId;
+        const channelId = channel.id;
 
-        let ignored = this.ignoredEntitiesCache.has(channel.id);
-        if(ignored !== undefined) return ignored;
+        const ignored = this.ignoredEntitiesCache.has(channelId);
+        if (ignored !== undefined) return ignored;
 
         const data = await prisma.antiSpamIgnoredChannels.findUnique({
             where: {
                 guildId_channelId: {
                     guildId: channel.guildId,
-                    channelId: channel.id
+                    channelId: channelId
                 }
             }
         });
@@ -206,7 +206,7 @@ export default class AntiSpamModule {
 
         // ignore if the antispam is disabled for the guild
         const guild = message.guild;
-        if(guild != null && !(await this.fetchAutomodConfig(guild)).antiSpamEnabled) return;
+        if (guild != null && !(await this.fetchAutomodConfig(guild)).antiSpamEnabled) return;
 
         // ignore DM and news channels, non-guild messages, and messages with a null member author
         if (channel.type == 'DM' || channel.type == 'GUILD_NEWS' || member == null) return;
@@ -215,7 +215,7 @@ export default class AntiSpamModule {
         if (member.user.bot || member.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
 
         // ignore if the message is from an ignored channel
-        if(await this.channelIsIgnored(channel)) return;
+        if (await this.channelIsIgnored(channel)) return;
 
         // get and handle antispam entry
         const entry = this.setAndGetEntry(message);
