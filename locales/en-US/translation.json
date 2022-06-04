@@ -1,0 +1,115 @@
+{
+    "logging": {
+        "common": {
+            "footer": "User ID: {{userId}}"
+        },
+        "automod": {
+            "antispam": {
+                "filtered": {
+                    "title": "Message Filtered",
+                    "description": "{{- userMention}} was filtered for sending too many duplicate messages in {{- channelMention}}",
+                    "fields": {
+                        "message": {
+                            "name": "Message"
+                        }
+                    }
+                },
+                "timeout": {
+                    "title": "User in Timeout",
+                    "description": "{{- userMention}} was put in timeout for {{- untilTimeMentionLong}} ({{- untilTimeMentionRelative}})",
+                    "fields": {
+                        "moderator": {
+                            "name": "Moderator"
+                        },
+                        "reason": {
+                            "name": "Reason",
+                            "noneGiven": "No Reason Given"
+                        }
+                    }
+                }
+            }
+        },
+        "joins": {
+            "title": "Member Joined",
+            "description": "{{- userMention}} joined the server",
+            "fields": {
+                "accountCreated": {
+                    "name": "Account Created"
+                }
+            }
+        },
+        "leaves": {
+            "title": "Member Left",
+            "description": "{{- userMention}} left the server",
+            "fields": {
+                "memberSince": {
+                    "name": "Member Since",
+                    "unknown": "Unknown"
+                }
+            }
+        },
+        "userChanges": {
+            "nickname": {
+                "change": {
+                    "title": "Nickname Changed",
+                    "description": "{{- userMention}} had their nickname changed",
+                    "fields": {
+                        "before": {
+                            "name": "Before"
+                        },
+                        "after": {
+                            "name": "After"
+                        }
+                    }
+                },
+                "clear": {
+                    "title": "Nickname Cleared",
+                    "description": "{{- userMention}} had their nickname cleared",
+                    "fields": {
+                        "originalNickname": {
+                            "name": "Original Nickname"
+                        }
+                    }
+                },
+                "set": {
+                    "title": "Nickname Set",
+                    "description": "{{- userMention}} had their nickname set",
+                    "fields": {
+                        "nickname": {
+                            "name": "Nickname"
+                        }
+                    }
+                }
+            },
+            "roles": {
+                "add": {
+                    "single": {
+                        "title": "Role Added",
+                        "description": "{{- userMention}} had a role added"
+                    },
+                    "multi": {
+                        "title": "Roles Added [{{count}}]",
+                        "description": "{{- userMention}} had {{count}} roles added"
+                    }
+                },
+                "remove": {
+                    "common": {
+                        "fields": {
+                            "roles": {
+                                "name": "Roles"
+                            }
+                        }
+                    },
+                    "single": {
+                        "title": "Role Removed",
+                        "description": "{{- userMention}} had a role removed"
+                    },
+                    "multi": {
+                        "title": "Roles Removed [{{count}}]",
+                        "description": "{{- userMention}} had {{count}} roles removed"
+                    }
+                }
+            }
+        }
+    }
+}

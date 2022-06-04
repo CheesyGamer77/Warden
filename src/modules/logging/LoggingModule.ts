@@ -3,6 +3,7 @@ import { Guild, TextChannel, Formatters, GuildMember, PartialGuildMember, Messag
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
+import i18next from 'i18next';
 
 const prisma = new PrismaClient();
 
@@ -72,14 +73,21 @@ export default class LoggingModule {
 
     static async logMemberJoined(member: GuildMember) {
         const channel = await this.fetchLogChannel('joins', member.guild);
+        const lng = member.guild.preferredLocale;
 
         const user = member.user;
 
-        const embed = getEmbedWithTarget(user)
-            .setTitle('Member Joined')
-            .setDescription(user.toString() + ' joined the server')
+        const embed = getEmbedWithTarget(user, lng)
+            .setTitle(i18next.t('logging.joins.title', { lng: lng }))
+            .setDescription(i18next.t('logging.joins.description', {
+                lng: lng,
+                userMention: user.toString()
+            }))
             .setColor('GREEN')
-            .addField('Account Created', Formatters.time(user.createdAt, 'R'));
+            .addField(
+                i18next.t('logging.joins.fields.accountCreated.name', { lng: lng }),
+                Formatters.time(user.createdAt, 'R')
+            );
 
         await channel?.send({
             content: user.id,
@@ -89,20 +97,27 @@ export default class LoggingModule {
 
     static async logMemberLeft(member: GuildMember | PartialGuildMember) {
         const channel = await this.fetchLogChannel('leaves', member.guild);
+        const lng = member.guild.preferredLocale;
 
         const user = member.user;
 
-        const embed = getEmbedWithTarget(user)
-            .setTitle('Member Left')
-            .setDescription(user.toString() + ' left the server')
+        const embed = getEmbedWithTarget(user, lng)
+            .setTitle(i18next.t('logging.leaves.title', { lng: lng }))
+            .setDescription(i18next.t('logging.leaves.description', {
+                lng: lng,
+                userMention: user.toString()
+            }))
             .setColor('RED');
 
         // a removed member's joined at timestamp has the potential to be null
         let memberSince: string;
         if (member.joinedAt != null) {memberSince = Formatters.time(member.joinedAt, 'R');}
-        else {memberSince = 'Unknown';}
+        else {memberSince = i18next.t('logging.leaves.fields.memberSince.unknown');}
 
-        embed.addField('Member Since', memberSince);
+        embed.addField(
+            i18next.t('logging.leaves.fields.memberSince.name'),
+            memberSince
+        );
 
         await channel?.send({
             content: user.id,
@@ -114,20 +129,30 @@ export default class LoggingModule {
         if (message.guild == null) return;
 
         const channel = await this.fetchLogChannel('textFilter', message.guild);
+        const lng = message.guild.preferredLocale;
 
-        const embed = getEmbedWithTarget(message.author)
-            .setTitle('Message Filtered')
-            .setDescription(`${message.author.toString()} was filtered for sending too many duplicate messages in ${message.channel.toString()}`)
+        const user = message.author;
+
+        const embed = getEmbedWithTarget(user, lng)
+            .setTitle(i18next.t('logging.automod.antispam.filtered.title', { lng: lng }))
+            .setDescription(i18next.t('logging.automod.antispam.filtered.description', {
+                lng: lng,
+                userMention: user.toString(),
+                channelMention: message.channel.toString()
+            }))
             .setColor('BLUE');
 
         // splitting code below taken from https://stackoverflow.com/a/58204391
         const parts = message.content.match(/\b[\w\s]{2000,}?(?=\s)|.+$/g) ?? [ message.content ];
         for (const part of parts) {
-            embed.addField('Message', part.trim());
+            embed.addField(
+                i18next.t('logging.automod.antispam.filtered.fields.message.name', { lng: lng }),
+                part.trim()
+            );
         }
 
         await channel?.send({
-            content: message.author.id,
+            content: user.id,
             embeds: [ embed ],
         });
     }
@@ -137,16 +162,30 @@ export default class LoggingModule {
         const until = new Date(opts.until);
 
         const channel = await this.fetchLogChannel(opts.channelType, target.guild);
+        const lng = target.guild.preferredLocale;
 
-        const embed = getEmbedWithTarget(target.user)
-            .setTitle('User in Timeout')
-            .setDescription(`${target.toString()} was put in timeout for ${Formatters.time(until, 'R')} (until ${Formatters.time(until, 'F')})`)
+        const embed = getEmbedWithTarget(target.user, lng)
+            .setTitle(i18next.t('logging.automod.antispam.timeout.title', { lng: lng }))
+            .setDescription(i18next.t('logging.antomod.antispam.timeout.description', {
+                lng: lng,
+                userMention: target.user.toString(),
+                untilTimeMentionLong: Formatters.time(until, 'F'),
+                untilTimeMentionRelative: Formatters.time(until, 'R')
+            }))
             .setColor('ORANGE');
 
         const mod = opts.moderator;
-        if (mod != undefined) {embed.addField('Moderator', `${mod.toString()} \`(${mod.id})\``);}
+        if (mod != undefined) {
+            embed.addField(
+                i18next.t('logging.automod.antispam.timeout.fields.moderator.name', { lng: lng }),
+                `${mod.toString()} \`(${mod.id})\``
+            );
+        }
 
-        embed.addField('Reason', opts.reason ?? 'No Reason Given');
+        embed.addField(
+            i18next.t('logging.automod.antispam.timeout.fields.reason.name', { lng: lng }),
+            opts.reason ?? i18next.t('logging.automod.antispam.timeout.fields.reason.noneGiven', { lng: lng })
+        );
 
         await channel?.send({
             content: target.id,
