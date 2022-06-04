@@ -27,6 +27,24 @@
                         }
                     }
                 }
+            },
+            "nameSanitizer": {
+                "filtered": {
+                    "title": "Nickname Filtered",
+                    "description": "{{- userMention}} had their nickname filtered",
+                    "reason": "Sanitizing Nickname",
+                    "fields": {
+                        "before": {
+                            "name": "Before"
+                        },
+                        "after": {
+                            "name": "After"
+                        },
+                        "reason": {
+                            "name": "Reason"
+                        }
+                    }
+                }
             }
         },
         "joins": {
