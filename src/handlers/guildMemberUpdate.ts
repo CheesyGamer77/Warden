@@ -68,49 +68,66 @@ export async function onGuildMemberUpdate(before: GuildMember | PartialGuildMemb
     if (displayNameHasChanged(before, after)) {
         const oldNick = before.nickname;
         const newNick = after.nickname;
+        const user = after.user;
+
         const updateType = displayNameUpdateType(oldNick, newNick);
 
         // check if nickname was added, changed, or removed
-        let title: string, action: string, color: number;
-        let embed = getEmbedWithTarget(after.user, lng);
+        let title: string, description: string, color: number;
+        let embed = getEmbedWithTarget(user, lng);
         if (updateType == 'SET') {
             // nickname set
-            title = 'Nickname Set';
-            action = 'set';
+            title = i18next.t('logging.userChanges.nickname.set.title', { lng: lng });
+            description = i18next.t('logging.userChanges.nickname.set.description', {
+                lng: lng,
+                userMention: user.toString()
+            });
             color = 0x1f8b4c;
 
-            embed.addField('Nickname', newNick ?? after.user.username);
+            embed.addField(
+                i18next.t('logging.userChanges.nickname.set.fields.nickname.name'),
+                newNick ?? user.username
+            );
         }
         else if (updateType == 'CLEARED') {
             // nickname cleared
-            title = 'Nickname Cleared';
-            action = 'cleared';
+            title = i18next.t('logging.userChanges.nickname.clear.title', { lng: lng });
+            description = i18next.t('logging.userChanges.nickname.clear.description', {
+                lng: lng,
+                userMention: user.toString()
+            });
             color = 0xf1c40f;
 
-            embed.addField('Original Nickname', oldNick ?? before.user.username);
+            embed.addField(
+                i18next.t('logging.userChanges.nickname.clear.fields.originalNickname.name', { lng: lng }),
+                oldNick ?? before.user.username
+            );
         }
         else {
             // neither null guard clause
             if (oldNick === null || newNick === null) return;
 
             // nickname changed
-            title = 'Nickname Changed';
-            action = 'changed';
+            title = i18next.t('logging.userChanges.nickname.change.title', { lng: lng });
+            description = i18next.t('logging.userChanges.nickname.change.description', {
+                lng: lng,
+                userMention: user.toString()
+            });
             color = 0x1abc9c;
 
             embed.addFields({
-                name: 'Before',
+                name: i18next.t('logging.userChanges.nickname.change.fields.before.name', { lng: lng }),
                 value: oldNick,
             },
             {
-                name: 'After',
+                name: i18next.t('logging.userChanges.nickname.change.fields.after.name', { lng: lng }),
                 value: newNick,
             });
         }
 
         embed = embed
             .setTitle(title)
-            .setDescription(`${after.toString()} ${action} their nickname`)
+            .setDescription(description)
             .setColor(color);
 
         await channel?.send({

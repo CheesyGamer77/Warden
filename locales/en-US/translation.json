@@ -49,6 +49,38 @@
             }
         },
         "userChanges": {
+            "nickname": {
+                "change": {
+                    "title": "Nickname Changed",
+                    "description": "{{- userMention}} had their nickname changed",
+                    "fields": {
+                        "before": {
+                            "name": "Before"
+                        },
+                        "after": {
+                            "name": "After"
+                        }
+                    }
+                },
+                "clear": {
+                    "title": "Nickname Cleared",
+                    "description": "{{- userMention}} had their nickname cleared",
+                    "fields": {
+                        "originalNickname": {
+                            "name": "Original Nickname"
+                        }
+                    }
+                },
+                "set": {
+                    "title": "Nickname Set",
+                    "description": "{{- userMention}} had their nickname set",
+                    "fields": {
+                        "nickname": {
+                            "name": "Nickname"
+                        }
+                    }
+                }
+            },
             "roles": {
                 "add": {
                     "single": {
