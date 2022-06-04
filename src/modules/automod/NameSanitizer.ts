@@ -54,20 +54,20 @@ export default class NameSanitizerModule {
                             i18next.t('logging.automod.nameSanitizer.filtered.description', {
                                 lng: lng,
                                 userMention: member.toString()
-                        }))
+                            }))
                         .setColor(0xfee75c)
                         .addFields(
                             {
-                                "name": i18next.t('logging.automod.nameSanitizer.filtered.fields.before.name', { lng: lng }),
-                                "value": name,
+                                'name': i18next.t('logging.automod.nameSanitizer.filtered.fields.before.name', { lng: lng }),
+                                'value': name,
                             },
                             {
-                                "name": i18next.t('logging.automod.nameSanitizer.filtered.fields.after.name', { lng: lng }),
-                                "value": sanitized
+                                'name': i18next.t('logging.automod.nameSanitizer.filtered.fields.after.name', { lng: lng }),
+                                'value': sanitized
                             },
                             {
-                                "name": i18next.t('logging.automod.nameSanitizer.filtered.fields.reason.name', { lng: lng }),
-                                "value": reason
+                                'name': i18next.t('logging.automod.nameSanitizer.filtered.fields.reason.name', { lng: lng }),
+                                'value': reason
                             }
                         )
                 ],
