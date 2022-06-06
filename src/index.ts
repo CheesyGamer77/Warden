@@ -13,21 +13,15 @@ const client = new Client({ intents: [
 
 client.once('ready', () => console.log('Ready'));
 
-client.on('guildMemberAdd', async (member) => {
-    await handlers.onGuildMemberAdd(member);
-});
+client.on('guildMemberAdd', async (member) => await handlers.onGuildMemberAdd(member));
 
-client.on('guildMemberRemove', async (member) => {
-    await handlers.onGuildMemberRemove(member);
-});
+client.on('guildMemberRemove', async (member) => await handlers.onGuildMemberRemove(member));
 
-client.on('guildMemberUpdate', async (before, after) => {
-    await handlers.onGuildMemberUpdate(before, after);
-});
+client.on('guildMemberUpdate', async (before, after) => await handlers.onGuildMemberUpdate(before, after));
 
-client.on('messageCreate', async (message) => {
-    await handlers.onMessageCreate(message);
-});
+client.on('messageCreate', async (message) => await handlers.onMessageCreate(message));
+
+client.on('messageUpdate', async (before, after) => await handlers.onMessageUpdate(before, after));
 
 i18next.use(Backend).init({
     lng: 'en-US',
