@@ -23,6 +23,8 @@ client.on('messageCreate', async (message) => await handlers.onMessageCreate(mes
 
 client.on('messageUpdate', async (before, after) => await handlers.onMessageUpdate(before, after));
 
+client.on('messageDelete', async (message) => await handlers.onMessageDelete(message));
+
 i18next.use(Backend).init({
     lng: 'en-US',
     fallbackLng: 'en-US',
