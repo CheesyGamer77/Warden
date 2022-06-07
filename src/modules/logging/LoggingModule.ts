@@ -231,4 +231,41 @@ export default class LoggingModule {
             embeds: [ embed ]
         });
     }
+
+    static async logMessageDelete(message: Message) {
+        if (message.guild == null || message.content == null) { return; }
+
+        const channel = await this.fetchLogChannel('messageDeletes', message.guild);
+        const lng = message.guild.preferredLocale;
+
+        const parts = message.content.match(/\b[\w\s]{1024,}?(?=\s)|.+$/g) || [ message.content ];
+
+        const embed = getEmbedWithTarget(message.author, lng)
+            .setTitle(i18next.t('logging.messages.deletes.title', { lng: lng }))
+            .setDescription(i18next.t('logging.messages.deletes.description', {
+                lng: lng,
+                userMention: message.author.toString(),
+                channelMention: message.channel.toString()
+            }))
+            .setColor('RED')
+            .setFooter({
+                text: i18next.t('logging.messages.deletes.footer', {
+                    lng: lng,
+                    messageId: message.id,
+                    userId: message.author.id
+                })
+            });
+
+        for (const part of parts) {
+            embed.addField(
+                i18next.t('logging.messages.deletes.fields.message.name', { lng: lng }),
+                part
+            );
+        }
+
+        await channel?.send({
+            content: message.author.id,
+            embeds: [ embed ]
+        });
+    }
 }

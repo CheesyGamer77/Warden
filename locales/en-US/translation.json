@@ -79,6 +79,16 @@
                         "name": "After"
                     }
                 }
+            },
+            "deletes": {
+                "title": "Message Deleted",
+                "description": "Message sent by {{- userMention}} was deleted in {{- channelMention}}",
+                "footer": "User ID: {{userId}}\nMessage ID: {{messageId}}",
+                "fields": {
+                    "message": {
+                        "name": "message"
+                    }
+                }
             }
         },
         "userChanges": {
