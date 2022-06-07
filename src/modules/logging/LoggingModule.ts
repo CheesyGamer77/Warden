@@ -1,5 +1,5 @@
 import { PrismaClient, LogConfig } from '@prisma/client';
-import { Guild, TextChannel, Formatters, GuildMember, PartialGuildMember, Message } from 'discord.js';
+import { Guild, TextChannel, Formatters, GuildMember, PartialGuildMember, Message, PartialMessage } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
@@ -7,7 +7,7 @@ import i18next from 'i18next';
 
 const prisma = new PrismaClient();
 
-export type LogEventType = 'joins' | 'leaves' | 'userFilter' | 'userChanges' | 'textFilter' | 'escalations';
+export type LogEventType = 'joins' | 'leaves' | 'userFilter' | 'userChanges' | 'textFilter' | 'escalations' | 'messageEdits' | 'messageDeletes';
 
 interface LogMemberTimeoutOptions {
     target: GuildMember;
@@ -190,6 +190,82 @@ export default class LoggingModule {
         await channel?.send({
             content: target.id,
             embeds: [ embed ],
+        });
+    }
+
+    static async logMessageEdit(before: Message | PartialMessage, after: Message) {
+        if (after.guild === null || before.content == null || after.content == null) { return; }
+
+        const channel = await this.fetchLogChannel('messageEdits', after.guild);
+        const lng = after.guild.preferredLocale;
+
+        const embed = getEmbedWithTarget(after.author, lng)
+            .setTitle(i18next.t('logging.messages.edits.title', { lng: lng }))
+            .setDescription(i18next.t('logging.messages.edits.description', {
+                lng: lng,
+                messageURL: after.url,
+                userMention: after.author.toString(),
+                channelMention: after.channel.toString()
+            }))
+            .setColor('YELLOW')
+            .addFields([
+                {
+                    name: i18next.t('logging.messages.edits.fields.before.name', { lng: lng }),
+                    value: before.content
+                },
+                {
+                    name: i18next.t('logging.messages.edits.fields.after.name', { lng: lng }),
+                    value: after.content
+                }
+            ])
+            .setFooter({
+                text: i18next.t('logging.messages.edits.footer', {
+                    lng: lng,
+                    messageId: after.id,
+                    userId: after.author.id
+                })
+            });
+
+        await channel?.send({
+            content: after.author.id,
+            embeds: [ embed ]
+        });
+    }
+
+    static async logMessageDelete(message: Message) {
+        if (message.guild == null || message.content == null) { return; }
+
+        const channel = await this.fetchLogChannel('messageDeletes', message.guild);
+        const lng = message.guild.preferredLocale;
+
+        const parts = message.content.match(/\b[\w\s]{1024,}?(?=\s)|.+$/g) || [ message.content ];
+
+        const embed = getEmbedWithTarget(message.author, lng)
+            .setTitle(i18next.t('logging.messages.deletes.title', { lng: lng }))
+            .setDescription(i18next.t('logging.messages.deletes.description', {
+                lng: lng,
+                userMention: message.author.toString(),
+                channelMention: message.channel.toString()
+            }))
+            .setColor('RED')
+            .setFooter({
+                text: i18next.t('logging.messages.deletes.footer', {
+                    lng: lng,
+                    messageId: message.id,
+                    userId: message.author.id
+                })
+            });
+
+        for (const part of parts) {
+            embed.addField(
+                i18next.t('logging.messages.deletes.fields.message.name', { lng: lng }),
+                part
+            );
+        }
+
+        await channel?.send({
+            content: message.author.id,
+            embeds: [ embed ]
         });
     }
 }

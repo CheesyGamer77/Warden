@@ -8,29 +8,33 @@ datasource db {
 }
 
 model LogConfig {
-  guildId         String  @id
-  joinsChannelId  String?
-  leavesChannelId String?
-  textFilterChannelId String?
-  escalationsChannelId String?
-  userFilterChannelId String?
-  userChangesChannelId String?
+  guildId                 String  @id
+  joinsChannelId          String?
+  leavesChannelId         String?
+  userFilterChannelId     String?
+  textFilterChannelId     String?
+  userChangesChannelId    String?
+  escalationsChannelId    String?
+  messageDeletesChannelId String?
+  messageEditsChannelId   String?
 }
 
 model Reputation {
-  guildId String
-  userId String
+  guildId    String
+  userId     String
   reputation Decimal
+
   @@unique([guildId, userId])
 }
 
 model AutoModConfig {
-  guildId String @id
+  guildId         String   @id
   antiSpamEnabled Boolean? @default(false)
 }
 
 model AntiSpamIgnoredChannels {
-  guildId String
+  guildId   String
   channelId String
+
   @@unique([guildId, channelId])
 }
