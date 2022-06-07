@@ -4,7 +4,11 @@
   "description": "A content moderation bot for Discord",
   "main": "./dist/index.js",
   "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "npx rimraf ./dist",
+    "deploy": "npm run build && node ./dist/src",
     "lint": "npx eslint . --ext .js,.jsx,.ts,.tsx",
+    "lintfix": "npx eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
