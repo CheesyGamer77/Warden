@@ -66,6 +66,21 @@
                 }
             }
         },
+        "messages": {
+            "edits": {
+                "title": "Message Edited",
+                "description": "[Message]({{- messageURL}}) sent by {{- userMention}} was edited in {{- channelMention}}",
+                "footer": "User ID: {{userId}}\nMessage ID: {{messageId}}",
+                "fields": {
+                    "before": {
+                        "name": "Before"
+                    },
+                    "after": {
+                        "name": "After"
+                    }
+                }
+            }
+        },
         "userChanges": {
             "nickname": {
                 "change": {

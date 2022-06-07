@@ -1,5 +1,5 @@
 import { PrismaClient, LogConfig } from '@prisma/client';
-import { Guild, TextChannel, Formatters, GuildMember, PartialGuildMember, Message } from 'discord.js';
+import { Guild, TextChannel, Formatters, GuildMember, PartialGuildMember, Message, PartialMessage } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
@@ -190,6 +190,45 @@ export default class LoggingModule {
         await channel?.send({
             content: target.id,
             embeds: [ embed ],
+        });
+    }
+
+    static async logMessageEdit(before: Message | PartialMessage, after: Message) {
+        if (after.guild === null || before.content == null || after.content == null) { return; }
+
+        const channel = await this.fetchLogChannel('messageEdits', after.guild);
+        const lng = after.guild.preferredLocale;
+
+        const embed = getEmbedWithTarget(after.author, lng)
+            .setTitle(i18next.t('logging.messages.edits.title', { lng: lng }))
+            .setDescription(i18next.t('logging.messages.edits.description', {
+                lng: lng,
+                messageURL: after.url,
+                userMention: after.author.toString(),
+                channelMention: after.channel.toString()
+            }))
+            .setColor('YELLOW')
+            .addFields([
+                {
+                    name: i18next.t('logging.messages.edits.fields.before.name', { lng: lng }),
+                    value: before.content
+                },
+                {
+                    name: i18next.t('logging.messages.edits.fields.after.name', { lng: lng }),
+                    value: after.content
+                }
+            ])
+            .setFooter({
+                text: i18next.t('logging.messages.edits.footer', {
+                    lng: lng,
+                    messageId: after.id,
+                    userId: after.author.id
+                })
+            });
+
+        await channel?.send({
+            content: after.author.id,
+            embeds: [ embed ]
         });
     }
 }
