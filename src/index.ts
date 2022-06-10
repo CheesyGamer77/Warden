@@ -1,4 +1,4 @@
-import { Client, Intents } from 'discord.js';
+import { Client, GuildMember, Intents, Message, PartialGuildMember, PartialMessage } from 'discord.js';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import config from '../config.json';
@@ -17,11 +17,15 @@ client.on('guildMemberAdd', async (member) => await handlers.onGuildMemberAdd(me
 
 client.on('guildMemberRemove', async (member) => await handlers.onGuildMemberRemove(member));
 
-client.on('guildMemberUpdate', async (before, after) => await handlers.onGuildMemberUpdate(before, after));
+// TODO: This is stupid. These type definitions are (supposed to be) redundant, but if you don't supply them, VSC IS screams at you
+client.on('guildMemberUpdate', async (before: GuildMember | PartialGuildMember, after: GuildMember) =>
+    await handlers.onGuildMemberUpdate(before, after));
 
 client.on('messageCreate', async (message) => await handlers.onMessageCreate(message));
 
-client.on('messageUpdate', async (before, after) => await handlers.onMessageUpdate(before, after));
+// TODO: This is stupid. These type definitions are (supposed to be) redundant, but if you don't supply them, VSC IS screams at you
+client.on('messageUpdate', async (before: Message | PartialMessage, after: Message | PartialMessage) =>
+    await handlers.onMessageUpdate(before, after));
 
 client.on('messageDelete', async (message) => await handlers.onMessageDelete(message));
 
