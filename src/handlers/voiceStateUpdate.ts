@@ -43,7 +43,7 @@ export async function onVoiceStateUpdate(before: VoiceState, after: VoiceState) 
                 lng: lng,
                 userId: member.id,
                 channelId: channel?.id
-            })});
+            }) });
     }
     else if (state == 'MOVED') {
         const from = before.channel;
@@ -69,7 +69,7 @@ export async function onVoiceStateUpdate(before: VoiceState, after: VoiceState) 
             .setFooter({ text: i18next.t('logging.voiceEvents.moves.footer', {
                 lng: lng,
                 userId: member.id
-            })});
+            }) });
     }
     else {
         const channel = before.channel;
@@ -86,7 +86,7 @@ export async function onVoiceStateUpdate(before: VoiceState, after: VoiceState) 
                 lng: lng,
                 userId: member.id,
                 channelId: channel?.id
-            })});
+            }) });
     }
 
     await logChannel?.send({
