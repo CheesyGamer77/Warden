@@ -1,4 +1,4 @@
-import { Guild, GuildMember, Message, Permissions, TextChannel, ThreadChannel } from 'discord.js';
+import { Guild, GuildMember, Message, Permissions, TextChannel, ThreadChannel, VoiceChannel } from 'discord.js';
 import { createHash } from 'crypto';
 import { canDelete } from '../../util/checks';
 import LoggingModule from '../logging/LoggingModule';
@@ -19,7 +19,7 @@ interface AntiSpamEntry {
     references: MessageReference[]
 }
 
-type IgnorableChannel = TextChannel | ThreadChannel;
+type IgnorableChannel = TextChannel | ThreadChannel | VoiceChannel;
 
 const prisma = new PrismaClient();
 
@@ -220,7 +220,7 @@ export default class AntiSpamModule {
 
         // ignore DM and news channels, non-guild messages, and messages with a null member author
         // TODO: Temp patch for ignoring voice channels, as voice channels now support Text-In-Voice
-        if (channel.type == 'DM' || channel.type == 'GUILD_NEWS' || channel.type == 'GUILD_VOICE' || member == null) return;
+        if (channel.type == 'DM' || channel.type == 'GUILD_NEWS' || member == null) return;
 
         // ignore bots and members with manage message perms
         if (member.user.bot || member.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
