@@ -59,7 +59,7 @@ export async function onVoiceStateUpdate(before: VoiceState, after: VoiceState) 
             .addFields([
                 {
                     name: i18next.t('logging.voiceEvents.moves.fields.from.name', { lng: lng }),
-                    value: `${from?.toString()} (\`${from?.id}}\`)`
+                    value: `${from?.toString()} (\`${from?.id}\`)`
                 },
                 {
                     name: i18next.t('logging.voiceEvents.moves.fields.to.name', { lng: lng }),
