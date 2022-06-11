@@ -165,10 +165,10 @@
                 "description": "{{- userMention}} moved to a different voice channel",
                 "fields": {
                     "from": {
-                        "name": "from"
+                        "name": "From"
                     },
                     "to": {
-                        "name": "to"
+                        "name": "To"
                     }
                 },
                 "footer": "User ID: {{userId}}"
