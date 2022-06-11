@@ -17,6 +17,7 @@ model LogConfig {
   escalationsChannelId    String?
   messageDeletesChannelId String?
   messageEditsChannelId   String?
+  voiceEventsChannelId    String?
 }
 
 model Reputation {

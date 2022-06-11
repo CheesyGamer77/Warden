@@ -153,6 +153,31 @@
                     }
                 }
             }
+        },
+        "voiceEvents": {
+            "joins": {
+                "title": "User Joined Voice Channel",
+                "description": "{{- userMention}} connected to voice channel {{- channelMention}}",
+                "footer": "User ID: {{userId}}\nChannel ID: {{channelId}}"
+            },
+            "moves": {
+                "title": "User Changed Voice Channel",
+                "description": "{{- userMention}} moved to a different voice channel",
+                "fields": {
+                    "from": {
+                        "name": "From"
+                    },
+                    "to": {
+                        "name": "To"
+                    }
+                },
+                "footer": "User ID: {{userId}}"
+            },
+            "leaves": {
+                "title": "User Left Voice Channel",
+                "description": "{{- userMention}} disconnected from voice channel {{- channelMention}}",
+                "footer": "User ID: {{userId}}\nChannel ID: {{channelId}}"
+            }
         }
     }
 }

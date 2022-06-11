@@ -1,4 +1,4 @@
-import { Client, GuildMember, Intents, Message, PartialGuildMember, PartialMessage } from 'discord.js';
+import { Client, GuildMember, Intents, Message, PartialGuildMember, PartialMessage, VoiceState } from 'discord.js';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import config from '../config.json';
@@ -9,6 +9,7 @@ const client = new Client({ intents: [
     Intents.FLAGS.GUILD_MESSAGES,
     Intents.FLAGS.GUILD_MEMBERS,
     Intents.FLAGS.GUILD_BANS,
+    Intents.FLAGS.GUILD_VOICE_STATES
 ] });
 
 client.once('ready', () => console.log('Ready'));
@@ -23,11 +24,14 @@ client.on('guildMemberUpdate', async (before: GuildMember | PartialGuildMember, 
 
 client.on('messageCreate', async (message) => await handlers.onMessageCreate(message));
 
-// TODO: This is stupid. These type definitions are (supposed to be) redundant, but if you don't supply them, VSC IS screams at you
+// TODO: See above
 client.on('messageUpdate', async (before: Message | PartialMessage, after: Message | PartialMessage) =>
     await handlers.onMessageUpdate(before, after));
 
 client.on('messageDelete', async (message) => await handlers.onMessageDelete(message));
+
+// TODO: See above
+client.on('voiceStateUpdate', async (before: VoiceState, after: VoiceState) => await handlers.onVoiceStateUpdate(before, after));
 
 i18next.use(Backend).init({
     lng: 'en-US',

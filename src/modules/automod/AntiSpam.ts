@@ -219,7 +219,8 @@ export default class AntiSpamModule {
         if (guild != null && !(await this.retrieveAutomodConfig(guild)).antiSpamEnabled) return;
 
         // ignore DM and news channels, non-guild messages, and messages with a null member author
-        if (channel.type == 'DM' || channel.type == 'GUILD_NEWS' || member == null) return;
+        // TODO: Temp patch for ignoring voice channels, as voice channels now support Text-In-Voice
+        if (channel.type == 'DM' || channel.type == 'GUILD_NEWS' || channel.type == 'GUILD_VOICE' || member == null) return;
 
         // ignore bots and members with manage message perms
         if (member.user.bot || member.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
