@@ -1,4 +1,4 @@
-import { Client, GuildMember, Intents, Message, PartialGuildMember, PartialMessage, VoiceState } from 'discord.js';
+import { Client, GuildMember, Intents, Message, PartialGuildMember, PartialMessage, ThreadChannel, VoiceState } from 'discord.js';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import config from '../config.json';
@@ -32,6 +32,8 @@ client.on('messageDelete', async (message) => await handlers.onMessageDelete(mes
 
 // TODO: See above
 client.on('voiceStateUpdate', async (before: VoiceState, after: VoiceState) => await handlers.onVoiceStateUpdate(before, after));
+
+client.on('threadCreate', async (thread: ThreadChannel, isNew: boolean) => await handlers.onThreadCreate(thread, isNew));
 
 i18next.use(Backend).init({
     lng: 'en-US',
