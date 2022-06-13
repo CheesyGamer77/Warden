@@ -166,7 +166,7 @@ export default class LoggingModule {
 
         const embed = getEmbedWithTarget(target.user, lng)
             .setTitle(i18next.t('logging.automod.antispam.timeout.title', { lng: lng }))
-            .setDescription(i18next.t('logging.antomod.antispam.timeout.description', {
+            .setDescription(i18next.t('logging.automod.antispam.timeout.description', {
                 lng: lng,
                 userMention: target.user.toString(),
                 untilTimeMentionLong: Formatters.time(until, 'F'),
