@@ -62,7 +62,7 @@ export async function onGuildMemberUpdate(before: GuildMember | PartialGuildMemb
     // don't compare uncached members to new state
     if (before.partial) return;
 
-    const channel = await LoggingModule.fetchLogChannel('userChanges', after.guild);
+    const channel = await LoggingModule.retrieveLogChannel('userChanges', after.guild);
     const lng = after.guild.preferredLocale;
 
     if (displayNameHasChanged(before, after)) {
