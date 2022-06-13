@@ -18,6 +18,7 @@ model LogConfig {
   messageDeletesChannelId String?
   messageEditsChannelId   String?
   voiceEventsChannelId    String?
+  threadEventsChannelId   String?
 }
 
 model Reputation {
