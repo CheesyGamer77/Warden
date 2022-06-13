@@ -18,8 +18,20 @@ export default class {
 
     private static async createDefaultReputation(member: GuildMember): Promise<Reputation> {
         const defaultRep = 0;
-        const data = await prisma.reputation.create({
-            data: {
+
+        const guildId = member.guild.id;
+        const userId = member.id;
+        const data = await prisma.reputation.upsert({
+            where: {
+                guildId_userId: {
+                    guildId: guildId,
+                    userId: userId
+                }
+            },
+            update: {
+                reputation: defaultRep
+            },
+            create: {
                 guildId: member.guild.id,
                 userId: member.id,
                 reputation: defaultRep,
