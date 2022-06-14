@@ -91,6 +91,23 @@
                 }
             }
         },
+        "threadEvents": {
+            "create": {
+                "title": "Thread Created",
+                "description": "{{- ownerMention}} created a thread {{- threadMention}} in {{- channelMention}}",
+                "fields": {
+                    "threadInfo": {
+                        "name": "Thread Info",
+                        "value": "`{{- threadName}}` (ID: `{{threadId}}`)"
+                    },
+                    "parentInfo": {
+                        "name": "Parent Channel Info",
+                        "value": "`{{- parentName}}` (ID: `{{parentId}}`)"
+                    }
+                },
+                "footer": "Owner ID: {{ownerId}}\nChannel ID: {{channelId}}\nThread ID: {{threadId}}"
+            }
+        },
         "userChanges": {
             "nickname": {
                 "change": {
