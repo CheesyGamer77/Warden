@@ -51,7 +51,8 @@ export async function onThreadCreate(thread: ThreadChannel, isNew: boolean) {
                 ownerId: ownerId,
                 channelId: parent?.id ?? '?',
                 threadId: thread.id
-        })})
+            })
+        })
         .setTimestamp();
 
     await channel?.send({
