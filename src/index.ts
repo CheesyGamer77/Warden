@@ -36,6 +36,9 @@ client.on('threadCreate', async (thread: ThreadChannel, isNew: boolean) => await
 client.on('threadDelete', async (thread) => await handlers.onThreadDelete(thread));
 
 // TODO: See above
+client.on('threadUpdate', async (before: ThreadChannel, after: ThreadChannel) => await handlers.onThreadUpdate(before, after));
+
+// TODO: See above
 client.on('voiceStateUpdate', async (before: VoiceState, after: VoiceState) => await handlers.onVoiceStateUpdate(before, after));
 
 i18next.use(Backend).init({
