@@ -33,7 +33,10 @@ client.on('messageDelete', async (message) => await handlers.onMessageDelete(mes
 // TODO: See above
 client.on('voiceStateUpdate', async (before: VoiceState, after: VoiceState) => await handlers.onVoiceStateUpdate(before, after));
 
+// TODO: See above
 client.on('threadCreate', async (thread: ThreadChannel, isNew: boolean) => await handlers.onThreadCreate(thread, isNew));
+
+client.on('threadDelete', async (thread) => await handlers.onThreadDelete(thread));
 
 i18next.use(Backend).init({
     lng: 'en-US',

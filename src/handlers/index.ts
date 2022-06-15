@@ -6,6 +6,7 @@ import { onMessageUpdate } from './messageUpdate';
 import { onMessageDelete } from './messageDelete';
 import { onVoiceStateUpdate } from './voiceStateUpdate';
 import { onThreadCreate } from './threadCreate';
+import { onThreadDelete } from './threadDelete';
 
 export {
     onGuildMemberAdd,
@@ -15,5 +16,6 @@ export {
     onMessageUpdate,
     onMessageDelete,
     onThreadCreate,
+    onThreadDelete,
     onVoiceStateUpdate
 };
