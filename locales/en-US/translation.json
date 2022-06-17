@@ -111,6 +111,31 @@
                 "title": "Thread Deleted",
                 "description": "Thread `{{- threadName}}` was deleted",
                 "footer": "Thread ID: {{threadId}}\nChannel ID: {{channelId}}"
+            },
+            "update": {
+                "name": {
+                    "title": "Thread Name Updated",
+                    "description": "Thread {{- threadMention}} had its name changed",
+                    "footer": "Thread Id: {{threadId}}\nChannel ID: {{channelId}}",
+                    "fields": {
+                        "before": {
+                            "name": "Before"
+                        },
+                        "after": {
+                            "name": "After"
+                        }
+                    }
+                },
+                "archived": {
+                    "title": "Thread Archived",
+                    "description": "Thread `{{- threadName}}` was archived",
+                    "footer": "Thread Id: {{threadId}}\nChannel ID: {{channelId}}"
+                },
+                "unarchived": {
+                    "title": "Thread Unarchived",
+                    "description": "Thread `{{- threadName}}` was unarchived",
+                    "footer": "Thread Id: {{threadId}}\nChannel ID: {{channelId}}"
+                }
             }
         },
         "userChanges": {
