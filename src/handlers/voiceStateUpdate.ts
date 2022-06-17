@@ -18,7 +18,7 @@ function getVoiceState(before: VoiceState, after: VoiceState): State {
 }
 
 export async function onVoiceStateUpdate(before: VoiceState, after: VoiceState) {
-    const logChannel = await LoggingModule.fetchLogChannel('voiceEvents', after.guild);
+    const logChannel = await LoggingModule.retrieveLogChannel('voiceEvents', after.guild);
     const lng = after.guild.preferredLocale;
 
     // prevent null after members

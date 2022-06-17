@@ -7,7 +7,7 @@ import i18next from 'i18next';
 
 const prisma = new PrismaClient();
 
-export type LogEventType = 'joins' | 'leaves' | 'userFilter' | 'userChanges' | 'textFilter' | 'escalations' | 'messageEdits' | 'messageDeletes' | 'voiceEvents';
+export type LogEventType = 'joins' | 'leaves' | 'userFilter' | 'userChanges' | 'textFilter' | 'escalations' | 'messageEdits' | 'messageDeletes' | 'voiceEvents' | 'threadEvents';
 
 interface LogMemberTimeoutOptions {
     target: GuildMember;
@@ -39,7 +39,7 @@ export default class LoggingModule {
      * @param guild The guild to fetch the config of
      * @returns The configuration
      */
-    static async fetchLogConfiguration(guild: Guild): Promise<LogConfig> {
+    static async retrieveConfiguration(guild: Guild): Promise<LogConfig> {
         const data = this.configCache.get(guild.id) ?? await prisma.logConfig.findUnique({
             where: {
                 guildId: guild.id,
@@ -56,8 +56,8 @@ export default class LoggingModule {
      * @param guild The guild to fetch the log channel from
      * @returns The TextChannel if it exists, else null
      */
-    static async fetchLogChannel(event: LogEventType, guild: Guild): Promise<TextChannel | null> {
-        const config = await this.fetchLogConfiguration(guild);
+    static async retrieveLogChannel(event: LogEventType, guild: Guild): Promise<TextChannel | null> {
+        const config = await this.retrieveConfiguration(guild);
 
         const channelId = config[event + 'ChannelId' as keyof LogConfig];
 
@@ -72,7 +72,7 @@ export default class LoggingModule {
     }
 
     static async logMemberJoined(member: GuildMember) {
-        const channel = await this.fetchLogChannel('joins', member.guild);
+        const channel = await this.retrieveLogChannel('joins', member.guild);
         const lng = member.guild.preferredLocale;
 
         const user = member.user;
@@ -96,7 +96,7 @@ export default class LoggingModule {
     }
 
     static async logMemberLeft(member: GuildMember | PartialGuildMember) {
-        const channel = await this.fetchLogChannel('leaves', member.guild);
+        const channel = await this.retrieveLogChannel('leaves', member.guild);
         const lng = member.guild.preferredLocale;
 
         const user = member.user;
@@ -128,7 +128,7 @@ export default class LoggingModule {
     static async logMemberSpamming(message: Message) {
         if (message.guild == null) return;
 
-        const channel = await this.fetchLogChannel('textFilter', message.guild);
+        const channel = await this.retrieveLogChannel('textFilter', message.guild);
         const lng = message.guild.preferredLocale;
 
         const user = message.author;
@@ -161,7 +161,7 @@ export default class LoggingModule {
         const target = opts.target;
         const until = new Date(opts.until);
 
-        const channel = await this.fetchLogChannel(opts.channelType, target.guild);
+        const channel = await this.retrieveLogChannel(opts.channelType, target.guild);
         const lng = target.guild.preferredLocale;
 
         const embed = getEmbedWithTarget(target.user, lng)
@@ -196,7 +196,7 @@ export default class LoggingModule {
     static async logMessageEdit(before: Message | PartialMessage, after: Message) {
         if (after.guild === null || before.content == null || after.content == null) { return; }
 
-        const channel = await this.fetchLogChannel('messageEdits', after.guild);
+        const channel = await this.retrieveLogChannel('messageEdits', after.guild);
         const lng = after.guild.preferredLocale;
 
         const embed = getEmbedWithTarget(after.author, lng)
@@ -235,7 +235,7 @@ export default class LoggingModule {
     static async logMessageDelete(message: Message) {
         if (message.guild == null || message.content == null) { return; }
 
-        const channel = await this.fetchLogChannel('messageDeletes', message.guild);
+        const channel = await this.retrieveLogChannel('messageDeletes', message.guild);
         const lng = message.guild.preferredLocale;
 
         const parts = message.content.match(/\b[\w\s]{1024,}?(?=\s)|.+$/g) || [ message.content ];
