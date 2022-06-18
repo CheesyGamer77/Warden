@@ -2,12 +2,16 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
 
 export abstract class SlashCommandBase {
-    readonly name: string;
-    readonly description: string;
+    protected readonly name: string;
+    protected readonly description: string;
 
     constructor(name: string, description: string) {
         this.name = name;
         this.description = description;
+    }
+
+    getName() {
+        return this.name;
     }
 
     abstract process(interaction: CommandInteraction): Promise<void>
@@ -25,7 +29,7 @@ export default abstract class extends SlashCommandBase {
             .setDescription(description);
     }
 
-    override async process(interaction: CommandInteraction): Promise<void> {
+    override async process(interaction: CommandInteraction) {
         if (interaction.commandName === this.name) {
             const subcommand = interaction.options.getSubcommand(false);
             const subcommandGroup = interaction.options.getSubcommandGroup(false);

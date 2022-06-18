@@ -6,7 +6,7 @@ export default class {
 
     constructor(...commands: SlashCommand[]) {
         for(const command of commands) {
-            this.commandMap.set(command.name, command);
+            this.commandMap.set(command.getName(), command);
         }
     }
 
