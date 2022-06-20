@@ -1,4 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
+import { RESTPostAPIApplicationCommandsJSONBody } from 'discord-api-types/v10';
 import { CommandInteraction } from 'discord.js';
 
 export abstract class SlashCommandBase {
@@ -16,6 +17,7 @@ export abstract class SlashCommandBase {
 
     abstract process(interaction: CommandInteraction): Promise<void>
     abstract invoke(interaction: CommandInteraction): Promise<void>
+    abstract toJSON(): RESTPostAPIApplicationCommandsJSONBody
 }
 
 export default abstract class extends SlashCommandBase {
@@ -27,6 +29,10 @@ export default abstract class extends SlashCommandBase {
         this.dataBuilder = new SlashCommandBuilder()
             .setName(name)
             .setDescription(description);
+    }
+
+    override toJSON() {
+        return this.dataBuilder.toJSON();
     }
 
     override async process(interaction: CommandInteraction) {

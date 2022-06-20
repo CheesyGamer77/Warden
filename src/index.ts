@@ -1,8 +1,11 @@
+import { REST } from '@discordjs/rest';
 import { Client, GuildMember, Intents, Message, PartialGuildMember, PartialMessage, ThreadChannel, VoiceState } from 'discord.js';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import config from '../config.json';
 import * as handlers from './handlers';
+import { Routes } from 'discord-api-types/v10';
+import * as commands from './commands';
 
 const client = new Client({ intents: [
     Intents.FLAGS.GUILDS,
@@ -42,6 +45,9 @@ client.on('threadUpdate', async (before: ThreadChannel, after: ThreadChannel) =>
 client.on('voiceStateUpdate', async (before: VoiceState, after: VoiceState) => await handlers.onVoiceStateUpdate(before, after));
 
 (async () => {
+    const token = config.token;
+
+    // translations
     await i18next.use(Backend).init({
         lng: 'en-US',
         fallbackLng: 'en-US',
@@ -51,5 +57,14 @@ client.on('voiceStateUpdate', async (before: VoiceState, after: VoiceState) => a
         }
     });
 
-    await client.login(config.token);
+    // update commands
+    // TODO: Add local caching of commands
+    const rest = new REST({ version: '10' }).setToken(token);
+    const body = commands.listener.getCommands();
+
+    await rest.put(Routes.applicationCommands(config.clientId), { body: body })
+    console.log(`Updated ${body.length} slash commands`);
+
+    // login
+    await client.login(token);
 })();

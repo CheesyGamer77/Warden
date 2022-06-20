@@ -10,6 +10,16 @@ export default class {
         }
     }
 
+    getCommands() {
+        const data = [];
+
+        for(const [key, value] of this.commandMap) {
+            data.push(value.toJSON());
+        }
+
+        return data;
+    }
+
     async process(interaction: CommandInteraction) {
         await this.commandMap.get(interaction.commandName)?.process(interaction);
     }
