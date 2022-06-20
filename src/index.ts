@@ -41,11 +41,15 @@ client.on('threadUpdate', async (before: ThreadChannel, after: ThreadChannel) =>
 // TODO: See above
 client.on('voiceStateUpdate', async (before: VoiceState, after: VoiceState) => await handlers.onVoiceStateUpdate(before, after));
 
-i18next.use(Backend).init({
-    lng: 'en-US',
-    fallbackLng: 'en-US',
-    cleanCode: true,
-    backend: {
-        loadPath: './locales/{{lng}}/translation.json'
-    }
-}).then(() => client.login(config.token));
+(async () => {
+    await i18next.use(Backend).init({
+        lng: 'en-US',
+        fallbackLng: 'en-US',
+        cleanCode: true,
+        backend: {
+            loadPath: './locales/{{lng}}/translation.json'
+        }
+    });
+
+    await client.login(config.token);
+})();
