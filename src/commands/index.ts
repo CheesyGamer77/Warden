@@ -8,4 +8,4 @@ const listener = new CommandListener(
 export {
     listener,
     PingCommand
-}
+};

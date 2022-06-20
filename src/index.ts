@@ -62,7 +62,7 @@ client.on('voiceStateUpdate', async (before: VoiceState, after: VoiceState) => a
     const rest = new REST({ version: '10' }).setToken(token);
     const body = commands.listener.getCommands();
 
-    await rest.put(Routes.applicationCommands(config.clientId), { body: body })
+    await rest.put(Routes.applicationCommands(config.clientId), { body: body });
     console.log(`Updated ${body.length} slash commands`);
 
     // login
