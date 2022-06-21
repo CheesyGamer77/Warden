@@ -36,11 +36,11 @@ export default abstract class extends SlashCommandBase {
     }
 
     override async process(interaction: CommandInteraction) {
-        if (interaction.commandName === this.name) {
+        if (interaction.commandName == this.name) {
             const subcommand = interaction.options.getSubcommand(false);
             const subcommandGroup = interaction.options.getSubcommandGroup(false);
 
-            if (subcommandGroup === null && subcommand == null) {
+            if (subcommandGroup == null && subcommand == null) {
                 await this.invoke(interaction);
             }
         }
