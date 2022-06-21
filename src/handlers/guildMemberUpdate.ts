@@ -58,7 +58,7 @@ function getRoleUpdateEmbed(member: GuildMember, roles: Collection<string, Role>
         );
 }
 
-export async function onGuildMemberUpdate(before: GuildMember | PartialGuildMember, after: GuildMember) {
+export default async function onGuildMemberUpdate(before: GuildMember | PartialGuildMember, after: GuildMember) {
     // don't compare uncached members to new state
     if (before.partial) return;
 
