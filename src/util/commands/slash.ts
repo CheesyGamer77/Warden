@@ -1,8 +1,8 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { SlashCommandBuilder, SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } from '@discordjs/builders';
 import { RESTPostAPIApplicationCommandsJSONBody } from 'discord-api-types/v10';
 import { CommandInteraction } from 'discord.js';
 
-export abstract class SlashCommandBase {
+export abstract class CommandBase<BuilderType extends SlashCommandBuilder | SlashCommandSubcommandBuilder | SlashCommandSubcommandGroupBuilder> {
     protected readonly name: string;
     protected readonly description: string;
 
@@ -17,11 +17,13 @@ export abstract class SlashCommandBase {
 
     abstract process(interaction: CommandInteraction): Promise<void>
     abstract invoke(interaction: CommandInteraction): Promise<void>
+    abstract getData(): BuilderType
     abstract toJSON(): RESTPostAPIApplicationCommandsJSONBody
 }
 
-export default abstract class extends SlashCommandBase {
-    readonly dataBuilder: SlashCommandBuilder;
+export abstract class SlashCommand extends CommandBase<SlashCommandBuilder> {
+    private readonly dataBuilder: SlashCommandBuilder;
+    private readonly subcommands: Map<string, Subcommand> = new Map();
 
     constructor(name: string, description: string) {
         super(name, description);
@@ -29,6 +31,10 @@ export default abstract class extends SlashCommandBase {
         this.dataBuilder = new SlashCommandBuilder()
             .setName(name)
             .setDescription(description);
+    }
+
+    override getData() {
+        return this.dataBuilder;
     }
 
     override toJSON() {
@@ -42,6 +48,9 @@ export default abstract class extends SlashCommandBase {
 
             if (subcommandGroup == null && subcommand == null) {
                 await this.invoke(interaction);
+            }
+            else if(subcommand != null) {
+                await this.subcommands.get(subcommand)?.process(interaction)
             }
         }
     }

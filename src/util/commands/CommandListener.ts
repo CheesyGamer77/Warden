@@ -1,4 +1,4 @@
-import SlashCommand from './slash/SlashCommand';
+import { SlashCommand } from './slash';
 import { CommandInteraction } from 'discord.js';
 
 export default class {
