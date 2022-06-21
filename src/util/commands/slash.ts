@@ -1,5 +1,4 @@
 import { SlashCommandBuilder, SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } from '@discordjs/builders';
-import { RESTPostAPIApplicationCommandsJSONBody } from 'discord-api-types/v10';
 import { CommandInteraction } from 'discord.js';
 
 abstract class CommandBase<BuilderType extends SlashCommandBuilder | SlashCommandSubcommandBuilder | SlashCommandSubcommandGroupBuilder> {
@@ -34,14 +33,14 @@ export abstract class SlashCommand extends CommandBase<SlashCommandBuilder> {
     }
 
     addSubcommandGroups(...groups: SubcommandGroup[]) {
-        for(const group of groups) {
+        for (const group of groups) {
             this.dataBuilder.addSubcommandGroup(group.getData());
             this.subcommandGroups.set(group.getName(), group);
         }
     }
 
     addSubcommands(...subcommands: Subcommand[]) {
-        for(const command of subcommands) {
+        for (const command of subcommands) {
             this.dataBuilder.addSubcommand(command.getData());
             this.subcommands.set(command.getName(), command);
         }
@@ -63,8 +62,8 @@ export abstract class SlashCommand extends CommandBase<SlashCommandBuilder> {
             if (subcommandGroup == null && subcommand == null) {
                 await this.invoke(interaction);
             }
-            else if(subcommand != null) {
-                await this.subcommands.get(subcommand)?.process(interaction)
+            else if (subcommand != null) {
+                await this.subcommands.get(subcommand)?.process(interaction);
             }
         }
     }
@@ -77,7 +76,7 @@ export abstract class Subcommand extends CommandBase<SlashCommandSubcommandBuild
         super(name, description);
         this.dataBuilder = new SlashCommandSubcommandBuilder()
             .setName(name)
-            .setDescription(description)
+            .setDescription(description);
     }
 
     override getData() {
@@ -85,10 +84,10 @@ export abstract class Subcommand extends CommandBase<SlashCommandSubcommandBuild
     }
 
     override async process(interaction: CommandInteraction) {
-        if(interaction.isCommand()) {
+        if (interaction.isCommand()) {
             const name = interaction.options.getSubcommand();
-            if(name == this.name) {
-                await this.invoke(interaction)
+            if (name == this.name) {
+                await this.invoke(interaction);
             }
         }
     }
@@ -106,7 +105,7 @@ export abstract class SubcommandGroup extends CommandBase<SlashCommandSubcommand
     }
 
     addSubcommands(...subcommands: Subcommand[]) {
-        for(const command of subcommands) {
+        for (const command of subcommands) {
             this.dataBuilder.addSubcommand(command.getData());
             this.subcommands.set(command.getName(), command);
         }
@@ -117,15 +116,16 @@ export abstract class SubcommandGroup extends CommandBase<SlashCommandSubcommand
     }
 
     override async process(interaction: CommandInteraction) {
-        if(interaction.isCommand()) {
+        if (interaction.isCommand()) {
             const name = interaction.options.getSubcommandGroup();
             const subcommandName = interaction.options.getSubcommand();
 
-            if(name == this.name) {
+            if (name == this.name) {
                 await this.subcommands.get(subcommandName)?.process(interaction);
             }
         }
     }
 
-    override async invoke(_: CommandInteraction) {}
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    override async invoke(_: CommandInteraction) { return; }
 }
