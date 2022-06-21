@@ -5,7 +5,4 @@ const listener = new CommandListener(
     new PingCommand()
 );
 
-export {
-    listener,
-    PingCommand
-};
+export { listener };
