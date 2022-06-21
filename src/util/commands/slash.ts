@@ -2,7 +2,7 @@ import { SlashCommandBuilder, SlashCommandSubcommandBuilder, SlashCommandSubcomm
 import { RESTPostAPIApplicationCommandsJSONBody } from 'discord-api-types/v10';
 import { CommandInteraction } from 'discord.js';
 
-export abstract class CommandBase<BuilderType extends SlashCommandBuilder | SlashCommandSubcommandBuilder | SlashCommandSubcommandGroupBuilder> {
+abstract class CommandBase<BuilderType extends SlashCommandBuilder | SlashCommandSubcommandBuilder | SlashCommandSubcommandGroupBuilder> {
     protected readonly name: string;
     protected readonly description: string;
 
@@ -18,11 +18,11 @@ export abstract class CommandBase<BuilderType extends SlashCommandBuilder | Slas
     abstract process(interaction: CommandInteraction): Promise<void>
     abstract invoke(interaction: CommandInteraction): Promise<void>
     abstract getData(): BuilderType
-    abstract toJSON(): RESTPostAPIApplicationCommandsJSONBody
 }
 
 export abstract class SlashCommand extends CommandBase<SlashCommandBuilder> {
     private readonly dataBuilder: SlashCommandBuilder;
+    private readonly subcommandGroups: Map<string, SubcommandGroup> = new Map();
     private readonly subcommands: Map<string, Subcommand> = new Map();
 
     constructor(name: string, description: string) {
@@ -31,6 +31,13 @@ export abstract class SlashCommand extends CommandBase<SlashCommandBuilder> {
         this.dataBuilder = new SlashCommandBuilder()
             .setName(name)
             .setDescription(description);
+    }
+
+    addSubcommandGroups(...groups: SubcommandGroup[]) {
+        for(const group of groups) {
+            this.dataBuilder.addSubcommandGroup(group.getData());
+            this.subcommandGroups.set(group.getName(), group);
+        }
     }
 
     addSubcommands(...subcommands: Subcommand[]) {
@@ -44,7 +51,7 @@ export abstract class SlashCommand extends CommandBase<SlashCommandBuilder> {
         return this.dataBuilder;
     }
 
-    override toJSON() {
+    toJSON() {
         return this.dataBuilder.toJSON();
     }
 
@@ -85,4 +92,40 @@ export abstract class Subcommand extends CommandBase<SlashCommandSubcommandBuild
             }
         }
     }
+}
+
+export abstract class SubcommandGroup extends CommandBase<SlashCommandSubcommandGroupBuilder> {
+    private readonly dataBuilder: SlashCommandSubcommandGroupBuilder;
+    private readonly subcommands: Map<string, Subcommand> = new Map();
+
+    constructor(name: string, description: string) {
+        super(name, description);
+        this.dataBuilder = new SlashCommandSubcommandGroupBuilder()
+            .setName(name)
+            .setDescription(description);
+    }
+
+    addSubcommands(...subcommands: Subcommand[]) {
+        for(const command of subcommands) {
+            this.dataBuilder.addSubcommand(command.getData());
+            this.subcommands.set(command.getName(), command);
+        }
+    }
+
+    override getData() {
+        return this.dataBuilder;
+    }
+
+    override async process(interaction: CommandInteraction) {
+        if(interaction.isCommand()) {
+            const name = interaction.options.getSubcommandGroup();
+            const subcommandName = interaction.options.getSubcommand();
+
+            if(name == this.name) {
+                await this.subcommands.get(subcommandName)?.process(interaction);
+            }
+        }
+    }
+
+    override async invoke(_: CommandInteraction) {}
 }
