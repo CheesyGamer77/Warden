@@ -6,6 +6,8 @@ import config from '../config.json';
 import * as handlers from './handlers';
 import { Routes } from 'discord-api-types/v10';
 import * as commands from './commands';
+import { createHash } from 'node:crypto';
+import * as fs from 'node:fs/promises';
 
 const client = new Client({ intents: [
     Intents.FLAGS.GUILDS,
@@ -58,12 +60,26 @@ client.on('voiceStateUpdate', async (before: VoiceState, after: VoiceState) => a
     });
 
     // update commands
-    // TODO: Add local caching of commands
-    const rest = new REST({ version: '10' }).setToken(token);
-    const body = commands.listener.getCommands();
+    const cachePath = './warden.commands.cache';
 
-    await rest.put(Routes.applicationCommands(config.clientId), { body: body });
-    console.log(`Updated ${body.length} slash commands`);
+    // generate hash of current command content
+    const body = commands.listener.getCommands();
+    const commandsHash = createHash('MD5').update(body.toString()).digest('hex');
+
+    // read local hash if able
+    const localHash = await fs.readFile(cachePath, { encoding: 'utf8', flag: 'r+' });
+
+    if (commandsHash !== localHash) {
+        await fs.writeFile(cachePath, commandsHash);
+
+        const rest = new REST({ version: '10' }).setToken(token);
+        await rest.put(Routes.applicationCommands(config.clientId), { body: body });
+
+        console.log(`Updated ${body.length} slash commands`);
+    }
+    else {
+        console.log('Skipping commands update due to no local changes');
+    }
 
     // login
     await client.login(token);
