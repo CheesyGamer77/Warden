@@ -33,6 +33,13 @@ export abstract class SlashCommand extends CommandBase<SlashCommandBuilder> {
             .setDescription(description);
     }
 
+    addSubcommands(...subcommands: Subcommand[]) {
+        for(const command of subcommands) {
+            this.dataBuilder.addSubcommand(command.getData());
+            this.subcommands.set(command.getName(), command);
+        }
+    }
+
     override getData() {
         return this.dataBuilder;
     }
@@ -51,6 +58,30 @@ export abstract class SlashCommand extends CommandBase<SlashCommandBuilder> {
             }
             else if(subcommand != null) {
                 await this.subcommands.get(subcommand)?.process(interaction)
+            }
+        }
+    }
+}
+
+export abstract class Subcommand extends CommandBase<SlashCommandSubcommandBuilder> {
+    private readonly dataBuilder: SlashCommandSubcommandBuilder;
+
+    constructor(name: string, description: string) {
+        super(name, description);
+        this.dataBuilder = new SlashCommandSubcommandBuilder()
+            .setName(name)
+            .setDescription(description)
+    }
+
+    override getData() {
+        return this.dataBuilder;
+    }
+
+    override async process(interaction: CommandInteraction) {
+        if(interaction.isCommand()) {
+            const name = interaction.options.getSubcommand();
+            if(name == this.name) {
+                await this.invoke(interaction)
             }
         }
     }
