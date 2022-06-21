@@ -27,6 +27,8 @@ client.on('guildMemberRemove', async (member) => await handlers.onGuildMemberRem
 client.on('guildMemberUpdate', async (before: GuildMember | PartialGuildMember, after: GuildMember) =>
     await handlers.onGuildMemberUpdate(before, after));
 
+client.on('interactionCreate', async (interaction) => await handlers.onInteractionCreate(interaction));
+
 client.on('messageCreate', async (message) => await handlers.onMessageCreate(message));
 
 client.on('messageDelete', async (message) => await handlers.onMessageDelete(message));
