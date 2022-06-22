@@ -233,7 +233,7 @@ export default class LoggingModule {
     }
 
     static async logMessageDelete(message: Message) {
-        if (message.guild == null || message.content == null) { return; }
+        if (message.guild == null || message.content == '') { return; }
 
         const channel = await this.retrieveLogChannel('messageDeletes', message.guild);
         const lng = message.guild.preferredLocale;

@@ -2,7 +2,7 @@ import { MessageEmbed, ThreadChannel } from 'discord.js';
 import i18next from 'i18next';
 import LoggingModule from '../modules/logging/LoggingModule';
 
-export async function onThreadDelete(thread: ThreadChannel) {
+export default async function onThreadDelete(thread: ThreadChannel) {
     const channel = await LoggingModule.retrieveLogChannel('threadEvents', thread.guild);
 
     const lng = thread.guild.preferredLocale;
