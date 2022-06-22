@@ -20,7 +20,7 @@ abstract class CommandBase<BuilderType extends SlashCommandBuilder | SlashComman
 }
 
 export abstract class SlashCommand extends CommandBase<SlashCommandBuilder> {
-    private readonly dataBuilder: SlashCommandBuilder;
+    protected readonly dataBuilder: SlashCommandBuilder;
     private readonly subcommandGroups: Map<string, SubcommandGroup> = new Map();
     private readonly subcommands: Map<string, Subcommand> = new Map();
 
@@ -70,7 +70,7 @@ export abstract class SlashCommand extends CommandBase<SlashCommandBuilder> {
 }
 
 export abstract class Subcommand extends CommandBase<SlashCommandSubcommandBuilder> {
-    private readonly dataBuilder: SlashCommandSubcommandBuilder;
+    protected readonly dataBuilder: SlashCommandSubcommandBuilder;
 
     constructor(name: string, description: string) {
         super(name, description);
