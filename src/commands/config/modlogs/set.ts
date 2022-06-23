@@ -1,4 +1,4 @@
-import { ColorResolvable, CommandInteraction, GuildTextBasedChannel, MessageEmbed } from 'discord.js';
+import { CommandInteraction, GuildTextBasedChannel, MessageEmbed } from 'discord.js';
 import ModlogsGroup from '.';
 import { Subcommand } from '../../../util/commands/slash';
 import { ChannelType } from 'discord-api-types/v10';
@@ -29,71 +29,30 @@ export default class SetCommand extends Subcommand {
         const opts = interaction.options;
 
         const modlogType = opts.getString('type', true);
-        const channel = opts.getChannel('channel', false) as GuildTextBasedChannel;
+        const channel = opts.getChannel('channel', false) as GuildTextBasedChannel | null;
 
         let content = '';
         let embed: MessageEmbed;
 
         const config = await LoggingModule.retrieveConfiguration(interaction.guild);
-        if (channel == null) {
-            // display config
-            let description = '';
-            for (const key in config) {
-                if (key == 'guildId') { continue; }
-                const channelId = config[key as keyof LogConfig];
-                const channelMention = channelId != null ? `<#${channelId}>` : '[NOT SET]';
+        const oldChannelId = config[modlogType as keyof LogConfig];
 
-                description = description.concat(`• \`${key}\`: ${channelMention}\n`);
-            }
+        await LoggingModule.setLogChannel(interaction.guild, modlogType.replace('ChannelId', '') as LogEventType, channel);
 
-            if (modlogType == null) {
-                // display entire config
-                embed = new MessageEmbed()
-                    .setTitle('Moderation Log Configuration')
-                    .setDescription(description)
-                    .setColor('BLURPLE')
-                    .setFooter({ text: `Guild ID: ${interaction.guildId}` });
-            }
-            else {
-                // display channel for given type
-                const channelId = config[modlogType as keyof LogConfig];
-                let color: ColorResolvable;
-
-                if (channelId != null) {
-                    description = `Logs for \`${modlogType}\` are currently sent to <#${channelId}>`;
-                    color = 'BLURPLE';
-                    content = channelId;
+        const NOT_SET = '[NOT SET]';
+        embed = new MessageEmbed()
+            .setDescription(`Set logging channel for \`${modlogType}\` to ${channel?.toString() ?? NOT_SET}`)
+            .setColor('BLURPLE')
+            .addFields(
+                {
+                    name: 'Before',
+                    value: oldChannelId != null ? `<#${oldChannelId}> (id: \`${oldChannelId}\`)` : NOT_SET,
+                },
+                {
+                    name: 'After',
+                    value: channel != null ? `${channel.toString()} (id: \`${channel.id}\`)` : NOT_SET
                 }
-                else {
-                    description = `There is no channel set for logging \`${modlogType}\``;
-                    color = 'RED';
-                }
-
-                embed = new MessageEmbed()
-                    .setDescription(description)
-                    .setColor(color);
-            }
-        }
-        else {
-            // save old channel for feedback message
-            const oldChannelId = config[modlogType as keyof LogConfig];
-
-            // set modlog channel
-            await LoggingModule.setLogChannel(modlogType.replace('ChannelId', '') as LogEventType, channel);
-
-            embed = new MessageEmbed()
-                .setDescription(`Set logging channel for \`${modlogType}\` to ${channel.toString()}`)
-                .addFields(
-                    {
-                        name: 'Before',
-                        value: `<#${oldChannelId}> (id: \`${oldChannelId}\`)`,
-                    },
-                    {
-                        name: 'After',
-                        value: `${channel.toString()} (id: \`${channel.id}\`)`
-                    }
-                );
-        }
+            );
 
         await interaction.reply({
             content: content != '' ? content : null,
