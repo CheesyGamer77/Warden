@@ -1,5 +1,5 @@
 import { PrismaClient, LogConfig } from '@prisma/client';
-import { Guild, TextChannel, Formatters, GuildMember, PartialGuildMember, Message, PartialMessage } from 'discord.js';
+import { Guild, TextChannel, Formatters, GuildMember, PartialGuildMember, Message, PartialMessage, GuildTextBasedChannel } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
@@ -71,6 +71,36 @@ export default class LoggingModule {
         }
 
         return null;
+    }
+
+    /**
+     * Configures a guild's log channel for a particular event type.
+     * This operation is write-back, meaning this first updates the cache entry (if cached, see below) followed by the database entry.
+     * This operation will automatically cache the given configuration by default unless stated otherwise.
+     * @param event The event type to set the channel for
+     * @param channel The channel to use for logging the aformentioned event
+     */
+    static async setLogChannel(event: LogEventType, channel: GuildTextBasedChannel) {
+        const guildId = channel.guildId;
+        const key = event + 'ChannelId' as keyof LogConfig;
+
+        let config = await this.retrieveConfiguration(channel.guild);
+        config[key] = channel.id;
+        this.configCache.set(guildId, config);
+
+        // a bit cursed, but gets the job done :shrug:
+        const update = <LogConfig>{};
+        update[key] = channel.id;
+        const create = update;
+        create['guildId'] = guildId;
+
+        await prisma.logConfig.upsert({
+            where: {
+                guildId: guildId
+            },
+            update: update,
+            create: create
+        });
     }
 
     static async logMemberJoined(member: GuildMember) {
