@@ -1,5 +1,6 @@
 import { CommandInteraction, Permissions } from 'discord.js';
 import { SlashCommand } from '../../util/commands/slash';
+import ModlogsGroup from './modlogs';
 
 /**
  * `/config` command - Allows for guild configuration customization.
@@ -10,6 +11,7 @@ export default class ConfigCommand extends SlashCommand {
     constructor() {
         super('config', 'Configuration commands');
         this.dataBuilder.setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_GUILD);
+        this.addSubcommandGroups(new ModlogsGroup());
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
