@@ -77,20 +77,22 @@ export default class LoggingModule {
      * Configures a guild's log channel for a particular event type.
      * This operation is write-back, meaning this first updates the cache entry (if cached, see below) followed by the database entry.
      * This operation will automatically cache the given configuration by default unless stated otherwise.
+     * @param guild The guild to modify the configuration of
      * @param event The event type to set the channel for
-     * @param channel The channel to use for logging the aformentioned event
+     * @param channel The channel to use for logging the aformentioned event, or `null` to un-set
      */
-    static async setLogChannel(event: LogEventType, channel: GuildTextBasedChannel) {
-        const guildId = channel.guildId;
-        const key = event + 'ChannelId' as keyof LogConfig;
+    static async setLogChannel(guild: Guild, event: LogEventType, channel: GuildTextBasedChannel | null) {
+        const guildId = guild.id;
+        const key = event + 'ChannelId' as keyof Omit<LogConfig, 'guildId'>;
+        const newValue = channel?.id ?? null;
 
-        const config = await this.retrieveConfiguration(channel.guild);
-        config[key] = channel.id;
+        const config = await this.retrieveConfiguration(guild);
+        config[key] = newValue;
         this.configCache.set(guildId, config);
 
         // a bit cursed, but gets the job done :shrug:
         const update = <LogConfig>{};
-        update[key] = channel.id;
+        update[key] = newValue;
         const create = update;
         create['guildId'] = guildId;
 
