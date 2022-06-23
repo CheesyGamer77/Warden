@@ -31,8 +31,7 @@ export default class SetCommand extends Subcommand {
         const modlogType = opts.getString('type', true);
         const channel = opts.getChannel('channel', false) as GuildTextBasedChannel | null;
 
-        let content = '';
-        let embed: MessageEmbed;
+        const content = '';
 
         const config = await LoggingModule.retrieveConfiguration(interaction.guild);
         const oldChannelId = config[modlogType as keyof LogConfig];
@@ -40,7 +39,7 @@ export default class SetCommand extends Subcommand {
         await LoggingModule.setLogChannel(interaction.guild, modlogType.replace('ChannelId', '') as LogEventType, channel);
 
         const NOT_SET = '[NOT SET]';
-        embed = new MessageEmbed()
+        const embed = new MessageEmbed()
             .setDescription(`Set logging channel for \`${modlogType}\` to ${channel?.toString() ?? NOT_SET}`)
             .setColor('BLURPLE')
             .addFields(
