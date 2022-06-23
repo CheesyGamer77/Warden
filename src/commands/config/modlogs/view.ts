@@ -11,7 +11,7 @@ export default class ViewCommand extends Subcommand {
             .addStringOption(option => option
                 .setName('type')
                 .setDescription('The type of moderation log event to view the configured channel for')
-                .setRequired(true)
+                .setRequired(false)
                 .addChoices(...ModlogsGroup.logTypeChoices)
             );
     }
