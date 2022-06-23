@@ -34,8 +34,9 @@ export default class LoggingModule {
 
     /**
      * Fetches a guild's logging configuration.
+     * If the configuration is cached, this will return the cached entry and not query the database.
      *
-     * This will create a new blank configuration in the event that the config is not found.
+     * This will create a new blank configuration and return the blank entry in the event that the config is not found.
      * @param guild The guild to fetch the config of
      * @returns The configuration
      */
@@ -51,7 +52,8 @@ export default class LoggingModule {
     }
 
     /**
-     * Fetches a guild's log TextChannel of a given event type
+     * Fetches a guild's log TextChannel of a given event type.
+     * If the configuration is cached, this will return the cached entry and not query the database.
      * @param event The type of log event to fetch the log channel of
      * @param guild The guild to fetch the log channel from
      * @returns The TextChannel if it exists, else null
