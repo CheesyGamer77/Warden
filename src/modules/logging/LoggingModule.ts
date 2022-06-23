@@ -84,7 +84,7 @@ export default class LoggingModule {
         const guildId = channel.guildId;
         const key = event + 'ChannelId' as keyof LogConfig;
 
-        let config = await this.retrieveConfiguration(channel.guild);
+        const config = await this.retrieveConfiguration(channel.guild);
         config[key] = channel.id;
         this.configCache.set(guildId, config);
 
