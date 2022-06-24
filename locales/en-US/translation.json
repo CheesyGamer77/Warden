@@ -172,6 +172,13 @@
                 }
             },
             "roles": {
+                "common": {
+                    "fields": {
+                        "roles": {
+                            "name": "Roles"
+                        }
+                    }
+                },
                 "add": {
                     "single": {
                         "title": "Role Added",
@@ -183,13 +190,6 @@
                     }
                 },
                 "remove": {
-                    "common": {
-                        "fields": {
-                            "roles": {
-                                "name": "Roles"
-                            }
-                        }
-                    },
                     "single": {
                         "title": "Role Removed",
                         "description": "{{- userMention}} had a role removed"
