@@ -1,9 +1,8 @@
 import { CommandInteraction, GuildTextBasedChannel, MessageEmbed } from 'discord.js';
-import ModlogsGroup from '.';
+import ModlogsGroup, { LogConfigKeys } from '.';
 import { Subcommand } from '../../../util/commands/slash';
 import { ChannelType } from 'discord-api-types/v10';
 import LoggingModule, { LogEventType } from '../../../modules/logging/LoggingModule';
-import { LogConfig } from '@prisma/client';
 
 export default class SetCommand extends Subcommand {
     constructor() {
@@ -34,7 +33,7 @@ export default class SetCommand extends Subcommand {
         const content = '';
 
         const config = await LoggingModule.retrieveConfiguration(interaction.guild);
-        const oldChannelId = config[modlogType as keyof LogConfig];
+        const oldChannelId = config[modlogType as LogConfigKeys];
 
         await LoggingModule.setLogChannel(interaction.guild, modlogType.replace('ChannelId', '') as LogEventType, channel);
 

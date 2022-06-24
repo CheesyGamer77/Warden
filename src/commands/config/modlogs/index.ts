@@ -1,6 +1,9 @@
+import { LogConfig } from '@prisma/client';
 import { SubcommandGroup } from '../../../util/commands/slash';
 import SetCommand from './set';
 import ViewCommand from './view';
+
+export type LogConfigKeys = keyof Omit<LogConfig, 'guildId'>;
 
 /**
  * `/config modlogs` subcommand - Allows for the configuration of moderation logs.

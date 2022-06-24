@@ -1,6 +1,5 @@
-import { LogConfig } from '@prisma/client';
 import { ColorResolvable, CommandInteraction, MessageEmbed } from 'discord.js';
-import ModlogsGroup from '.';
+import ModlogsGroup, { LogConfigKeys } from '.';
 import LoggingModule from '../../../modules/logging/LoggingModule';
 import { Subcommand } from '../../../util/commands/slash';
 
@@ -19,17 +18,15 @@ export default class ViewCommand extends Subcommand {
     override async invoke(interaction: CommandInteraction) {
         if (interaction.guild == null) { return; }
 
-        const modlogType = interaction.options.getString('type');
-
-        let content = '';
+        const modlogType = interaction.options.getString('type') as LogConfigKeys;
 
         const config = await LoggingModule.retrieveConfiguration(interaction.guild);
 
-        // display config
+        let content = '';
         let description = '';
         for (const key in config) {
             if (key == 'guildId') { continue; }
-            const channelId = config[key as keyof LogConfig];
+            const channelId = config[key as LogConfigKeys];
             const channelMention = channelId != null ? `<#${channelId}>` : '[NOT SET]';
 
             description = description.concat(`• \`${key}\`: ${channelMention}\n`);
@@ -46,7 +43,7 @@ export default class ViewCommand extends Subcommand {
         }
         else {
             // display channel for given type
-            const channelId = config[modlogType as keyof LogConfig];
+            const channelId = config[modlogType];
             let color: ColorResolvable;
 
             if (channelId != null) {
