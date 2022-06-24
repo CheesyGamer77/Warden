@@ -30,11 +30,12 @@ function getRoleUpdateEmbed(member: GuildMember, roles: Collection<string, Role>
 
     // TODO: i18next has a way of handling plurals for us instead
     const count = roles.size;
+    const mention = user.toString();
     if (count == 1) {
         title = i18next.t(`logging.userChanges.roles.${action}.single.title`, { lng: lng });
         description = i18next.t(`logging.userChanges.roles.${action}.single.description`, {
             lng: lng,
-            userMention: user.toString()
+            userMention: mention
         });
     }
     else {
@@ -44,6 +45,7 @@ function getRoleUpdateEmbed(member: GuildMember, roles: Collection<string, Role>
         });
         description = i18next.t(`logging.userChanges.roles.${action}.multi.description`, {
             lng: lng,
+            userMention: mention,
             count: count
         });
     }
