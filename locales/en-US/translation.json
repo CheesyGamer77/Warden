@@ -5,6 +5,17 @@
                 "common": {
                     "notSet": "NOT SET"
                 },
+                "set": {
+                    "description": "Set logging channel for `{{- modlogType}}` to {{- value}}",
+                    "fields": {
+                        "before": {
+                            "name": "Before"
+                        },
+                        "after": {
+                            "name": "After"
+                        }
+                    }
+                },
                 "view": {
                     "full": {
                         "title": "Moderation Log Configuration",

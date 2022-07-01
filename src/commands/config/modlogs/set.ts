@@ -3,8 +3,10 @@ import ModlogsGroup, { LogConfigKeys } from '.';
 import { Subcommand } from '../../../util/commands/slash';
 import { ChannelType } from 'discord-api-types/v10';
 import LoggingModule, { LogEventType } from '../../../modules/logging/LoggingModule';
+import i18next from 'i18next';
 
 export default class SetCommand extends Subcommand {
+    // TODO: Localize command data
     constructor() {
         super('set', 'Configure moderation logs');
         this.dataBuilder
@@ -25,6 +27,7 @@ export default class SetCommand extends Subcommand {
     override async invoke(interaction: CommandInteraction) {
         if (interaction.guild == null) { return; }
 
+        const lng = interaction.guild.preferredLocale;
         const opts = interaction.options;
 
         const modlogType = opts.getString('type', true);
@@ -37,17 +40,21 @@ export default class SetCommand extends Subcommand {
 
         await LoggingModule.setLogChannel(interaction.guild, modlogType.replace('ChannelId', '') as LogEventType, channel);
 
-        const NOT_SET = '[NOT SET]';
+        const NOT_SET = i18next.t('commands.config.modlogs.common.notSet');
         const embed = new MessageEmbed()
-            .setDescription(`Set logging channel for \`${modlogType}\` to ${channel?.toString() ?? NOT_SET}`)
+            .setDescription(i18next.t('commands.config.modlogs.set.description', {
+                lng: lng,
+                type: modlogType,
+                value: channel?.toString() ?? NOT_SET
+            }))
             .setColor('BLURPLE')
             .addFields(
                 {
-                    name: 'Before',
+                    name: i18next.t('commands.config.modlogs.set.fields.before.name', { lng: lng }),
                     value: oldChannelId != null ? `<#${oldChannelId}> (id: \`${oldChannelId}\`)` : NOT_SET,
                 },
                 {
-                    name: 'After',
+                    name: i18next.t('commands.config.modlogs.set.fields.after.name', { lng: lng }),
                     value: channel != null ? `${channel.toString()} (id: \`${channel.id}\`)` : NOT_SET
                 }
             );
