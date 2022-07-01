@@ -32,8 +32,8 @@ export default class ViewCommand extends Subcommand {
             if (key == 'guildId') { continue; }
             const channelId = config[key as LogConfigKeys];
             let channelMention;
-            if(channelId != null) {
-                channelMention = `<#${channelId}>`
+            if (channelId != null) {
+                channelMention = `<#${channelId}>`;
             }
             else {
                 channelMention = `[${i18next.t('commands.config.modlogs.view.full.notSet', { lng: lng })}]`;
@@ -55,7 +55,7 @@ export default class ViewCommand extends Subcommand {
                 .setFooter({ text: i18next.t('commands.config.modlogs.view.full.footer', {
                     lng: lng,
                     guildId: guild.id
-                })});
+                }) });
         }
         else {
             // display channel for given type
