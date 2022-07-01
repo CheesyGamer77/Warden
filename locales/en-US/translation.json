@@ -2,10 +2,12 @@
     "commands": {
         "config": {
             "modlogs": {
+                "common": {
+                    "notSet": "NOT SET"
+                },
                 "view": {
                     "full": {
                         "title": "Moderation Log Configuration",
-                        "notSet": "NOT SET",
                         "footer": "Guild ID: {{guildId}}"
                     },
                     "single": {

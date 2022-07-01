@@ -36,7 +36,7 @@ export default class ViewCommand extends Subcommand {
                 channelMention = `<#${channelId}>`;
             }
             else {
-                channelMention = `[${i18next.t('commands.config.modlogs.view.full.notSet', { lng: lng })}]`;
+                channelMention = `[${i18next.t('commands.config.modlogs.common.notSet', { lng: lng })}]`;
             }
 
             // TODO: still gotta deal with key formatting :shrug: just ignore for now
