@@ -1,4 +1,23 @@
 {
+    "commands": {
+        "config": {
+            "modlogs": {
+                "view": {
+                    "full": {
+                        "title": "Moderation Log Configuration",
+                        "notSet": "NOT SET",
+                        "footer": "Guild ID: {{guildId}}"
+                    },
+                    "single": {
+                        "description": {
+                            "set": "Logs for `{{- type}}` are currently sent to {{- channelMention}}",
+                            "unset": "There is no channel set for logging {{- type}}"
+                        }
+                    }
+                }
+            }
+        }
+    },
     "logging": {
         "common": {
             "footer": "User ID: {{userId}}"

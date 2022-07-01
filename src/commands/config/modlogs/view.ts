@@ -1,9 +1,11 @@
 import { ColorResolvable, CommandInteraction, MessageEmbed } from 'discord.js';
+import i18next from 'i18next';
 import ModlogsGroup, { LogConfigKeys } from '.';
 import LoggingModule from '../../../modules/logging/LoggingModule';
 import { Subcommand } from '../../../util/commands/slash';
 
 export default class ViewCommand extends Subcommand {
+    // TODO: Localize command data
     constructor() {
         super('view', 'View moderation log configuration');
         this.dataBuilder
@@ -18,28 +20,42 @@ export default class ViewCommand extends Subcommand {
     override async invoke(interaction: CommandInteraction) {
         if (interaction.guild == null) { return; }
 
-        const modlogType = interaction.options.getString('type') as LogConfigKeys;
-
-        const config = await LoggingModule.retrieveConfiguration(interaction.guild);
+        const guild = interaction.guild;
+        const lng = guild.preferredLocale;
+        const config = await LoggingModule.retrieveConfiguration(guild);
 
         let content = '';
         let description = '';
+
+        // hacky way to iterate through each log config key while ignoring 'guildId'
         for (const key in config) {
             if (key == 'guildId') { continue; }
             const channelId = config[key as LogConfigKeys];
-            const channelMention = channelId != null ? `<#${channelId}>` : '[NOT SET]';
+            let channelMention;
+            if(channelId != null) {
+                channelMention = `<#${channelId}>`
+            }
+            else {
+                channelMention = `[${i18next.t('commands.config.modlogs.view.full.notSet', { lng: lng })}]`;
+            }
 
+            // TODO: still gotta deal with key formatting :shrug: just ignore for now
             description = description.concat(`• \`${key}\`: ${channelMention}\n`);
         }
 
         let embed: MessageEmbed;
+
+        const modlogType = interaction.options.getString('type') as LogConfigKeys;
         if (modlogType == null) {
             // display entire config
             embed = new MessageEmbed()
-                .setTitle('Moderation Log Configuration')
+                .setTitle(i18next.t('commands.config.modlogs.view.full.title', { lng: lng }))
                 .setDescription(description)
                 .setColor('BLURPLE')
-                .setFooter({ text: `Guild ID: ${interaction.guildId}` });
+                .setFooter({ text: i18next.t('commands.config.modlogs.view.full.footer', {
+                    lng: lng,
+                    guildId: guild.id
+                })});
         }
         else {
             // display channel for given type
@@ -47,12 +63,19 @@ export default class ViewCommand extends Subcommand {
             let color: ColorResolvable;
 
             if (channelId != null) {
-                description = `Logs for \`${modlogType}\` are currently sent to <#${channelId}>`;
+                description = i18next.t('commands.config.modlogs.view.single.description.set', {
+                    lng: lng,
+                    type: modlogType,
+                    channelMention: `<#${channelId}>`
+                });
                 color = 'BLURPLE';
                 content = channelId;
             }
             else {
-                description = `There is no channel set for logging \`${modlogType}\``;
+                description = i18next.t('commands.config.modlogs.view.single.description.unset', {
+                    lng: lng,
+                    type: modlogType
+                });
                 color = 'RED';
             }
 
