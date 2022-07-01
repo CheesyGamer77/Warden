@@ -6,7 +6,7 @@
                     "notSet": "NOT SET"
                 },
                 "set": {
-                    "description": "Set logging channel for `{{- modlogType}}` to {{- value}}",
+                    "description": "Set logging channel for `{{- type}}` to {{- value}}",
                     "fields": {
                         "before": {
                             "name": "Before"
