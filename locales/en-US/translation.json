@@ -118,7 +118,7 @@
                 "footer": "User ID: {{userId}}\nMessage ID: {{messageId}}",
                 "fields": {
                     "message": {
-                        "name": "message"
+                        "name": "Message"
                     }
                 }
             }
