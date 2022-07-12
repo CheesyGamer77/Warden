@@ -1,8 +1,8 @@
 import { Collection, GuildMember, MessageEmbed, PartialGuildMember, Role } from 'discord.js';
 import LoggingModule from '../modules/logging/LoggingModule';
-import NameSanitizerModule from '../modules/automod/NameSanitizer';
 import { getEmbedWithTarget } from '../util/embed';
 import i18next from 'i18next';
+import AutoMod from '../modules/automod';
 
 function displayNameHasChanged(before: GuildMember, after: GuildMember) {
     return before.displayName != after.displayName;
@@ -64,7 +64,8 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
     // don't compare uncached members to new state
     if (before.partial) return;
 
-    const channel = await LoggingModule.retrieveLogChannel('userChanges', after.guild);
+    const guild = after.guild;
+    const channel = await LoggingModule.retrieveLogChannel('userChanges', guild);
     const lng = after.guild.preferredLocale;
 
     if (displayNameHasChanged(before, after)) {
@@ -137,9 +138,8 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
             embeds: [ embed ],
         });
 
-        // sanitize said nickname
-        // TODO: add filter configuration for this
-        await NameSanitizerModule.sanitize(after);
+        // sanitize said nickname if enabled
+        await AutoMod.handleNameChange(after);
     }
 
     // check if roles were changed

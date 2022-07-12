@@ -1,0 +1,36 @@
+import { AutoModConfig, PrismaClient } from '@prisma/client';
+import { Guild, GuildMember } from 'discord.js';
+import ExpiryMap from 'expiry-map';
+import NameSanitizerModule from './NameSanitizer';
+
+const prisma = new PrismaClient();
+
+export default class AutoMod {
+    private static readonly THIRTY_MINUTES = 30 * 60 * 1000;
+    private static configCache: ExpiryMap<string, AutoModConfig> = new ExpiryMap(this.THIRTY_MINUTES);
+
+    /**
+     * Retrieves the automod configuration for a particular guild.
+     * This will retrieve the cached entry first, followed by upserting a new default configuration.
+     * @param guild The guild to retrieve the automod configuration of
+     * @returns The configuration
+     */
+    public static async retrieveConfig(guild: Guild) {
+        const guildId = guild.id;
+
+        return this.configCache.get(guildId) ?? await prisma.autoModConfig.upsert({
+            where: {
+                guildId: guildId
+            },
+            update: {},
+            create: {
+                guildId: guildId
+            }
+        });
+    }
+
+    public static async handleNameChange(member: GuildMember) {
+        const config = await this.retrieveConfig(member.guild);
+        if (config.nameSanitizerEnabled) await NameSanitizerModule.sanitize(member);
+    }
+}
