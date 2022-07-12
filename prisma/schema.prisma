@@ -32,6 +32,7 @@ model Reputation {
 model AutoModConfig {
   guildId         String   @id
   antiSpamEnabled Boolean? @default(false)
+  nameSanitizerEnabled Boolean? @default(false)
 }
 
 model AntiSpamIgnoredChannels {
