@@ -33,4 +33,24 @@ export default class AutoMod {
         const config = await this.retrieveConfig(member.guild);
         if (config.nameSanitizerEnabled) await NameSanitizerModule.sanitize(member);
     }
+
+    public static async setAntiSpamEnabled(guild: Guild, enabled: boolean) {
+        const guildId = guild.id;
+
+        await prisma.autoModConfig.upsert({
+            where: {
+                guildId: guildId
+            },
+            update: {
+                antiSpamEnabled: enabled
+            },
+            create: {
+                guildId: guildId
+            }
+        });
+
+        const cache = await this.retrieveConfig(guild);
+        cache.antiSpamEnabled = enabled;
+        this.configCache.set(guildId, cache);
+    }
 }

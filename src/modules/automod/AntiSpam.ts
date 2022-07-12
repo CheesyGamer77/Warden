@@ -5,6 +5,7 @@ import LoggingModule from '../logging/LoggingModule';
 import ExpiryMap from 'expiry-map';
 import UserReputation from './UserReputation';
 import { AutoModConfig, PrismaClient } from '@prisma/client';
+import AutoMod from '.';
 
 interface MessageReference {
     readonly guildId: string;
@@ -29,9 +30,6 @@ export default class AntiSpamModule {
 
     private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(this.ONE_MINUTE);
     private static ignoredEntitiesCache: ExpiryMap<string, Set<string>> = new ExpiryMap(this.THIRTY_MINUTES);
-
-    // TODO: Doesn't really belong here. Should be up one level in the heirarchy.
-    private static automodConfigCache: ExpiryMap<string, AutoModConfig> = new ExpiryMap(this.THIRTY_MINUTES);
 
     private static getContentHash(message: Message) {
         return createHash('md5').update(message.content.toLowerCase()).digest('hex');
@@ -94,48 +92,7 @@ export default class AntiSpamModule {
     }
 
     private static async retrieveAutomodConfig(guild: Guild): Promise<AutoModConfig> {
-        const guildId = guild.id;
-        return this.automodConfigCache.get(guildId) ?? await this.fetchAutomodConfig(guild);
-    }
-
-    private static async fetchAutomodConfig(guild: Guild) {
-        const guildId = guild.id;
-
-        const data = await prisma.autoModConfig.upsert({
-            where: {
-                guildId: guildId
-            },
-            update: {},
-            create: {
-                guildId: guildId,
-                antiSpamEnabled: false
-            }
-        });
-
-        this.automodConfigCache.set(guildId, data);
-
-        return data;
-    }
-
-    private static async setAntiSpamEnabled(guild: Guild, enabled: boolean) {
-        const guildId = guild.id;
-
-        await prisma.autoModConfig.upsert({
-            where: {
-                guildId: guildId
-            },
-            update: {
-                antiSpamEnabled: enabled
-            },
-            create: {
-                guildId: guildId,
-                antiSpamEnabled: false
-            }
-        });
-
-        const cache = await this.retrieveAutomodConfig(guild);
-        cache.antiSpamEnabled = enabled;
-        this.automodConfigCache.set(guildId, cache);
+        return await AutoMod.retrieveConfig(guild);
     }
 
     private static async channelIsIgnored(channel: IgnorableChannel) {
