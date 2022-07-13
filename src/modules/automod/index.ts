@@ -29,28 +29,21 @@ export default class AutoMod {
         });
     }
 
-    public static async handleNameChange(member: GuildMember) {
-        const config = await this.retrieveConfig(member.guild);
-        if (config.nameSanitizerEnabled) await NameSanitizerModule.sanitize(member);
-    }
-
-    public static async setAntiSpamEnabled(guild: Guild, enabled: boolean) {
+    public static async setConfig(guild: Guild, newConfig: AutoModConfig) {
         const guildId = guild.id;
 
         await prisma.autoModConfig.upsert({
             where: {
                 guildId: guildId
             },
-            update: {
-                antiSpamEnabled: enabled
-            },
-            create: {
-                guildId: guildId
-            }
+            update: newConfig,
+            create: newConfig
         });
 
-        const cache = await this.retrieveConfig(guild);
-        cache.antiSpamEnabled = enabled;
-        this.configCache.set(guildId, cache);
+    }
+
+    public static async handleNameChange(member: GuildMember) {
+        const config = await this.retrieveConfig(member.guild);
+        if (config.nameSanitizerEnabled) await NameSanitizerModule.sanitize(member);
     }
 }

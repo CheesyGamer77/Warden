@@ -1,9 +1,10 @@
-import { GuildMember, Permissions } from 'discord.js';
+import { Guild, GuildMember, Permissions } from 'discord.js';
 import replacements from '../../../data/fancy_replacements.json';
 import { canModerate } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import LoggingModule from '../logging/LoggingModule';
 import i18next from 'i18next';
+import AutoMod from '.';
 
 const fancy_replacements = new Map<string, string>();
 for (const pair of Object.entries(replacements)) {
@@ -25,11 +26,17 @@ export default class NameSanitizerModule {
         return member.guild.me?.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES) ?? false;
     }
 
+    public static async setEnabled(guild: Guild, enabled: boolean) {
+        const cache = await AutoMod.retrieveConfig(guild);
+        cache.antiSpamEnabled = enabled;
+        await AutoMod.setConfig(guild, cache);
+    }
+
     /**
      * Sanitizes a member's display name to remove zalgo and "fancy text"
      * @param member The member who's name should be sanitized
      */
-    static async sanitize(member: GuildMember) {
+    public static async sanitize(member: GuildMember) {
         const channel = await LoggingModule.retrieveLogChannel('userFilter', member.guild);
         if (channel == null || !canModerate(member.guild.me, member)) return;
 
