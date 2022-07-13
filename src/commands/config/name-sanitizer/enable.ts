@@ -19,7 +19,7 @@ export default class EnableCommand extends Subcommand {
         await interaction.reply({
             embeds: [
                 new MessageEmbed()
-                    .setDescription(i18next.t('commands.config.name-sanitizer.enabled', {
+                    .setDescription(i18next.t('commands.config.nameSanitizer.enabled', {
                         lng: lng,
                         emoji: ':white_checkmark:'
                     }))

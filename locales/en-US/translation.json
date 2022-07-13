@@ -29,7 +29,7 @@
                     }
                 }
             },
-            "name-sanitizer": {
+            "nameSanitizer": {
                 "enable": "{{- emoji}} Updated display names will now be sanitized",
                 "disable": "{{- emoji}} Updated display names will no longer be sanitized"
             }
