@@ -1,13 +1,13 @@
 import { AutoModConfig, PrismaClient } from '@prisma/client';
 import { Guild, GuildMember } from 'discord.js';
 import ExpiryMap from 'expiry-map';
+import Duration from '../../util/duration';
 import NameSanitizerModule from './NameSanitizer';
 
 const prisma = new PrismaClient();
 
 export default class AutoMod {
-    private static readonly THIRTY_MINUTES = 30 * 60 * 1000;
-    private static configCache: ExpiryMap<string, AutoModConfig> = new ExpiryMap(this.THIRTY_MINUTES);
+    private static configCache: ExpiryMap<string, AutoModConfig> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
 
     /**
      * Retrieves the automod configuration for a particular guild.
