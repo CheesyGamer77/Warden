@@ -90,11 +90,7 @@ export default class AntiSpamModule {
 
         await UserReputation.modifyReputation(member, -0.3);
     }
-
-    private static async retrieveAutomodConfig(guild: Guild): Promise<AutoModConfig> {
-        return await AutoMod.retrieveConfig(guild);
-    }
-
+    
     private static async channelIsIgnored(channel: IgnorableChannel) {
         const channelId = channel.id;
 
@@ -173,7 +169,7 @@ export default class AntiSpamModule {
 
         // ignore if the antispam is disabled for the guild
         const guild = message.guild;
-        if (guild != null && !(await this.retrieveAutomodConfig(guild)).antiSpamEnabled) return;
+        if (guild != null && !(await AutoMod.retrieveConfig(guild)).antiSpamEnabled) return;
 
         // ignore DM and news channels, non-guild messages, and messages with a null member author
         // TODO: Temp patch for ignoring voice channels, as voice channels now support Text-In-Voice
