@@ -4,7 +4,7 @@ import { canDelete } from '../../util/checks';
 import LoggingModule from '../logging/LoggingModule';
 import ExpiryMap from 'expiry-map';
 import UserReputation from './UserReputation';
-import { AutoModConfig, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import AutoMod from '.';
 import Duration from '../../util/duration';
 
