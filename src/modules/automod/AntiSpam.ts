@@ -75,7 +75,7 @@ export default class AntiSpamModule {
         if (member.guild.me == null) return;
 
         const reason = `Spamming (${instances} instances)`;
-        const until = Date.now() + (60 * 1000);
+        const until = Date.now() + Duration.ofMinutes(1).toMilliseconds();
 
         await member.disableCommunicationUntil(until, reason);
         await LoggingModule.logMemberTimeout({
@@ -107,13 +107,19 @@ export default class AntiSpamModule {
         return data !== undefined;
     }
 
+    private static async setEnabled(guild: Guild, enabled: boolean) {
+        const config = await AutoMod.retrieveConfig(guild);
+        config.antiSpamEnabled = enabled;
+        await AutoMod.setConfig(guild, config);
+    }
+
     /**
      * Disables the anti-spam for a particular guild.
      * This automatically updates the automod config cache respectively.
      * @param guild The guild to disable the anti-spam for
      */
     static async ignoreGuild(guild: Guild) {
-        await this.setAntiSpamEnabled(guild, false);
+        await this.setEnabled(guild, false);
     }
 
     /**
@@ -122,7 +128,7 @@ export default class AntiSpamModule {
      * @param guild The guild to enable the anti-spam for
      */
     static async unignoreGuild(guild: Guild) {
-        await this.setAntiSpamEnabled(guild, true);
+        await this.setEnabled(guild, true);
     }
 
     /**
