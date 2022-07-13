@@ -40,6 +40,7 @@ export default class AutoMod {
             create: newConfig
         });
 
+        this.configCache.set(guild.id, newConfig);
     }
 
     public static async handleNameChange(member: GuildMember) {
