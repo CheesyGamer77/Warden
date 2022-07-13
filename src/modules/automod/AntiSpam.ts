@@ -6,6 +6,7 @@ import ExpiryMap from 'expiry-map';
 import UserReputation from './UserReputation';
 import { AutoModConfig, PrismaClient } from '@prisma/client';
 import AutoMod from '.';
+import Duration from '../../util/duration';
 
 interface MessageReference {
     readonly guildId: string;
@@ -25,11 +26,8 @@ type IgnorableChannel = TextChannel | ThreadChannel | VoiceChannel;
 const prisma = new PrismaClient();
 
 export default class AntiSpamModule {
-    private static readonly ONE_MINUTE = 60 * 1000;
-    private static readonly THIRTY_MINUTES = 30 * 60 * 1000;
-
-    private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(this.ONE_MINUTE);
-    private static ignoredEntitiesCache: ExpiryMap<string, Set<string>> = new ExpiryMap(this.THIRTY_MINUTES);
+    private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(Duration.ofMinutes(1).toMilliseconds());
+    private static ignoredEntitiesCache: ExpiryMap<string, Set<string>> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
 
     private static getContentHash(message: Message) {
         return createHash('md5').update(message.content.toLowerCase()).digest('hex');
@@ -90,7 +88,7 @@ export default class AntiSpamModule {
 
         await UserReputation.modifyReputation(member, -0.3);
     }
-    
+
     private static async channelIsIgnored(channel: IgnorableChannel) {
         const channelId = channel.id;
 
@@ -172,7 +170,6 @@ export default class AntiSpamModule {
         if (guild != null && !(await AutoMod.retrieveConfig(guild)).antiSpamEnabled) return;
 
         // ignore DM and news channels, non-guild messages, and messages with a null member author
-        // TODO: Temp patch for ignoring voice channels, as voice channels now support Text-In-Voice
         if (channel.type == 'DM' || channel.type == 'GUILD_NEWS' || member == null) return;
 
         // ignore bots and members with manage message perms
