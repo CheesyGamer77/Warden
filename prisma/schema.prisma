@@ -41,3 +41,9 @@ model AntiSpamIgnoredChannels {
 
   @@unique([guildId, channelId])
 }
+
+model NameSanitizerConfig {
+  guildId String @id
+  blackFallBackName String? @default("nickname")
+  cleanFancyCharacters Boolean? @default(false)
+}
