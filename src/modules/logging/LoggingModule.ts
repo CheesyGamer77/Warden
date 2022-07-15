@@ -4,6 +4,7 @@ import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
 import i18next from 'i18next';
+import Duration from '../../util/duration';
 
 const prisma = new PrismaClient();
 
@@ -18,7 +19,20 @@ interface LogMemberTimeoutOptions {
 }
 
 export default class LoggingModule {
-    private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(15 * 1000 * 60);
+    private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(Duration.ofMinutes(15).toMilliseconds());
+
+    private static async fetchAndCacheConfiguration(guild: Guild) {
+        const data = { guildId: guild.id };
+        const config = await prisma.logConfig.upsert({
+            where: data,
+            update: {},
+            create: data
+        });
+
+        this.configCache.set(guild.id, config);
+
+        return config
+    }
 
     /**
      * Retrieves a guild's logging configuration.
@@ -26,13 +40,8 @@ export default class LoggingModule {
      * @param guild The guild to fetch the config of
      * @returns The configuration
      */
-    static async retrieveConfiguration(guild: Guild): Promise<LogConfig> {
-        const data = { guildId: guild.id };
-        return this.configCache.get(guild.id) ?? await prisma.logConfig.upsert({
-            where: data,
-            update: {},
-            create: data
-        });
+    static async retrieveConfiguration(guild: Guild) {
+        return this.configCache.get(guild.id) ?? await this.fetchAndCacheConfiguration(guild);
     }
 
     /**
@@ -42,7 +51,7 @@ export default class LoggingModule {
      * @param guild The guild to fetch the log channel from
      * @returns The TextChannel if it exists, else null
      */
-    static async retrieveLogChannel(event: LogEventType, guild: Guild): Promise<TextChannel | null> {
+    static async retrieveLogChannel(event: LogEventType, guild: Guild) {
         const config = await this.retrieveConfiguration(guild);
 
         const channelId = config[event + 'ChannelId' as keyof LogConfig];
@@ -129,8 +138,12 @@ export default class LoggingModule {
 
         // a removed member's joined at timestamp has the potential to be null
         let memberSince: string;
-        if (member.joinedAt != null) {memberSince = Formatters.time(member.joinedAt, 'R');}
-        else {memberSince = i18next.t('logging.leaves.fields.memberSince.unknown');}
+        if (member.joinedAt != null) {
+            memberSince = Formatters.time(member.joinedAt, 'R');
+        }
+        else {
+            memberSince = i18next.t('logging.leaves.fields.memberSince.unknown');
+        }
 
         embed.addField(
             i18next.t('logging.leaves.fields.memberSince.name'),
