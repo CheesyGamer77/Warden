@@ -1,5 +1,5 @@
 import { PrismaClient, LogConfig } from '@prisma/client';
-import { Guild, TextChannel, Formatters, GuildMember, PartialGuildMember, Message, PartialMessage, GuildTextBasedChannel } from 'discord.js';
+import { Guild, Formatters, GuildMember, PartialGuildMember, Message, PartialMessage, GuildTextBasedChannel } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
@@ -8,18 +8,19 @@ import Duration from '../../util/duration';
 
 const prisma = new PrismaClient();
 
-export type LogEventType = 'joins' | 'leaves' | 'userFilter' | 'userChanges' | 'textFilter' | 'escalations' | 'messageEdits' | 'messageDeletes' | 'voiceEvents' | 'threadEvents';
+export type LogEventType = 'modActions' | 'joins' | 'leaves' | 'userFilter' | 'userChanges' | 'textFilter' | 'escalations' | 'messageEdits' | 'messageDeletes' | 'voiceEvents' | 'threadEvents';
 
 interface LogMemberTimeoutOptions {
     target: GuildMember;
-    moderator: GuildMember | undefined;
-    reason: string | undefined;
+    moderator: GuildMember;
+    reason: string;
     until: number;
     channelType: 'escalations';
 }
 
 export default class LoggingModule {
     private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(Duration.ofMinutes(15).toMilliseconds());
+    private static caseNumberCache: ExpiryMap<string, number> = new ExpiryMap(Duration.ofMinutes(10).toMilliseconds());
 
     private static async fetchAndCacheConfiguration(guild: Guild) {
         const data = { guildId: guild.id };
@@ -96,6 +97,108 @@ export default class LoggingModule {
             update: update,
             create: create
         });
+    }
+
+    private static async fetchAndCacheNextCaseNumber(guild: Guild) {
+        const guildId = guild.id;
+        const nextCaseNumber = await prisma.modActions.count({
+            where: {
+                guildId: guildId
+            }
+        }) + 1;
+
+        this.caseNumberCache.set(guildId, nextCaseNumber);
+
+        return nextCaseNumber;
+    }
+
+    /**
+     * Retrieves the next case number for a particular guild.
+     * Used when creating new moderation case logs.
+     * @param guild The guild to retrieve the next case number for
+     */
+    private static async retrieveNextCaseNumber(guild: Guild) {
+        return this.caseNumberCache.get(guild.id) ?? await this.fetchAndCacheNextCaseNumber(guild)
+    }
+
+    static async fetchActionByCaseNumber(guild: Guild, caseNumber: number) {
+        return await prisma.modActions.findUnique({
+            where: {
+                guildId_caseNumber: {
+                    guildId: guild.id,
+                    caseNumber: caseNumber
+                }
+            }
+        });
+    }
+
+    private static async createMuteLog(target: GuildMember, moderator: GuildMember, reason: string) {
+        const guild = target.guild;
+        const lng = guild.preferredLocale;
+
+        const actionLogChannel = await this.retrieveLogChannel('modActions', guild);
+        if(actionLogChannel == null) return;
+
+        const caseNumber = await this.retrieveNextCaseNumber(guild);
+
+        await prisma.modActions.create({
+            data: {
+                guildId: guild.id,
+                caseNumber: caseNumber,
+                type: 'MUTE',
+                offenderId: target.id,
+                offenderTag: target.user.tag,
+                moderatorId: moderator.id,
+                moderatorTag: moderator.user.tag,
+                reason: reason
+            }
+        });
+
+        const actionType = "Mute";
+        const targetId = target.id;
+        const targetMention = target.toString();
+        const moderatorMention = moderator.toString();
+
+        await actionLogChannel.send({
+            content: targetId,
+            embeds: [
+                getEmbedWithTarget(target.user, lng)
+                    .setTitle(i18next.t('logging.modActions.title', {
+                        lng: lng,
+                        caseNumber: caseNumber,
+                        actionType: actionType
+                    }))
+                    .setDescription(i18next.t('logging.modActions.description', {
+                        lng: lng,
+                        targetMention: targetMention,
+                        actionType: actionType.toLowerCase(),
+                        moderatorMention: moderatorMention
+                    }))
+                    .setColor('GOLD')
+                    .addFields(
+                        {
+                            name: i18next.t('logging.modActions.fields.member.name', { lng: lng }),
+                            value: i18next.t('logging.modActions.fields.member.value', {
+                                lng: lng,
+                                memberMention: targetMention,
+                                memberId: target.id
+                            })
+                        },
+                        {
+                            name: i18next.t('logging.modActions.fields.moderator.name', { lng: lng }),
+                            value: i18next.t('logging.modActions.fields.moderator.value', {
+                                lng: lng,
+                                moderatorMention: moderatorMention,
+                                moderatorId: moderator.id
+                            })
+                        },
+                        {
+                            name: i18next.t('logging.modActions.fields.reason.name', { lng: lng }),
+                            value: reason
+                        }
+                    )
+            ]
+        })
     }
 
     static async logMemberJoined(member: GuildMember) {
@@ -206,22 +309,24 @@ export default class LoggingModule {
             .setColor('ORANGE');
 
         const mod = opts.moderator;
-        if (mod != undefined) {
-            embed.addField(
-                i18next.t('logging.automod.antispam.timeout.fields.moderator.name', { lng: lng }),
-                `${mod.toString()} \`(${mod.id})\``
-            );
-        }
+        embed.addField(
+            i18next.t('logging.automod.antispam.timeout.fields.moderator.name', { lng: lng }),
+            `${mod.toString()} \`(${mod.id})\``
+        );
+
+        const reason = opts.reason;
 
         embed.addField(
             i18next.t('logging.automod.antispam.timeout.fields.reason.name', { lng: lng }),
-            opts.reason ?? i18next.t('logging.automod.antispam.timeout.fields.reason.noneGiven', { lng: lng })
+            reason
         );
 
         await channel?.send({
             content: target.id,
             embeds: [ embed ],
         });
+
+        await this.createMuteLog(target, mod, reason)
     }
 
     static async logMessageEdit(before: Message | PartialMessage, after: Message) {

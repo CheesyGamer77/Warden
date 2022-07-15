@@ -58,8 +58,7 @@
                             "name": "Moderator"
                         },
                         "reason": {
-                            "name": "Reason",
-                            "noneGiven": "No Reason Given"
+                            "name": "Reason"
                         }
                     }
                 }
@@ -80,6 +79,23 @@
                             "name": "Reason"
                         }
                     }
+                }
+            }
+        },
+        "modActions": {
+            "title": "Case {{- caseNumber}} | {{- actionType}}",
+            "description": "{{- targetMention}} was {{- actionType}}ed by {{- moderatorMention}}",
+            "fields": {
+                "member": {
+                    "name": "Member",
+                    "value": "{{- memberMention}} (id: `{{- memberId}}`)"
+                },
+                "moderator": {
+                    "name": "Moderator",
+                    "value": "{{- moderatorMention}} (id: `{{- moderatorId}}`)"
+                },
+                "reason": {
+                    "name": "Reason"
                 }
             }
         },
