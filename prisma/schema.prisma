@@ -47,3 +47,25 @@ model NameSanitizerConfig {
   blankFallbackName String @default("nickname")
   cleanFancyCharacters Boolean @default(false)
 }
+
+model ModActions {
+  guildId String
+  caseNumber Int
+  type ModActionType
+  offenderId String
+  offenderTag String
+  moderatorId String
+  moderatorTag String
+  reason String @default("No Reason Provided")
+
+  @@unique([guildId, caseNumber])
+}
+
+enum ModActionType {
+  WARN
+  MUTE
+  UNMUTE
+  KICK
+  BAN
+  UNBAN
+}
