@@ -20,35 +20,19 @@ interface LogMemberTimeoutOptions {
 export default class LoggingModule {
     private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(15 * 1000 * 60);
 
-    private static async createBlankLogConfiguration(guild: Guild): Promise<LogConfig> {
-        const data = await prisma.logConfig.create({
-            data: {
-                guildId: guild.id,
-            },
-        });
-
-        this.configCache.set(guild.id, data);
-
-        return data;
-    }
-
     /**
-     * Fetches a guild's logging configuration.
-     * If the configuration is cached, this will return the cached entry and not query the database.
-     *
-     * This will create a new blank configuration and return the blank entry in the event that the config is not found.
+     * Retrieves a guild's logging configuration.
+     * This returns the cached config entry if found, or query the database for an existing/default configuration otherwise.
      * @param guild The guild to fetch the config of
      * @returns The configuration
      */
     static async retrieveConfiguration(guild: Guild): Promise<LogConfig> {
-        const data = this.configCache.get(guild.id) ?? await prisma.logConfig.findUnique({
-            where: {
-                guildId: guild.id,
-            },
+        const data = { guildId: guild.id };
+        return this.configCache.get(guild.id) ?? await prisma.logConfig.upsert({
+            where: data,
+            update: {},
+            create: data
         });
-
-        // fallback to new blank config if not found in cache or db
-        return data != null ? data : await this.createBlankLogConfiguration(guild);
     }
 
     /**
@@ -176,7 +160,7 @@ export default class LoggingModule {
             }))
             .setColor('BLUE');
 
-        // splitting code below taken from https://stackoverflow.com/a/58204391
+        // splitting code below modified from https://stackoverflow.com/a/58204391
         const parts = message.content.match(/\b[\w\s]{2000,}?(?=\s)|.+$/g) ?? [ message.content ];
         for (const part of parts) {
             embed.addField(
