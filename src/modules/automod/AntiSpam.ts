@@ -4,7 +4,9 @@ import { canDelete } from '../../util/checks';
 import LoggingModule from '../logging/LoggingModule';
 import ExpiryMap from 'expiry-map';
 import UserReputation from './UserReputation';
-import { AutoModConfig, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import AutoMod from '.';
+import Duration from '../../util/duration';
 
 interface MessageReference {
     readonly guildId: string;
@@ -24,14 +26,8 @@ type IgnorableChannel = TextChannel | ThreadChannel | VoiceChannel;
 const prisma = new PrismaClient();
 
 export default class AntiSpamModule {
-    private static readonly ONE_MINUTE = 60 * 1000;
-    private static readonly THIRTY_MINUTES = 30 * 60 * 1000;
-
-    private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(this.ONE_MINUTE);
-    private static ignoredEntitiesCache: ExpiryMap<string, Set<string>> = new ExpiryMap(this.THIRTY_MINUTES);
-
-    // TODO: Doesn't really belong here. Should be up one level in the heirarchy.
-    private static automodConfigCache: ExpiryMap<string, AutoModConfig> = new ExpiryMap(this.THIRTY_MINUTES);
+    private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(Duration.ofMinutes(1).toMilliseconds());
+    private static ignoredEntitiesCache: ExpiryMap<string, Set<string>> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
 
     private static getContentHash(message: Message) {
         return createHash('md5').update(message.content.toLowerCase()).digest('hex');
@@ -79,7 +75,7 @@ export default class AntiSpamModule {
         if (member.guild.me == null) return;
 
         const reason = `Spamming (${instances} instances)`;
-        const until = Date.now() + (60 * 1000);
+        const until = Date.now() + Duration.ofMinutes(1).toMilliseconds();
 
         await member.disableCommunicationUntil(until, reason);
         await LoggingModule.logMemberTimeout({
@@ -91,51 +87,6 @@ export default class AntiSpamModule {
         });
 
         await UserReputation.modifyReputation(member, -0.3);
-    }
-
-    private static async retrieveAutomodConfig(guild: Guild): Promise<AutoModConfig> {
-        const guildId = guild.id;
-        return this.automodConfigCache.get(guildId) ?? await this.fetchAutomodConfig(guild);
-    }
-
-    private static async fetchAutomodConfig(guild: Guild) {
-        const guildId = guild.id;
-
-        const data = await prisma.autoModConfig.upsert({
-            where: {
-                guildId: guildId
-            },
-            update: {},
-            create: {
-                guildId: guildId,
-                antiSpamEnabled: false
-            }
-        });
-
-        this.automodConfigCache.set(guildId, data);
-
-        return data;
-    }
-
-    private static async setAntiSpamEnabled(guild: Guild, enabled: boolean) {
-        const guildId = guild.id;
-
-        await prisma.autoModConfig.upsert({
-            where: {
-                guildId: guildId
-            },
-            update: {
-                antiSpamEnabled: enabled
-            },
-            create: {
-                guildId: guildId,
-                antiSpamEnabled: false
-            }
-        });
-
-        const cache = await this.retrieveAutomodConfig(guild);
-        cache.antiSpamEnabled = enabled;
-        this.automodConfigCache.set(guildId, cache);
     }
 
     private static async channelIsIgnored(channel: IgnorableChannel) {
@@ -156,13 +107,19 @@ export default class AntiSpamModule {
         return data !== undefined;
     }
 
+    private static async setEnabled(guild: Guild, enabled: boolean) {
+        const config = await AutoMod.retrieveConfig(guild);
+        config.antiSpamEnabled = enabled;
+        await AutoMod.setConfig(guild, config);
+    }
+
     /**
      * Disables the anti-spam for a particular guild.
      * This automatically updates the automod config cache respectively.
      * @param guild The guild to disable the anti-spam for
      */
     static async ignoreGuild(guild: Guild) {
-        await this.setAntiSpamEnabled(guild, false);
+        await this.setEnabled(guild, false);
     }
 
     /**
@@ -171,7 +128,7 @@ export default class AntiSpamModule {
      * @param guild The guild to enable the anti-spam for
      */
     static async unignoreGuild(guild: Guild) {
-        await this.setAntiSpamEnabled(guild, true);
+        await this.setEnabled(guild, true);
     }
 
     /**
@@ -216,10 +173,9 @@ export default class AntiSpamModule {
 
         // ignore if the antispam is disabled for the guild
         const guild = message.guild;
-        if (guild != null && !(await this.retrieveAutomodConfig(guild)).antiSpamEnabled) return;
+        if (guild != null && !(await AutoMod.retrieveConfig(guild)).antiSpamEnabled) return;
 
         // ignore DM and news channels, non-guild messages, and messages with a null member author
-        // TODO: Temp patch for ignoring voice channels, as voice channels now support Text-In-Voice
         if (channel.type == 'DM' || channel.type == 'GUILD_NEWS' || member == null) return;
 
         // ignore bots and members with manage message perms

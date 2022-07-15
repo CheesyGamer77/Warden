@@ -31,7 +31,8 @@ model Reputation {
 
 model AutoModConfig {
   guildId         String   @id
-  antiSpamEnabled Boolean? @default(false)
+  antiSpamEnabled Boolean @default(false)
+  nameSanitizerEnabled Boolean @default(false)
 }
 
 model AntiSpamIgnoredChannels {
@@ -39,4 +40,10 @@ model AntiSpamIgnoredChannels {
   channelId String
 
   @@unique([guildId, channelId])
+}
+
+model NameSanitizerConfig {
+  guildId String @id
+  blankFallbackName String @default("nickname")
+  cleanFancyCharacters Boolean @default(false)
 }

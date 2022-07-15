@@ -1,17 +1,25 @@
-import { GuildMember, Permissions } from 'discord.js';
+import { Guild, GuildMember, Permissions } from 'discord.js';
 import replacements from '../../../data/fancy_replacements.json';
 import { canModerate } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import LoggingModule from '../logging/LoggingModule';
 import i18next from 'i18next';
+import AutoMod from '.';
+import ExpiryMap from 'expiry-map';
+import { NameSanitizerConfig, PrismaClient } from '@prisma/client';
+import Duration from '../../util/duration';
 
 const fancy_replacements = new Map<string, string>();
 for (const pair of Object.entries(replacements)) {
     fancy_replacements.set(pair[0], pair[1]);
 }
 
+const prisma = new PrismaClient();
+
 export default class NameSanitizerModule {
-    private static cleanFancyText(content: string): string {
+    private static readonly configCache: ExpiryMap<string, NameSanitizerConfig> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
+
+    private static cleanFancyText(content: string) {
         let sanitized = '';
 
         for (const char of content) {
@@ -25,22 +33,45 @@ export default class NameSanitizerModule {
         return member.guild.me?.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES) ?? false;
     }
 
+    public static async setEnabled(guild: Guild, enabled: boolean) {
+        const cache = await AutoMod.retrieveConfig(guild);
+        cache.antiSpamEnabled = enabled;
+        await AutoMod.setConfig(guild, cache);
+    }
+
+    public static async retrieveConfig(guild: Guild) {
+        const guildId = guild.id;
+
+        return this.configCache.get(guild.id) ?? await prisma.nameSanitizerConfig.upsert({
+            where: {
+                guildId: guildId
+            },
+            create: {
+                guildId: guildId
+            },
+            update: {}
+        });
+    }
+
     /**
-     * Sanitizes a member's display name to remove zalgo and "fancy text"
+     * Sanitizes a member's display name according to a particular guild's configuration
      * @param member The member who's name should be sanitized
      */
-    static async sanitize(member: GuildMember) {
+    public static async sanitize(member: GuildMember) {
         const channel = await LoggingModule.retrieveLogChannel('userFilter', member.guild);
         if (channel == null || !canModerate(member.guild.me, member)) return;
 
+        const config = await this.retrieveConfig(member.guild);
+
         const name = member.displayName;
         const lng = member.guild.preferredLocale;
-        let sanitized = this.cleanFancyText(name);
-        if (name != sanitized && this.canOverwriteName(member)) {
+        let sanitized: string = name;
 
-            // TODO: Default fallback nickname should be configurable per-guild
-            // We won't localize this as a result
-            if (sanitized.trim() === '') sanitized = 'Nickname';
+        if (config.cleanFancyCharacters) sanitized = this.cleanFancyText(name);
+
+        if (name != sanitized && this.canOverwriteName(member)) {
+            // If the sanitized name ends up being empty, resort to the guild's fallback blank nickname
+            if (sanitized.trim() === '') sanitized = config.blankFallbackName;
 
             const reason = i18next.t('logging.automod.nameSanitizer.filtered.reason', { lng: lng });
             await member.edit({ nick: sanitized }, reason);
