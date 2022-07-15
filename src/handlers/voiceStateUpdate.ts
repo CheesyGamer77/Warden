@@ -50,7 +50,7 @@ export default async function onVoiceStateUpdate(before: VoiceState, after: Voic
         const to = after.channel;
 
         // ensure `from` and `to` aren't the same channel (#32)
-        if (from != null && from.id == after.id) return;
+        if (from != null && to != null && from.id == to.id) return;
 
         embed = getEmbedWithTarget(member.user, lng)
             .setTitle(i18next.t('logging.voiceEvents.moves.title', { lng: lng }))
