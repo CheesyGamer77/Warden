@@ -15,13 +15,13 @@ export default class DisableCommand extends Subcommand {
         const guild = interaction.guild;
         const lng = guild.preferredLocale;
 
-        await NameSanitizerModule.setEnabled(guild, true);
+        await NameSanitizerModule.setEnabled(guild, false);
         await interaction.reply({
             embeds: [
                 new MessageEmbed()
                     .setDescription(i18next.t('commands.config.nameSanitizer.disable', {
                         lng: lng,
-                        emoji: ':white_checkmark:'
+                        emoji: ':white_check_mark:'
                     }))
                     .setColor('GOLD')
             ]

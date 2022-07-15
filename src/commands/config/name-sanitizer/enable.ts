@@ -21,7 +21,7 @@ export default class EnableCommand extends Subcommand {
                 new MessageEmbed()
                     .setDescription(i18next.t('commands.config.nameSanitizer.enable', {
                         lng: lng,
-                        emoji: ':white_checkmark:'
+                        emoji: ':white_check_mark:'
                     }))
                     .setColor('GREEN')
             ]
