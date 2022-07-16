@@ -172,7 +172,7 @@ export default class LoggingModule {
                     .setDescription(i18next.t('logging.modActions.description', {
                         lng: lng,
                         targetMention: targetMention,
-                        actionType: actionType.toLowerCase(),
+                        actionType: 'muted',
                         moderatorMention: moderatorMention
                     }))
                     .setColor('GOLD')

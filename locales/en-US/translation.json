@@ -88,7 +88,7 @@
         },
         "modActions": {
             "title": "Case {{- caseNumber}} | {{- actionType}}",
-            "description": "{{- targetMention}} was {{- actionType}}ed by {{- moderatorMention}}",
+            "description": "{{- targetMention}} was {{- actionType}} by {{- moderatorMention}}",
             "fields": {
                 "member": {
                     "name": "Member",
