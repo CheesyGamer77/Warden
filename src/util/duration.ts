@@ -13,6 +13,14 @@ export default class Duration {
         return Duration.ofSeconds(minutes * 60);
     }
 
+    public static ofHours(hours: number) {
+        return Duration.ofMinutes(hours * 60);
+    }
+
+    public static ofDays(days: number) {
+        return Duration.ofHours(days * 24);
+    }
+
     public toMilliseconds() {
         return this.ms;
     }
@@ -23,5 +31,13 @@ export default class Duration {
 
     public toMinutes() {
         return this.toSeconds() / 60;
+    }
+
+    public toHours() {
+        return this.toMinutes() / 60;
+    }
+
+    public toDays() {
+        return this.toHours() / 24;
     }
 }
