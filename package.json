@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/CheesyGamer77/Warden#readme",
   "dependencies": {
-    "@discordjs/builders": "^0.15.0",
+    "@discordjs/builders": "^0.16.0-dev.1657757509-fe34f48",
     "@discordjs/rest": "^0.5.0",
     "@prisma/client": "^4.0.0",
     "discord-api-types": "^0.34.0",
