@@ -5,6 +5,7 @@ import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
 import i18next from 'i18next';
 import Duration from '../../util/duration';
+import { APIInteractionGuildMember } from 'discord-api-types/v10';
 
 const prisma = new PrismaClient();
 
@@ -32,7 +33,7 @@ export default class LoggingModule {
 
         this.configCache.set(guild.id, config);
 
-        return config
+        return config;
     }
 
     /**
@@ -118,7 +119,7 @@ export default class LoggingModule {
      * @param guild The guild to retrieve the next case number for
      */
     private static async retrieveNextCaseNumber(guild: Guild) {
-        return this.caseNumberCache.get(guild.id) ?? await this.fetchAndCacheNextCaseNumber(guild)
+        return this.caseNumberCache.get(guild.id) ?? await this.fetchAndCacheNextCaseNumber(guild);
     }
 
     static async fetchActionByCaseNumber(guild: Guild, caseNumber: number) {
@@ -132,12 +133,12 @@ export default class LoggingModule {
         });
     }
 
-    private static async createMuteLog(target: GuildMember, moderator: GuildMember, reason: string) {
+    static async createMuteLog(target: GuildMember, moderator: GuildMember | APIInteractionGuildMember, reason: string) {
         const guild = target.guild;
         const lng = guild.preferredLocale;
 
         const actionLogChannel = await this.retrieveLogChannel('modActions', guild);
-        if(actionLogChannel == null) return;
+        if (actionLogChannel == null) return;
 
         const caseNumber = await this.retrieveNextCaseNumber(guild);
 
@@ -148,13 +149,13 @@ export default class LoggingModule {
                 type: 'MUTE',
                 offenderId: target.id,
                 offenderTag: target.user.tag,
-                moderatorId: moderator.id,
-                moderatorTag: moderator.user.tag,
+                moderatorId: moderator.user.id,
+                moderatorTag: `${moderator.user.username}#${moderator.user.discriminator}`,
                 reason: reason
             }
         });
 
-        const actionType = "Mute";
+        const actionType = 'Mute';
         const targetId = target.id;
         const targetMention = target.toString();
         const moderatorMention = moderator.toString();
@@ -189,7 +190,7 @@ export default class LoggingModule {
                             value: i18next.t('logging.modActions.fields.moderator.value', {
                                 lng: lng,
                                 moderatorMention: moderatorMention,
-                                moderatorId: moderator.id
+                                moderatorId: moderator.user.id
                             })
                         },
                         {
@@ -198,7 +199,7 @@ export default class LoggingModule {
                         }
                     )
             ]
-        })
+        });
     }
 
     static async logMemberJoined(member: GuildMember) {
@@ -326,7 +327,7 @@ export default class LoggingModule {
             embeds: [ embed ],
         });
 
-        await this.createMuteLog(target, mod, reason)
+        await this.createMuteLog(target, mod, reason);
     }
 
     static async logMessageEdit(before: Message | PartialMessage, after: Message) {
