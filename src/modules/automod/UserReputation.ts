@@ -9,7 +9,7 @@ function clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
 }
 
-export default class {
+export default class extends null{
     private static reputationCache: ExpiryMap<string, Reputation> = new ExpiryMap(15 * 60 * 1000);
 
     private static getKey(member: GuildMember): string {

@@ -16,7 +16,7 @@ for (const pair of Object.entries(replacements)) {
 
 const prisma = new PrismaClient();
 
-export default class NameSanitizerModule {
+export default class NameSanitizerModule extends null {
     private static readonly configCache: ExpiryMap<string, NameSanitizerConfig> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
 
     private static cleanFancyText(content: string) {

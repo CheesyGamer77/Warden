@@ -17,7 +17,7 @@ interface LogMemberTimeoutOptions {
     channelType: 'escalations';
 }
 
-export default class LoggingModule {
+export default class LoggingModule extends null {
     private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(15 * 1000 * 60);
 
     private static async createBlankLogConfiguration(guild: Guild): Promise<LogConfig> {

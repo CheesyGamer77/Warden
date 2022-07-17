@@ -25,7 +25,7 @@ type IgnorableChannel = TextChannel | ThreadChannel | VoiceChannel;
 
 const prisma = new PrismaClient();
 
-export default class AntiSpamModule {
+export default class AntiSpamModule extends null {
     private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(Duration.ofMinutes(1).toMilliseconds());
     private static ignoredEntitiesCache: ExpiryMap<string, Set<string>> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
 

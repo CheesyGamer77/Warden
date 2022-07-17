@@ -6,7 +6,7 @@ import NameSanitizerModule from './NameSanitizer';
 
 const prisma = new PrismaClient();
 
-export default class AutoMod {
+export default class AutoMod extends null {
     private static configCache: ExpiryMap<string, AutoModConfig> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
 
     /**
