@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A content moderation bot for Discord",
   "main": "./dist/index.js",
+  "private": true,
   "scripts": {
     "build": "npm run clean && tsc",
     "clean": "npx rimraf ./dist",
