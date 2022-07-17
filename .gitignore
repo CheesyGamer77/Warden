@@ -42,6 +42,3 @@ yarn.lock
 
 # Ignore Bot Configuration
 config.json
-
-# Ignore warden's cache of slash command data
-warden.commands.cache
