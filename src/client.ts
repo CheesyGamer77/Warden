@@ -6,6 +6,7 @@
 
 import { Client, GuildMember, Intents, Message, PartialGuildMember, PartialMessage, ThreadChannel, VoiceState } from 'discord.js';
 import * as handlers from './handlers';
+import Warden from './warden';
 
 const client = new Client({
     intents: [
@@ -16,7 +17,7 @@ const client = new Client({
         Intents.FLAGS.GUILD_VOICE_STATES
     ] });
 
-client.once('ready', () => console.log('Ready'));
+client.once('ready', () => { Warden.logger.info('Warden is ready'); });
 
 client.on('guildMemberAdd', async (member) => await handlers.onGuildMemberAdd(member));
 
