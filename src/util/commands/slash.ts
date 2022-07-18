@@ -148,7 +148,7 @@ export abstract class PermissionLockedSlashCommand extends GuildSlashCommand {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected botHasPermissions(_: CommandInteraction) {
+    protected botHasPermissions(_: ChatInputCommandInteraction) {
         return true;
     }
 }
