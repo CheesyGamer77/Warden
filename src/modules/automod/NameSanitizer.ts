@@ -1,4 +1,4 @@
-import { Guild, GuildMember, Permissions } from 'discord.js';
+import { Guild, GuildMember, PermissionFlagsBits } from 'discord.js';
 import replacements from '../../../data/fancy_replacements.json';
 import { canModerate } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
@@ -30,7 +30,7 @@ export default class NameSanitizerModule extends null {
     }
 
     private static canOverwriteName(member: GuildMember): boolean {
-        return member.guild.me?.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES) ?? false;
+        return member.guild.members.me?.permissions.has(PermissionFlagsBits.ManageNicknames) ?? false;
     }
 
     public static async setEnabled(guild: Guild, enabled: boolean) {
@@ -59,7 +59,7 @@ export default class NameSanitizerModule extends null {
      */
     public static async sanitize(member: GuildMember) {
         const channel = await LoggingModule.retrieveLogChannel('userFilter', member.guild);
-        if (channel == null || !canModerate(member.guild.me, member)) return;
+        if (channel == null || !canModerate(member.guild.members.me, member)) return;
 
         const config = await this.retrieveConfig(member.guild);
 
@@ -74,7 +74,10 @@ export default class NameSanitizerModule extends null {
             if (sanitized.trim() === '') sanitized = config.blankFallbackName;
 
             const reason = i18next.t('logging.automod.nameSanitizer.filtered.reason', { lng: lng });
-            await member.edit({ nick: sanitized }, reason);
+            await member.edit({
+                nick: sanitized,
+                reason: reason
+            });
 
             await channel.send({
                 content: member.id,

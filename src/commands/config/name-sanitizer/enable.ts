@@ -1,4 +1,4 @@
-import { CommandInteraction, MessageEmbed } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import i18next from 'i18next';
 import NameSanitizerModule from '../../../modules/automod/NameSanitizer';
 import { Subcommand } from '../../../util/commands/slash';
@@ -9,7 +9,7 @@ export default class EnableCommand extends Subcommand {
         super('enable', 'Enables the Name Sanitizer');
     }
 
-    override async invoke(interaction: CommandInteraction) {
+    override async invoke(interaction: ChatInputCommandInteraction) {
         if (interaction.guild == null) return;
 
         const guild = interaction.guild;
@@ -18,12 +18,12 @@ export default class EnableCommand extends Subcommand {
         await NameSanitizerModule.setEnabled(guild, true);
         await interaction.reply({
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setDescription(i18next.t('commands.config.nameSanitizer.enable', {
                         lng: lng,
                         emoji: ':white_check_mark:'
                     }))
-                    .setColor('GREEN')
+                    .setColor('Green')
             ]
         });
     }

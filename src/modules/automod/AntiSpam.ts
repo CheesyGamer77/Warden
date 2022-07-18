@@ -1,4 +1,4 @@
-import { Guild, GuildMember, Message, Permissions, TextChannel, ThreadChannel, VoiceChannel } from 'discord.js';
+import { ChannelType, Guild, GuildMember, Message, PermissionFlagsBits, TextChannel, ThreadChannel, VoiceChannel } from 'discord.js';
 import { createHash } from 'crypto';
 import { canDelete } from '../../util/checks';
 import LoggingModule from '../logging/LoggingModule';
@@ -72,7 +72,8 @@ export default class AntiSpamModule extends null {
     }
 
     private static async timeoutMember(member: GuildMember, instances: number) {
-        if (member.guild.me == null) return;
+        const me = member.guild.members.me;
+        if (me == null) return;
 
         const reason = `Spamming (${instances} instances)`;
         const until = Date.now() + Duration.ofMinutes(1).toMilliseconds();
@@ -80,7 +81,7 @@ export default class AntiSpamModule extends null {
         await member.disableCommunicationUntil(until, reason);
         await LoggingModule.logMemberTimeout({
             target: member,
-            moderator: member.guild.me,
+            moderator: me,
             reason: reason,
             until: until,
             channelType: 'escalations',
@@ -176,10 +177,10 @@ export default class AntiSpamModule extends null {
         if (guild != null && !(await AutoMod.retrieveConfig(guild)).antiSpamEnabled) return;
 
         // ignore DM and news channels, non-guild messages, and messages with a null member author
-        if (channel.type == 'DM' || channel.type == 'GUILD_NEWS' || member == null) return;
+        if (channel.type == ChannelType.DM || channel.type == ChannelType.GuildNews || member == null) return;
 
         // ignore bots and members with manage message perms
-        if (member.user.bot || member.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
+        if (member.user.bot || member.permissionsIn(channel).has(PermissionFlagsBits.ManageMessages)) return;
 
         // ignore if the message is from an ignored channel
         if (await this.channelIsIgnored(channel)) return;

@@ -1,4 +1,4 @@
-import { ColorResolvable, CommandInteraction, MessageEmbed } from 'discord.js';
+import { ColorResolvable, ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import i18next from 'i18next';
 import ModlogsGroup, { LogConfigKeys } from '.';
 import LoggingModule from '../../../modules/logging/LoggingModule';
@@ -17,7 +17,7 @@ export default class ViewCommand extends Subcommand {
             );
     }
 
-    override async invoke(interaction: CommandInteraction) {
+    override async invoke(interaction: ChatInputCommandInteraction) {
         if (interaction.guild == null) { return; }
 
         const guild = interaction.guild;
@@ -43,15 +43,15 @@ export default class ViewCommand extends Subcommand {
             description = description.concat(`• \`${key}\`: ${channelMention}\n`);
         }
 
-        let embed: MessageEmbed;
+        let embed: EmbedBuilder;
 
         const modlogType = interaction.options.getString('type') as LogConfigKeys;
         if (modlogType == null) {
             // display entire config
-            embed = new MessageEmbed()
+            embed = new EmbedBuilder()
                 .setTitle(i18next.t('commands.config.modlogs.view.full.title', { lng: lng }))
                 .setDescription(description)
-                .setColor('BLURPLE')
+                .setColor('Blurple')
                 .setFooter({ text: i18next.t('commands.config.modlogs.view.full.footer', {
                     lng: lng,
                     guildId: guild.id
@@ -68,7 +68,7 @@ export default class ViewCommand extends Subcommand {
                     type: modlogType,
                     channelMention: `<#${channelId}>`
                 });
-                color = 'BLURPLE';
+                color = 'Blurple';
                 content = channelId;
             }
             else {
@@ -76,10 +76,10 @@ export default class ViewCommand extends Subcommand {
                     lng: lng,
                     type: modlogType
                 });
-                color = 'RED';
+                color = 'Red';
             }
 
-            embed = new MessageEmbed()
+            embed = new EmbedBuilder()
                 .setDescription(description)
                 .setColor(color);
         }

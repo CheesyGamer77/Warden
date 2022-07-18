@@ -1,4 +1,4 @@
-import { MessageEmbed, VoiceState } from 'discord.js';
+import { EmbedBuilder, VoiceState } from 'discord.js';
 import i18next from 'i18next';
 import LoggingModule from '../modules/logging/LoggingModule';
 import { getEmbedWithTarget } from '../util/embed';
@@ -26,7 +26,7 @@ export default async function onVoiceStateUpdate(before: VoiceState, after: Voic
     if (member == null) { return; }
 
     const state = getVoiceState(before, after);
-    let embed: MessageEmbed;
+    let embed: EmbedBuilder;
 
     if (state == 'JOINED') {
         const channel = after.channel;
@@ -38,7 +38,7 @@ export default async function onVoiceStateUpdate(before: VoiceState, after: Voic
                 userMention: member.toString(),
                 channelMention: channel?.toString()
             }))
-            .setColor('GREEN')
+            .setColor('Green')
             .setFooter({ text: i18next.t('logging.voiceEvents.joins.footer', {
                 lng: lng,
                 userId: member.id,
@@ -58,7 +58,7 @@ export default async function onVoiceStateUpdate(before: VoiceState, after: Voic
                 lng: lng,
                 userMention: member.toString()
             }))
-            .setColor('YELLOW')
+            .setColor('Yellow')
             .addFields([
                 {
                     name: i18next.t('logging.voiceEvents.moves.fields.from.name', { lng: lng }),
@@ -84,7 +84,7 @@ export default async function onVoiceStateUpdate(before: VoiceState, after: Voic
                 userMention: member.toString(),
                 channelMention: before.channel?.toString()
             }))
-            .setColor('RED')
+            .setColor('Red')
             .setFooter({ text: i18next.t('logging.voiceEvents.leaves.footer', {
                 lng: lng,
                 userId: member.id,
