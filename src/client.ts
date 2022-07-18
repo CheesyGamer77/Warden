@@ -5,6 +5,7 @@
  */
 
 import { Client, GuildMember, GatewayIntentBits, Message, PartialGuildMember, PartialMessage, ThreadChannel, VoiceState } from 'discord.js';
+import { updateCommands } from './commands';
 import * as handlers from './handlers';
 import Warden from './warden';
 
@@ -18,7 +19,10 @@ const client = new Client({
         GatewayIntentBits.MessageContent
     ] });
 
-client.once('ready', () => { Warden.logger.info('Warden is ready'); });
+client.once('ready', async () => {
+    Warden.logger.info('Warden is ready');
+    await updateCommands(client);
+});
 
 client.on('guildMemberAdd', async (member) => await handlers.onGuildMemberAdd(member));
 

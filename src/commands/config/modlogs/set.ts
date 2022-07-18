@@ -1,7 +1,6 @@
-import { ChatInputCommandInteraction, GuildTextBasedChannel, EmbedBuilder } from 'discord.js';
+import { ChannelType, ChatInputCommandInteraction, GuildTextBasedChannel, EmbedBuilder } from 'discord.js';
 import ModlogsGroup, { LogConfigKeys } from '.';
 import { Subcommand } from '../../../util/commands/slash';
-import { ChannelType } from 'discord-api-types/v10';
 import LoggingModule, { LogEventType } from '../../../modules/logging/LoggingModule';
 import i18next from 'i18next';
 
