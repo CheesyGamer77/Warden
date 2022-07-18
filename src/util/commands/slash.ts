@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } from '@discordjs/builders';
-import { CommandInteraction } from 'discord.js';
+import { CommandInteraction, InteractionType } from 'discord.js';
 
 abstract class CommandBase<BuilderType extends SlashCommandBuilder | SlashCommandSubcommandBuilder | SlashCommandSubcommandGroupBuilder> {
     protected readonly name: string;
@@ -88,7 +88,7 @@ export abstract class Subcommand extends CommandBase<SlashCommandSubcommandBuild
     }
 
     override async process(interaction: CommandInteraction) {
-        if (interaction.isCommand()) {
+        if (interaction.type == InteractionType.ApplicationCommand) {
             const name = interaction.options.getSubcommand();
             if (name == this.name) {
                 await this.invoke(interaction);
@@ -120,7 +120,7 @@ export abstract class SubcommandGroup extends CommandBase<SlashCommandSubcommand
     }
 
     override async process(interaction: CommandInteraction) {
-        if (interaction.isCommand()) {
+        if (interaction.type == InteractionType.ApplicationCommand) {
             const name = interaction.options.getSubcommandGroup();
             const subcommandName = interaction.options.getSubcommand();
 
