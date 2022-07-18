@@ -13,7 +13,7 @@ export default async function onThreadDelete(thread: ThreadChannel) {
             lng: lng,
             threadName: thread.name
         }))
-        .setColor('RED')
+        .setColor('Red')
         .setFooter({
             text: i18next.t('logging.threadEvents.delete.footer', {
                 lng: lng,

@@ -29,7 +29,7 @@ export default async function onThreadUpdate(before: ThreadChannel, after: Threa
                 lng: lng,
                 threadMention: after.toString()
             }))
-            .setColor('YELLOW')
+            .setColor('Yellow')
             .addFields(
                 {
                     name: i18next.t('logging.threadEvents.update.name.fields.before.name'),
@@ -48,7 +48,7 @@ export default async function onThreadUpdate(before: ThreadChannel, after: Threa
                 lng: lng,
                 threadName: after.name
             }))
-            .setColor('ORANGE');
+            .setColor('Orange');
     }
     else if (wasArchived && !isArchived) {
         embed
@@ -57,7 +57,7 @@ export default async function onThreadUpdate(before: ThreadChannel, after: Threa
                 lng: lng,
                 threadName: after.name
             }))
-            .setColor('AQUA');
+            .setColor('Aqua');
     }
     else {
         return;

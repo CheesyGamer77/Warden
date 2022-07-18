@@ -47,7 +47,7 @@ export default class SetCommand extends Subcommand {
                 type: modlogType,
                 value: channel?.toString() ?? NOT_SET
             }))
-            .setColor('BLURPLE')
+            .setColor('Blurple')
             .addFields(
                 {
                     name: i18next.t('commands.config.modlogs.set.fields.before.name', { lng: lng }),

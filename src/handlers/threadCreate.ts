@@ -29,7 +29,7 @@ export default async function onThreadCreate(thread: ThreadChannel, isNew: boole
             threadMention: thread.toString(),
             channelMention: parent?.toString() ?? '?'
         }))
-        .setColor('GREEN')
+        .setColor('Green')
         .addFields({
             name: i18next.t('logging.threadEvents.create.fields.threadInfo.name', { lng: lng }),
             value: i18next.t('logging.threadEvents.create.fields.threadInfo.value', {

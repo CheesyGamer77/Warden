@@ -23,7 +23,7 @@ export default class EnableCommand extends Subcommand {
                         lng: lng,
                         emoji: ':white_check_mark:'
                     }))
-                    .setColor('GREEN')
+                    .setColor('Green')
             ]
         });
     }

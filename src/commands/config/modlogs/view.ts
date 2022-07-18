@@ -51,7 +51,7 @@ export default class ViewCommand extends Subcommand {
             embed = new EmbedBuilder()
                 .setTitle(i18next.t('commands.config.modlogs.view.full.title', { lng: lng }))
                 .setDescription(description)
-                .setColor('BLURPLE')
+                .setColor('Blurple')
                 .setFooter({ text: i18next.t('commands.config.modlogs.view.full.footer', {
                     lng: lng,
                     guildId: guild.id

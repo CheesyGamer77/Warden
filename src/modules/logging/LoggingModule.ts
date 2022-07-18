@@ -120,7 +120,7 @@ export default class LoggingModule extends null {
                 userMention: user.toString(),
                 channelMention: message.channel.toString()
             }))
-            .setColor('BLUE');
+            .setColor('Blue');
 
         // splitting code below taken from https://stackoverflow.com/a/58204391
         const parts = message.content.match(/\b[\w\s]{2000,}?(?=\s)|.+$/g) ?? [ message.content ];
@@ -152,7 +152,7 @@ export default class LoggingModule extends null {
                 untilTimeMentionLong: Formatters.time(until, 'F'),
                 untilTimeMentionRelative: Formatters.time(until, 'R')
             }))
-            .setColor('ORANGE');
+            .setColor('Orange');
 
         const mod = opts.moderator;
         if (mod != undefined) {
@@ -187,7 +187,7 @@ export default class LoggingModule extends null {
                 userMention: after.author.toString(),
                 channelMention: after.channel.toString()
             }))
-            .setColor('YELLOW')
+            .setColor('Yellow')
             .addFields([
                 {
                     name: i18next.t('logging.messages.edits.fields.before.name', { lng: lng }),
@@ -227,7 +227,7 @@ export default class LoggingModule extends null {
                 userMention: message.author.toString(),
                 channelMention: message.channel.toString()
             }))
-            .setColor('RED')
+            .setColor('Red')
             .setFooter({
                 text: i18next.t('logging.messages.deletes.footer', {
                     lng: lng,

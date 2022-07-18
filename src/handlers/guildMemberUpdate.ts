@@ -53,7 +53,7 @@ function getRoleUpdateEmbed(member: GuildMember, roles: Collection<string, Role>
     return getEmbedWithTarget(member.user, lng)
         .setTitle(title)
         .setDescription(description)
-        .setColor(action == 'add' ? 'GREEN' : 'RED')
+        .setColor(action == 'add' ? 'Green' : 'Red')
         .addField(
             i18next.t('logging.userChanges.roles.common.fields.roles.name', { lng: lng }),
             getSortedRoleMentions(roles)
@@ -170,7 +170,7 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
         const embed = getEmbedWithTarget(after.user, lng)
             .setTitle('Display Avatar Changed')
             .setDescription(`${after.toString()} had their display avatar changed`)
-            .setColor(0xf1c40f)
+            .setColor('Gold')
             .setThumbnail(avatarURL);
 
         await channel?.send({

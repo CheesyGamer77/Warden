@@ -23,7 +23,7 @@ export default class DisableCommand extends Subcommand {
                         lng: lng,
                         emoji: ':white_check_mark:'
                     }))
-                    .setColor('GOLD')
+                    .setColor('Gold')
             ]
         });
     }

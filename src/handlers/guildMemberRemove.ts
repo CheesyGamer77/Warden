@@ -15,7 +15,7 @@ export default async function onGuildMemberRemove(member: GuildMember | PartialG
             lng: lng,
             userMention: user.toString()
         }))
-        .setColor('RED');
+        .setColor('Red');
 
     // a removed member's joined at timestamp has the potential to be null
     let memberSince: string;

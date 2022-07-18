@@ -15,7 +15,7 @@ export default async function onGuildMemberAdd(member: GuildMember) {
             lng: lng,
             userMention: user.toString()
         }))
-        .setColor('GREEN')
+        .setColor('Green')
         .addField(
             i18next.t('logging.joins.fields.accountCreated.name', { lng: lng }),
             Formatters.time(user.createdAt, 'R')
