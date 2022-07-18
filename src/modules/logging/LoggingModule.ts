@@ -1,5 +1,5 @@
 import { PrismaClient, LogConfig } from '@prisma/client';
-import { Guild, TextChannel, Formatters, GuildMember, PartialGuildMember, Message, PartialMessage, GuildTextBasedChannel } from 'discord.js';
+import { Guild, TextChannel, Formatters, GuildMember, Message, PartialMessage, GuildTextBasedChannel } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
