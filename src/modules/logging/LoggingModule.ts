@@ -1,5 +1,5 @@
 import { PrismaClient, LogConfig } from '@prisma/client';
-import { Guild, TextChannel, Formatters, GuildMember, Message, PartialMessage, GuildTextBasedChannel, ChannelType } from 'discord.js';
+import { Guild, Formatters, GuildMember, Message, PartialMessage, GuildTextBasedChannel, ChannelType } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
@@ -175,7 +175,7 @@ export default class LoggingModule extends null {
                         actionType: 'muted',
                         moderatorMention: moderatorMention
                     }))
-                    .setColor('GOLD')
+                    .setColor('Gold')
                     .addFields(
                         {
                             name: i18next.t('logging.modActions.fields.member.name', { lng: lng }),
@@ -269,7 +269,7 @@ export default class LoggingModule extends null {
             embeds: [ embed ],
         });
 
-        await this.createMuteLog(target, mod, reason);
+        await this.createMuteLog(target, mod, opts.reason);
     }
 
     static async logMessageEdit(before: Message | PartialMessage, after: Message) {
