@@ -68,7 +68,7 @@ export default class ViewCommand extends Subcommand {
                     type: modlogType,
                     channelMention: `<#${channelId}>`
                 });
-                color = 'BLURPLE';
+                color = 'Blurple';
                 content = channelId;
             }
             else {
@@ -76,7 +76,7 @@ export default class ViewCommand extends Subcommand {
                     lng: lng,
                     type: modlogType
                 });
-                color = 'RED';
+                color = 'Red';
             }
 
             embed = new EmbedBuilder()
