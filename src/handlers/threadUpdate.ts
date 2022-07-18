@@ -1,4 +1,4 @@
-import { MessageEmbed, ThreadChannel } from 'discord.js';
+import { EmbedBuilder, ThreadChannel } from 'discord.js';
 import i18next from 'i18next';
 import LoggingModule from '../modules/logging/LoggingModule';
 
@@ -13,7 +13,7 @@ export default async function onThreadUpdate(before: ThreadChannel, after: Threa
         channelId: after.parentId ?? 'Invalid Channel'
     });
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
         .setFooter({ text: footer });
 
     // This is needed due to ThreadChannels having a nullable archived property.

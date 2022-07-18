@@ -1,4 +1,4 @@
-import { Collection, GuildMember, MessageEmbed, PartialGuildMember, Role } from 'discord.js';
+import { Collection, GuildMember, EmbedBuilder, PartialGuildMember, Role } from 'discord.js';
 import LoggingModule from '../modules/logging/LoggingModule';
 import { getEmbedWithTarget } from '../util/embed';
 import i18next from 'i18next';
@@ -22,7 +22,7 @@ function getSortedRoleMentions(roles: Collection<string, Role>): string {
         .join(' ');
 }
 
-function getRoleUpdateEmbed(member: GuildMember, roles: Collection<string, Role>, action: 'add' | 'remove'): MessageEmbed {
+function getRoleUpdateEmbed(member: GuildMember, roles: Collection<string, Role>, action: 'add' | 'remove'): EmbedBuilder {
     const lng = member.guild.preferredLocale;
     const user = member.user;
 

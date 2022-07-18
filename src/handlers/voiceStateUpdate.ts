@@ -1,4 +1,4 @@
-import { MessageEmbed, VoiceState } from 'discord.js';
+import { EmbedBuilder, VoiceState } from 'discord.js';
 import i18next from 'i18next';
 import LoggingModule from '../modules/logging/LoggingModule';
 import { getEmbedWithTarget } from '../util/embed';
@@ -26,7 +26,7 @@ export default async function onVoiceStateUpdate(before: VoiceState, after: Voic
     if (member == null) { return; }
 
     const state = getVoiceState(before, after);
-    let embed: MessageEmbed;
+    let embed: EmbedBuilder;
 
     if (state == 'JOINED') {
         const channel = after.channel;

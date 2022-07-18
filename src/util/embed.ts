@@ -1,4 +1,4 @@
-import { MessageEmbed, User } from 'discord.js';
+import { EmbedBuilder, User } from 'discord.js';
 import i18next from 'i18next';
 
 /**
@@ -10,10 +10,10 @@ import i18next from 'i18next';
  * - The timestamp will be the current timestamp
  * @param user The user to use as the embed target
  * @param lng The locale to use for the footer translation
- * @returns A MessageEmbed with the above properties
+ * @returns A EmbedBuilder with the above properties
  */
-export function getEmbedWithTarget(user: User, lng: string): MessageEmbed {
-    return new MessageEmbed()
+export function getEmbedWithTarget(user: User, lng: string): EmbedBuilder {
+    return new EmbedBuilder()
         .setAuthor({ name: user.tag, iconURL: user.avatarURL() ?? user.defaultAvatarURL })
         .setFooter({ text: i18next.t('logging.common.footer', { lng: lng, userId: user.id }) })
         .setTimestamp();

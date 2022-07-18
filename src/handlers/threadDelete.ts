@@ -1,4 +1,4 @@
-import { MessageEmbed, ThreadChannel } from 'discord.js';
+import { EmbedBuilder, ThreadChannel } from 'discord.js';
 import i18next from 'i18next';
 import LoggingModule from '../modules/logging/LoggingModule';
 
@@ -7,7 +7,7 @@ export default async function onThreadDelete(thread: ThreadChannel) {
 
     const lng = thread.guild.preferredLocale;
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
         .setTitle(i18next.t('logging.threadEvents.delete.title', { lng: lng }))
         .setDescription(i18next.t('logging.threadEvents.delete.description', {
             lng: lng,

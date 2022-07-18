@@ -1,4 +1,4 @@
-import { MessageEmbed, ThreadChannel } from 'discord.js';
+import { EmbedBuilder, ThreadChannel } from 'discord.js';
 import i18next from 'i18next';
 import LoggingModule from '../modules/logging/LoggingModule';
 
@@ -21,7 +21,7 @@ export default async function onThreadCreate(thread: ThreadChannel, isNew: boole
 
     const parent = thread.parent;
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
         .setTitle(i18next.t('logging.threadEvents.create.title', { lng: lng }))
         .setDescription(i18next.t('logging.threadEvents.create.description', {
             lng: lng,

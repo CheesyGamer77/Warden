@@ -1,4 +1,4 @@
-import { CommandInteraction, GuildTextBasedChannel, MessageEmbed } from 'discord.js';
+import { CommandInteraction, GuildTextBasedChannel, EmbedBuilder } from 'discord.js';
 import ModlogsGroup, { LogConfigKeys } from '.';
 import { Subcommand } from '../../../util/commands/slash';
 import { ChannelType } from 'discord-api-types/v10';
@@ -41,7 +41,7 @@ export default class SetCommand extends Subcommand {
         await LoggingModule.setLogChannel(interaction.guild, modlogType.replace('ChannelId', '') as LogEventType, channel);
 
         const NOT_SET = i18next.t('commands.config.modlogs.common.notSet');
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setDescription(i18next.t('commands.config.modlogs.set.description', {
                 lng: lng,
                 type: modlogType,

@@ -1,4 +1,4 @@
-import { ColorResolvable, CommandInteraction, MessageEmbed } from 'discord.js';
+import { ColorResolvable, CommandInteraction, EmbedBuilder } from 'discord.js';
 import i18next from 'i18next';
 import ModlogsGroup, { LogConfigKeys } from '.';
 import LoggingModule from '../../../modules/logging/LoggingModule';
@@ -43,12 +43,12 @@ export default class ViewCommand extends Subcommand {
             description = description.concat(`• \`${key}\`: ${channelMention}\n`);
         }
 
-        let embed: MessageEmbed;
+        let embed: EmbedBuilder;
 
         const modlogType = interaction.options.getString('type') as LogConfigKeys;
         if (modlogType == null) {
             // display entire config
-            embed = new MessageEmbed()
+            embed = new EmbedBuilder()
                 .setTitle(i18next.t('commands.config.modlogs.view.full.title', { lng: lng }))
                 .setDescription(description)
                 .setColor('BLURPLE')
@@ -79,7 +79,7 @@ export default class ViewCommand extends Subcommand {
                 color = 'RED';
             }
 
-            embed = new MessageEmbed()
+            embed = new EmbedBuilder()
                 .setDescription(description)
                 .setColor(color);
         }
