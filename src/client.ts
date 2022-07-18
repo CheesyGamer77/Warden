@@ -4,17 +4,18 @@
  * This mostly contains `client.on` definitions that get very cluttery
  */
 
-import { Client, GuildMember, Intents, Message, PartialGuildMember, PartialMessage, ThreadChannel, VoiceState } from 'discord.js';
+import { Client, GuildMember, GatewayIntentBits, Message, PartialGuildMember, PartialMessage, ThreadChannel, VoiceState } from 'discord.js';
 import * as handlers from './handlers';
 import Warden from './warden';
 
 const client = new Client({
     intents: [
-        Intents.FLAGS.GUILDS,
-        Intents.FLAGS.GUILD_MESSAGES,
-        Intents.FLAGS.GUILD_MEMBERS,
-        Intents.FLAGS.GUILD_BANS,
-        Intents.FLAGS.GUILD_VOICE_STATES
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.MessageContent
     ] });
 
 client.once('ready', () => { Warden.logger.info('Warden is ready'); });
