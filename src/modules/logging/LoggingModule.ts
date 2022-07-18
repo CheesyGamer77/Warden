@@ -105,60 +105,6 @@ export default class LoggingModule extends null {
         });
     }
 
-    static async logMemberJoined(member: GuildMember) {
-        const channel = await this.retrieveLogChannel('joins', member.guild);
-        const lng = member.guild.preferredLocale;
-
-        const user = member.user;
-
-        const embed = getEmbedWithTarget(user, lng)
-            .setTitle(i18next.t('logging.joins.title', { lng: lng }))
-            .setDescription(i18next.t('logging.joins.description', {
-                lng: lng,
-                userMention: user.toString()
-            }))
-            .setColor('GREEN')
-            .addField(
-                i18next.t('logging.joins.fields.accountCreated.name', { lng: lng }),
-                Formatters.time(user.createdAt, 'R')
-            );
-
-        await channel?.send({
-            content: user.id,
-            embeds: [ embed ],
-        });
-    }
-
-    static async logMemberLeft(member: GuildMember | PartialGuildMember) {
-        const channel = await this.retrieveLogChannel('leaves', member.guild);
-        const lng = member.guild.preferredLocale;
-
-        const user = member.user;
-
-        const embed = getEmbedWithTarget(user, lng)
-            .setTitle(i18next.t('logging.leaves.title', { lng: lng }))
-            .setDescription(i18next.t('logging.leaves.description', {
-                lng: lng,
-                userMention: user.toString()
-            }))
-            .setColor('RED');
-
-        // a removed member's joined at timestamp has the potential to be null
-        let memberSince: string;
-        if (member.joinedAt != null) {memberSince = Formatters.time(member.joinedAt, 'R');}
-        else {memberSince = i18next.t('logging.leaves.fields.memberSince.unknown');}
-
-        embed.addField(
-            i18next.t('logging.leaves.fields.memberSince.name'),
-            memberSince
-        );
-
-        await channel?.send({
-            content: user.id,
-            embeds: [ embed ],
-        });
-    }
-
     static async logMemberSpamming(message: Message) {
         if (message.guild == null) return;
 
