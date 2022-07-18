@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction, GuildMember, MessageEmbed, Permissions } from 'discord.js';
+import { CacheType, CommandInteraction, GuildMember, EmbedBuilder, PermissionFlagsBits, ChatInputCommandInteraction } from 'discord.js';
 import i18next from 'i18next';
 import LoggingModule from '../../modules/logging/LoggingModule';
 import { PermissionLockedSlashCommand } from '../../util/commands/slash';
@@ -10,7 +10,7 @@ import Duration from '../../util/duration';
 export default class MuteCommand extends PermissionLockedSlashCommand {
     constructor() {
         // TODO: Localize command data
-        super('mute', 'Prevents a member from speaking temporarily', Permissions.FLAGS.MODERATE_MEMBERS);
+        super('mute', 'Prevents a member from speaking temporarily', PermissionFlagsBits.ModerateMembers);
         this.dataBuilder
             .addUserOption(option => option
                 .setName('member')
@@ -33,15 +33,15 @@ export default class MuteCommand extends PermissionLockedSlashCommand {
     }
 
     protected override botHasPermissions(interaction: CommandInteraction<CacheType>): boolean {
-        return interaction.guild?.me?.permissions.has(Permissions.FLAGS.MODERATE_MEMBERS) ?? false;
+        return interaction.guild?.members.me?.permissions.has(PermissionFlagsBits.ModerateMembers) ?? false;
     }
 
-    override async invoke(interaction: CommandInteraction) {
+    override async invoke(interaction: ChatInputCommandInteraction) {
         if (interaction.guild == null || interaction.member == null) return;
 
         const lng = interaction.guild.preferredLocale;
 
-        const member = interaction.options.getMember('member', true) as GuildMember;
+        const member = interaction.options.getMember('member') as GuildMember;
         const duration = Duration.ofMinutes(interaction.options.getInteger('minutes', true));
         const reason = interaction.options.getString('reason', false) ?? 'No Reason Provided';
 
@@ -51,7 +51,7 @@ export default class MuteCommand extends PermissionLockedSlashCommand {
 
             await interaction.reply({
                 ephemeral: true,
-                embeds: [new MessageEmbed()
+                embeds: [new EmbedBuilder()
                     .setDescription(i18next.t('commands.mute.success', {
                         lng: lng,
                         emoji: ':white_check_mark:',
@@ -65,7 +65,7 @@ export default class MuteCommand extends PermissionLockedSlashCommand {
         else {
             await interaction.reply({
                 ephemeral: true,
-                embeds: [new MessageEmbed()
+                embeds: [new EmbedBuilder()
                     .setDescription(i18next.t('commands.mute.fail', {
                         lng: lng,
                         emoji: ':x:',
