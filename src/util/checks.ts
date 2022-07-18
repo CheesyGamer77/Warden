@@ -70,7 +70,7 @@ export function canMessage(channel: GuildBasedChannel | null) {
         flags.EMBED_LINKS,
     ];
 
-    return channel?.guild.me?.permissionsIn(channel).has(requiredPermissions) ?? false;
+    return channel?.guild.members.me?.permissionsIn(channel).has(requiredPermissions) ?? false;
 }
 
 /**
@@ -83,7 +83,7 @@ export function canDelete(message: Message) {
         return message.author.id == message.client.user?.id ?? false;
     }
 
-    return message.guild?.me?.permissionsIn(message.channel).has(flags.MANAGE_MESSAGES) ?? false;
+    return message.guild?.members.me?.permissionsIn(message.channel).has(flags.MANAGE_MESSAGES) ?? false;
 }
 
 /**
@@ -92,7 +92,7 @@ export function canDelete(message: Message) {
  * @returns Whether the bot can purge messages in the given channel or not
  */
 export function canPurgeMessages(channel: GuildBasedChannel) {
-    return channel.guild.me?.permissionsIn(channel).has([
+    return channel.guild.members.me?.permissionsIn(channel).has([
         flags.MANAGE_MESSAGES,
         flags.READ_MESSAGE_HISTORY,
     ]) ?? false;

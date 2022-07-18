@@ -72,7 +72,8 @@ export default class AntiSpamModule extends null {
     }
 
     private static async timeoutMember(member: GuildMember, instances: number) {
-        if (member.guild.me == null) return;
+        const me = member.guild.members.me;
+        if (me == null) return;
 
         const reason = `Spamming (${instances} instances)`;
         const until = Date.now() + Duration.ofMinutes(1).toMilliseconds();
@@ -80,7 +81,7 @@ export default class AntiSpamModule extends null {
         await member.disableCommunicationUntil(until, reason);
         await LoggingModule.logMemberTimeout({
             target: member,
-            moderator: member.guild.me,
+            moderator: me,
             reason: reason,
             until: until,
             channelType: 'escalations',

@@ -30,7 +30,7 @@ export default class NameSanitizerModule extends null {
     }
 
     private static canOverwriteName(member: GuildMember): boolean {
-        return member.guild.me?.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES) ?? false;
+        return member.guild.members.me?.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES) ?? false;
     }
 
     public static async setEnabled(guild: Guild, enabled: boolean) {
@@ -59,7 +59,7 @@ export default class NameSanitizerModule extends null {
      */
     public static async sanitize(member: GuildMember) {
         const channel = await LoggingModule.retrieveLogChannel('userFilter', member.guild);
-        if (channel == null || !canModerate(member.guild.me, member)) return;
+        if (channel == null || !canModerate(member.guild.members.me, member)) return;
 
         const config = await this.retrieveConfig(member.guild);
 
