@@ -1,3 +1,7 @@
+/**
+ * Warden - A content moderation bot for Discord
+ */
+
 import { createLogger, format, transports } from 'winston';
 import client from './client';
 import config from '../config.json';

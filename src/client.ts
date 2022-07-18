@@ -1,3 +1,9 @@
+/**
+ * Client - Defines the discord.js client to use to connect to Discord
+ *
+ * This mostly contains `client.on` definitions that get very cluttery
+ */
+
 import { Client, GuildMember, Intents, Message, PartialGuildMember, PartialMessage, ThreadChannel, VoiceState } from 'discord.js';
 import * as handlers from './handlers';
 
