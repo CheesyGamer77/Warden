@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Permissions } from 'discord.js';
+import { ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js';
 import { SlashCommand } from '../../util/commands/slash';
 import ModlogsGroup from './modlogs';
 import NameSanitizerGroup from './name-sanitizer';
@@ -11,7 +11,7 @@ import NameSanitizerGroup from './name-sanitizer';
 export default class ConfigCommand extends SlashCommand {
     constructor() {
         super('config', 'Configuration commands');
-        this.dataBuilder.setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_GUILD);
+        this.dataBuilder.setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
         this.addSubcommandGroups(
             new ModlogsGroup(),
             new NameSanitizerGroup()

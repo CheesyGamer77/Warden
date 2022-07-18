@@ -1,4 +1,4 @@
-import { Guild, GuildMember, Message, Permissions, TextChannel, ThreadChannel, VoiceChannel } from 'discord.js';
+import { Guild, GuildMember, Message, PermissionFlagsBits, TextChannel, ThreadChannel, VoiceChannel } from 'discord.js';
 import { createHash } from 'crypto';
 import { canDelete } from '../../util/checks';
 import LoggingModule from '../logging/LoggingModule';
@@ -180,7 +180,7 @@ export default class AntiSpamModule extends null {
         if (channel.type == 'DM' || channel.type == 'GUILD_NEWS' || member == null) return;
 
         // ignore bots and members with manage message perms
-        if (member.user.bot || member.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
+        if (member.user.bot || member.permissionsIn(channel).has(PermissionFlagsBits.ManageMessages)) return;
 
         // ignore if the message is from an ignored channel
         if (await this.channelIsIgnored(channel)) return;

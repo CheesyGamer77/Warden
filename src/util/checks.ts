@@ -2,9 +2,7 @@
  * checks - Contains some commonly used checks
  */
 
-import { ChannelType, GuildBasedChannel, GuildMember, Message, Permissions } from 'discord.js';
-
-const flags = Permissions.FLAGS;
+import { ChannelType, GuildBasedChannel, GuildMember, Message, PermissionFlagsBits } from 'discord.js';
 
 /**
  * Returns whether a given member is the owner of the provided guild
@@ -26,10 +24,10 @@ export function isGuildOwner(member: GuildMember) {
  */
 export function isGuildModerator(member: GuildMember) {
     return member.permissions.any([
-        flags.MANAGE_MESSAGES,
-        flags.MODERATE_MEMBERS,
-        flags.KICK_MEMBERS,
-        flags.BAN_MEMBERS,
+        PermissionFlagsBits.ManageMessages,
+        PermissionFlagsBits.ModerateMembers,
+        PermissionFlagsBits.KickMembers,
+        PermissionFlagsBits.BanMembers,
     ]);
 }
 
@@ -65,9 +63,9 @@ export function canModerate(member: GuildMember | undefined | null, target: Guil
  */
 export function canMessage(channel: GuildBasedChannel | null) {
     const requiredPermissions = [
-        flags.VIEW_CHANNEL,
-        flags.SEND_MESSAGES,
-        flags.EMBED_LINKS,
+        PermissionFlagsBits.ViewChannel,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.EmbedLinks,
     ];
 
     return channel?.guild.members.me?.permissionsIn(channel).has(requiredPermissions) ?? false;
@@ -83,7 +81,7 @@ export function canDelete(message: Message) {
         return message.author.id == message.client.user?.id ?? false;
     }
 
-    return message.guild?.members.me?.permissionsIn(message.channel).has(flags.MANAGE_MESSAGES) ?? false;
+    return message.guild?.members.me?.permissionsIn(message.channel).has(PermissionFlagsBits.ManageMessages) ?? false;
 }
 
 /**
@@ -93,7 +91,7 @@ export function canDelete(message: Message) {
  */
 export function canPurgeMessages(channel: GuildBasedChannel) {
     return channel.guild.members.me?.permissionsIn(channel).has([
-        flags.MANAGE_MESSAGES,
-        flags.READ_MESSAGE_HISTORY,
+        PermissionFlagsBits.ManageMessages,
+        PermissionFlagsBits.ReadMessageHistory,
     ]) ?? false;
 }
