@@ -1,25 +1,30 @@
+/**
+ * checks - Contains some commonly used checks
+ */
+
 import { GuildBasedChannel, GuildMember, Message, Permissions } from 'discord.js';
+
+const flags = Permissions.FLAGS;
 
 /**
  * Returns whether a given member is the owner of the provided guild
  * @param member The member to check if they're owner
  * @returns Whether the member is the owner of the guild or not
  */
-export function isGuildOwner(member: GuildMember): boolean {
+export function isGuildOwner(member: GuildMember) {
     return member.guild.ownerId == member.id;
 }
 
 /**
- * Returns whether a member has the following permissions:
+ * Returns whether a member has any of the following permissions:
  * - `MANAGE_MESSAGES`
  * - `MODERATE_MEMBERS`
  * - `KICK_MEMBERS`
  * - `BAN_MEMBERS`
  * @param member The member to check if they're considered to be a guild moderator
- * @returns Whether the member has the above permissions or not
+ * @returns Whether the member has any of the above permissions or not
  */
-export function isGuildModerator(member: GuildMember): boolean {
-    const flags = Permissions.FLAGS;
+export function isGuildModerator(member: GuildMember) {
     return member.permissions.any([
         flags.MANAGE_MESSAGES,
         flags.MODERATE_MEMBERS,
@@ -37,7 +42,7 @@ export function isGuildModerator(member: GuildMember): boolean {
  * @author ChessyGamer77, Ruelf
  * @returns Whether the member can moderate the target member
  */
-export function canModerate(member: GuildMember | undefined | null, target: GuildMember): boolean {
+export function canModerate(member: GuildMember | undefined | null, target: GuildMember) {
     // same guild guard clause
     if (member?.guild != target.guild) return false;
 
@@ -58,11 +63,11 @@ export function canModerate(member: GuildMember | undefined | null, target: Guil
  * Returns whether the client can send embeded messages in the given channel
  * @param channel The channel to check if the client can send embeded messages in
  */
-export function canMessage(channel: GuildBasedChannel | null): boolean {
+export function canMessage(channel: GuildBasedChannel | null) {
     const requiredPermissions = [
-        Permissions.FLAGS.VIEW_CHANNEL,
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
+        flags.VIEW_CHANNEL,
+        flags.SEND_MESSAGES,
+        flags.EMBED_LINKS,
     ];
 
     return channel?.guild.me?.permissionsIn(channel).has(requiredPermissions) ?? false;
@@ -73,12 +78,12 @@ export function canMessage(channel: GuildBasedChannel | null): boolean {
  * @param message The message to be deleted
  * @returns Whether the message is able to be deleted by the bot or not
  */
-export function canDelete(message: Message): boolean {
+export function canDelete(message: Message) {
     if (message.channel.type == 'DM') {
         return message.author.id == message.client.user?.id ?? false;
     }
 
-    return message.guild?.me?.permissionsIn(message.channel).has(Permissions.FLAGS.MANAGE_MESSAGES) ?? false;
+    return message.guild?.me?.permissionsIn(message.channel).has(flags.MANAGE_MESSAGES) ?? false;
 }
 
 /**
@@ -86,9 +91,9 @@ export function canDelete(message: Message): boolean {
  * @param channel The channel to check if the bot can purge messages in
  * @returns Whether the bot can purge messages in the given channel or not
  */
-export function canPurgeMessages(channel: GuildBasedChannel): boolean {
+export function canPurgeMessages(channel: GuildBasedChannel) {
     return channel.guild.me?.permissionsIn(channel).has([
-        Permissions.FLAGS.MANAGE_MESSAGES,
-        Permissions.FLAGS.READ_MESSAGE_HISTORY,
+        flags.MANAGE_MESSAGES,
+        flags.READ_MESSAGE_HISTORY,
     ]) ?? false;
 }

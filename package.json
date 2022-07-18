@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A content moderation bot for Discord",
   "main": "./dist/index.js",
+  "private": true,
   "scripts": {
     "build": "npm run clean && tsc",
     "clean": "npx rimraf ./dist",
@@ -29,7 +30,8 @@
     "discord.js": "^13.8.1",
     "expiry-map": "^2.0.0",
     "i18next": "^21.8.4",
-    "i18next-fs-backend": "^1.1.4"
+    "i18next-fs-backend": "^1.1.4",
+    "winston": "^3.8.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
