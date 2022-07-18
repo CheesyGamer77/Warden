@@ -1,4 +1,4 @@
-import { ColorResolvable, CommandInteraction, EmbedBuilder } from 'discord.js';
+import { ColorResolvable, ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import i18next from 'i18next';
 import ModlogsGroup, { LogConfigKeys } from '.';
 import LoggingModule from '../../../modules/logging/LoggingModule';
@@ -17,7 +17,7 @@ export default class ViewCommand extends Subcommand {
             );
     }
 
-    override async invoke(interaction: CommandInteraction) {
+    override async invoke(interaction: ChatInputCommandInteraction) {
         if (interaction.guild == null) { return; }
 
         const guild = interaction.guild;

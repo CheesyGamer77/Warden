@@ -1,4 +1,4 @@
-import { CommandInteraction, GuildTextBasedChannel, EmbedBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, GuildTextBasedChannel, EmbedBuilder } from 'discord.js';
 import ModlogsGroup, { LogConfigKeys } from '.';
 import { Subcommand } from '../../../util/commands/slash';
 import { ChannelType } from 'discord-api-types/v10';
@@ -24,7 +24,7 @@ export default class SetCommand extends Subcommand {
             );
     }
 
-    override async invoke(interaction: CommandInteraction) {
+    override async invoke(interaction: ChatInputCommandInteraction) {
         if (interaction.guild == null) { return; }
 
         const lng = interaction.guild.preferredLocale;

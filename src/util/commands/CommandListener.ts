@@ -21,6 +21,9 @@ export default class {
     }
 
     async process(interaction: CommandInteraction) {
-        await this.commandMap.get(interaction.commandName)?.process(interaction);
+        if (interaction.isChatInputCommand()) {
+            await this.commandMap.get(interaction.commandName)?.process(interaction);
+        }
+
     }
 }

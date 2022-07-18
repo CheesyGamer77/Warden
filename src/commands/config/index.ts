@@ -1,4 +1,4 @@
-import { CommandInteraction, Permissions } from 'discord.js';
+import { ChatInputCommandInteraction, Permissions } from 'discord.js';
 import { SlashCommand } from '../../util/commands/slash';
 import ModlogsGroup from './modlogs';
 import NameSanitizerGroup from './name-sanitizer';
@@ -19,5 +19,5 @@ export default class ConfigCommand extends SlashCommand {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    override async invoke(_: CommandInteraction) { return; }
+    override async invoke(_: ChatInputCommandInteraction) { return; }
 }
