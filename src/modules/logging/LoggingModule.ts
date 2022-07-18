@@ -1,5 +1,5 @@
 import { PrismaClient, LogConfig } from '@prisma/client';
-import { Guild, TextChannel, Formatters, GuildMember, Message, PartialMessage, GuildTextBasedChannel } from 'discord.js';
+import { Guild, TextChannel, Formatters, GuildMember, Message, PartialMessage, GuildTextBasedChannel, ChannelType } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
@@ -67,7 +67,7 @@ export default class LoggingModule extends null {
         if (channelId != null) {
             const channel = guild.channels.cache.get(channelId) ?? null;
 
-            return canMessage(channel) && channel?.type == 'GUILD_TEXT' ? channel : null;
+            return canMessage(channel) && channel?.type == ChannelType.GuildText ? channel : null;
         }
 
         return null;

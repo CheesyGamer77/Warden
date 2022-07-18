@@ -1,4 +1,4 @@
-import { Guild, GuildMember, Message, PermissionFlagsBits, TextChannel, ThreadChannel, VoiceChannel } from 'discord.js';
+import { ChannelType, Guild, GuildMember, Message, PermissionFlagsBits, TextChannel, ThreadChannel, VoiceChannel } from 'discord.js';
 import { createHash } from 'crypto';
 import { canDelete } from '../../util/checks';
 import LoggingModule from '../logging/LoggingModule';
@@ -177,7 +177,7 @@ export default class AntiSpamModule extends null {
         if (guild != null && !(await AutoMod.retrieveConfig(guild)).antiSpamEnabled) return;
 
         // ignore DM and news channels, non-guild messages, and messages with a null member author
-        if (channel.type == 'DM' || channel.type == 'GUILD_NEWS' || member == null) return;
+        if (channel.type == ChannelType.DM || channel.type == ChannelType.GuildNews || member == null) return;
 
         // ignore bots and members with manage message perms
         if (member.user.bot || member.permissionsIn(channel).has(PermissionFlagsBits.ManageMessages)) return;
