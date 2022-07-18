@@ -1,5 +1,5 @@
 import { PrismaClient, LogConfig } from '@prisma/client';
-import { Guild, TextChannel, Formatters, GuildMember, Message, PartialMessage, GuildTextBasedChannel } from 'discord.js';
+import { Guild, TextChannel, Formatters, GuildMember, Message, PartialMessage, GuildTextBasedChannel, ChannelType } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
@@ -67,7 +67,7 @@ export default class LoggingModule extends null {
         if (channelId != null) {
             const channel = guild.channels.cache.get(channelId) ?? null;
 
-            return canMessage(channel) && channel?.type == 'GUILD_TEXT' ? channel : null;
+            return canMessage(channel) && channel?.type == ChannelType.GuildText ? channel : null;
         }
 
         return null;
@@ -120,15 +120,15 @@ export default class LoggingModule extends null {
                 userMention: user.toString(),
                 channelMention: message.channel.toString()
             }))
-            .setColor('BLUE');
+            .setColor('Blue');
 
         // splitting code below taken from https://stackoverflow.com/a/58204391
         const parts = message.content.match(/\b[\w\s]{2000,}?(?=\s)|.+$/g) ?? [ message.content ];
         for (const part of parts) {
-            embed.addField(
-                i18next.t('logging.automod.antispam.filtered.fields.message.name', { lng: lng }),
-                part.trim()
-            );
+            embed.addFields([{
+                name: i18next.t('logging.automod.antispam.filtered.fields.message.name', { lng: lng }),
+                value: part.trim()
+            }]);
         }
 
         await channel?.send({
@@ -152,20 +152,20 @@ export default class LoggingModule extends null {
                 untilTimeMentionLong: Formatters.time(until, 'F'),
                 untilTimeMentionRelative: Formatters.time(until, 'R')
             }))
-            .setColor('ORANGE');
+            .setColor('Orange');
 
         const mod = opts.moderator;
         if (mod != undefined) {
-            embed.addField(
-                i18next.t('logging.automod.antispam.timeout.fields.moderator.name', { lng: lng }),
-                `${mod.toString()} \`(${mod.id})\``
-            );
+            embed.addFields([{
+                name: i18next.t('logging.automod.antispam.timeout.fields.moderator.name', { lng: lng }),
+                value: `${mod.toString()} \`(${mod.id})\``
+            }]);
         }
 
-        embed.addField(
-            i18next.t('logging.automod.antispam.timeout.fields.reason.name', { lng: lng }),
-            opts.reason ?? i18next.t('logging.automod.antispam.timeout.fields.reason.noneGiven', { lng: lng })
-        );
+        embed.addFields([{
+            name: i18next.t('logging.automod.antispam.timeout.fields.reason.name', { lng: lng }),
+            value: opts.reason ?? i18next.t('logging.automod.antispam.timeout.fields.reason.noneGiven', { lng: lng })
+        }]);
 
         await channel?.send({
             content: target.id,
@@ -187,7 +187,7 @@ export default class LoggingModule extends null {
                 userMention: after.author.toString(),
                 channelMention: after.channel.toString()
             }))
-            .setColor('YELLOW')
+            .setColor('Yellow')
             .addFields([
                 {
                     name: i18next.t('logging.messages.edits.fields.before.name', { lng: lng }),
@@ -227,7 +227,7 @@ export default class LoggingModule extends null {
                 userMention: message.author.toString(),
                 channelMention: message.channel.toString()
             }))
-            .setColor('RED')
+            .setColor('Red')
             .setFooter({
                 text: i18next.t('logging.messages.deletes.footer', {
                     lng: lng,
@@ -237,10 +237,10 @@ export default class LoggingModule extends null {
             });
 
         for (const part of parts) {
-            embed.addField(
-                i18next.t('logging.messages.deletes.fields.message.name', { lng: lng }),
-                part
-            );
+            embed.addFields([{
+                name: i18next.t('logging.messages.deletes.fields.message.name', { lng: lng }),
+                value: part
+            }]);
         }
 
         await channel?.send({

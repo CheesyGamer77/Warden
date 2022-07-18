@@ -7,7 +7,6 @@ import client from './client';
 import config from '../config.json';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
-import { updateCommands } from './commands';
 
 export default class Warden extends null {
     public static readonly logger = createLogger({
@@ -42,10 +41,10 @@ export default class Warden extends null {
 
         await Promise.all([
             this.setupTranslations(),
-            updateCommands(config.token, config.clientId)
+            client.login(config.token)
         ]);
 
-        await client.login(config.token);
+
         this.isStarted = true;
         this.logger.info('Warden has started');
     }

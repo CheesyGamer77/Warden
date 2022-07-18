@@ -1,4 +1,4 @@
-import { Collection, GuildMember, MessageEmbed, PartialGuildMember, Role } from 'discord.js';
+import { Collection, GuildMember, EmbedBuilder, PartialGuildMember, Role } from 'discord.js';
 import LoggingModule from '../modules/logging/LoggingModule';
 import { getEmbedWithTarget } from '../util/embed';
 import i18next from 'i18next';
@@ -22,7 +22,7 @@ function getSortedRoleMentions(roles: Collection<string, Role>): string {
         .join(' ');
 }
 
-function getRoleUpdateEmbed(member: GuildMember, roles: Collection<string, Role>, action: 'add' | 'remove'): MessageEmbed {
+function getRoleUpdateEmbed(member: GuildMember, roles: Collection<string, Role>, action: 'add' | 'remove'): EmbedBuilder {
     const lng = member.guild.preferredLocale;
     const user = member.user;
 
@@ -53,11 +53,11 @@ function getRoleUpdateEmbed(member: GuildMember, roles: Collection<string, Role>
     return getEmbedWithTarget(member.user, lng)
         .setTitle(title)
         .setDescription(description)
-        .setColor(action == 'add' ? 'GREEN' : 'RED')
-        .addField(
-            i18next.t('logging.userChanges.roles.common.fields.roles.name', { lng: lng }),
-            getSortedRoleMentions(roles)
-        );
+        .setColor(action == 'add' ? 'Green' : 'Red')
+        .addFields([{
+            name: i18next.t('logging.userChanges.roles.common.fields.roles.name', { lng: lng }),
+            value: getSortedRoleMentions(roles)
+        }]);
 }
 
 export default async function onGuildMemberUpdate(before: GuildMember | PartialGuildMember, after: GuildMember) {
@@ -87,10 +87,10 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
             });
             color = 0x1f8b4c;
 
-            embed.addField(
-                i18next.t('logging.userChanges.nickname.set.fields.nickname.name'),
-                newNick ?? user.username
-            );
+            embed.addFields([{
+                name: i18next.t('logging.userChanges.nickname.set.fields.nickname.name'),
+                value: newNick ?? user.username
+            }]);
         }
         else if (updateType == 'CLEARED') {
             // nickname cleared
@@ -101,10 +101,10 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
             });
             color = 0xf1c40f;
 
-            embed.addField(
-                i18next.t('logging.userChanges.nickname.clear.fields.originalNickname.name', { lng: lng }),
-                oldNick ?? before.user.username
-            );
+            embed.addFields([{
+                name: i18next.t('logging.userChanges.nickname.clear.fields.originalNickname.name', { lng: lng }),
+                value: oldNick ?? before.user.username
+            }]);
         }
         else {
             // neither null guard clause
@@ -170,7 +170,7 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
         const embed = getEmbedWithTarget(after.user, lng)
             .setTitle('Display Avatar Changed')
             .setDescription(`${after.toString()} had their display avatar changed`)
-            .setColor(0xf1c40f)
+            .setColor('Gold')
             .setThumbnail(avatarURL);
 
         await channel?.send({

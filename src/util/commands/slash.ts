@@ -1,5 +1,5 @@
-import { SlashCommandBuilder, SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } from '@discordjs/builders';
-import { CommandInteraction } from 'discord.js';
+import { SlashCommandBuilder, SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, InteractionType } from 'discord.js';
 
 abstract class CommandBase<BuilderType extends SlashCommandBuilder | SlashCommandSubcommandBuilder | SlashCommandSubcommandGroupBuilder> {
     protected readonly name: string;
@@ -14,8 +14,8 @@ abstract class CommandBase<BuilderType extends SlashCommandBuilder | SlashComman
         return this.name;
     }
 
-    abstract process(interaction: CommandInteraction): Promise<void>
-    abstract invoke(interaction: CommandInteraction): Promise<void>
+    abstract process(interaction: ChatInputCommandInteraction): Promise<void>
+    abstract invoke(interaction: ChatInputCommandInteraction): Promise<void>
     abstract getData(): BuilderType
 }
 
@@ -54,8 +54,8 @@ export abstract class SlashCommand extends CommandBase<SlashCommandBuilder> {
         return this.dataBuilder.toJSON();
     }
 
-    override async process(interaction: CommandInteraction) {
-        if (interaction.commandName == this.name) {
+    override async process(interaction: ChatInputCommandInteraction) {
+        if (interaction.isChatInputCommand() && interaction.commandName == this.name) {
             const subcommand = interaction.options.getSubcommand(false);
             const subcommandGroup = interaction.options.getSubcommandGroup(false);
 
@@ -87,8 +87,8 @@ export abstract class Subcommand extends CommandBase<SlashCommandSubcommandBuild
         return this.dataBuilder;
     }
 
-    override async process(interaction: CommandInteraction) {
-        if (interaction.isCommand()) {
+    override async process(interaction: ChatInputCommandInteraction) {
+        if (interaction.type == InteractionType.ApplicationCommand && interaction.isChatInputCommand()) {
             const name = interaction.options.getSubcommand();
             if (name == this.name) {
                 await this.invoke(interaction);
@@ -119,8 +119,8 @@ export abstract class SubcommandGroup extends CommandBase<SlashCommandSubcommand
         return this.dataBuilder;
     }
 
-    override async process(interaction: CommandInteraction) {
-        if (interaction.isCommand()) {
+    override async process(interaction: ChatInputCommandInteraction) {
+        if (interaction.type == InteractionType.ApplicationCommand && interaction.isChatInputCommand()) {
             const name = interaction.options.getSubcommandGroup();
             const subcommandName = interaction.options.getSubcommand();
 
@@ -131,5 +131,5 @@ export abstract class SubcommandGroup extends CommandBase<SlashCommandSubcommand
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    override async invoke(_: CommandInteraction) { return; }
+    override async invoke(_: ChatInputCommandInteraction) { return; }
 }

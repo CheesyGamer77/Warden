@@ -15,7 +15,7 @@ export default async function onGuildMemberRemove(member: GuildMember | PartialG
             lng: lng,
             userMention: user.toString()
         }))
-        .setColor('RED');
+        .setColor('Red');
 
     // a removed member's joined at timestamp has the potential to be null
     let memberSince: string;
@@ -26,10 +26,10 @@ export default async function onGuildMemberRemove(member: GuildMember | PartialG
         memberSince = i18next.t('logging.leaves.fields.memberSince.unknown');
     }
 
-    embed.addField(
-        i18next.t('logging.leaves.fields.memberSince.name'),
-        memberSince
-    );
+    embed.addFields([{
+        name: i18next.t('logging.leaves.fields.memberSince.name'),
+        value: memberSince
+    }]);
 
     await channel?.send({
         content: user.id,
