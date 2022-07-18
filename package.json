@@ -24,6 +24,7 @@
   "homepage": "https://github.com/CheesyGamer77/Warden#readme",
   "dependencies": {
     "@prisma/client": "^4.0.0",
+    "discord-api-types": "^0.36.2",
     "discord.js": "^14.0.2",
     "expiry-map": "^2.0.0",
     "i18next": "^21.8.14",
