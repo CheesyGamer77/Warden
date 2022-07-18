@@ -24,7 +24,7 @@ client.once('ready', async () => {
     await updateCommands(client);
 });
 
-client.on('error', error => {
+process.on('uncaughtException', error => {
     Warden.logger.error("Encountered an unexpected error :(", error);
 });
 
