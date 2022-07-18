@@ -1,4 +1,10 @@
+/**
+ * checks - Contains some commonly used checks
+ */
+
 import { GuildBasedChannel, GuildMember, Message, Permissions } from 'discord.js';
+
+const flags = Permissions.FLAGS;
 
 /**
  * Returns whether a given member is the owner of the provided guild
@@ -10,16 +16,15 @@ export function isGuildOwner(member: GuildMember): boolean {
 }
 
 /**
- * Returns whether a member has the following permissions:
+ * Returns whether a member has any of the following permissions:
  * - `MANAGE_MESSAGES`
  * - `MODERATE_MEMBERS`
  * - `KICK_MEMBERS`
  * - `BAN_MEMBERS`
  * @param member The member to check if they're considered to be a guild moderator
- * @returns Whether the member has the above permissions or not
+ * @returns Whether the member has any of the above permissions or not
  */
 export function isGuildModerator(member: GuildMember): boolean {
-    const flags = Permissions.FLAGS;
     return member.permissions.any([
         flags.MANAGE_MESSAGES,
         flags.MODERATE_MEMBERS,
@@ -60,9 +65,9 @@ export function canModerate(member: GuildMember | undefined | null, target: Guil
  */
 export function canMessage(channel: GuildBasedChannel | null): boolean {
     const requiredPermissions = [
-        Permissions.FLAGS.VIEW_CHANNEL,
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
+        flags.VIEW_CHANNEL,
+        flags.SEND_MESSAGES,
+        flags.EMBED_LINKS,
     ];
 
     return channel?.guild.me?.permissionsIn(channel).has(requiredPermissions) ?? false;
@@ -78,7 +83,7 @@ export function canDelete(message: Message): boolean {
         return message.author.id == message.client.user?.id ?? false;
     }
 
-    return message.guild?.me?.permissionsIn(message.channel).has(Permissions.FLAGS.MANAGE_MESSAGES) ?? false;
+    return message.guild?.me?.permissionsIn(message.channel).has(flags.MANAGE_MESSAGES) ?? false;
 }
 
 /**
@@ -88,7 +93,7 @@ export function canDelete(message: Message): boolean {
  */
 export function canPurgeMessages(channel: GuildBasedChannel): boolean {
     return channel.guild.me?.permissionsIn(channel).has([
-        Permissions.FLAGS.MANAGE_MESSAGES,
-        Permissions.FLAGS.READ_MESSAGE_HISTORY,
+        flags.MANAGE_MESSAGES,
+        flags.READ_MESSAGE_HISTORY,
     ]) ?? false;
 }
