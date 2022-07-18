@@ -74,7 +74,10 @@ export default class NameSanitizerModule extends null {
             if (sanitized.trim() === '') sanitized = config.blankFallbackName;
 
             const reason = i18next.t('logging.automod.nameSanitizer.filtered.reason', { lng: lng });
-            await member.edit({ nick: sanitized }, reason);
+            await member.edit({
+                nick: sanitized,
+                reason: reason
+            });
 
             await channel.send({
                 content: member.id,
