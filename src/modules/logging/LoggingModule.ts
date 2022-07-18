@@ -155,6 +155,9 @@ export default class LoggingModule extends null {
             }
         });
 
+        // increment next case number
+        this.caseNumberCache.set(guild.id, caseNumber + 1);
+
         const actionType = 'Mute';
         const targetId = target.id;
         const targetMention = target.toString();
