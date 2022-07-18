@@ -2,7 +2,7 @@
  * checks - Contains some commonly used checks
  */
 
-import { GuildBasedChannel, GuildMember, Message, Permissions } from 'discord.js';
+import { ChannelType, GuildBasedChannel, GuildMember, Message, Permissions } from 'discord.js';
 
 const flags = Permissions.FLAGS;
 
@@ -79,7 +79,7 @@ export function canMessage(channel: GuildBasedChannel | null) {
  * @returns Whether the message is able to be deleted by the bot or not
  */
 export function canDelete(message: Message) {
-    if (message.channel.type == 'DM') {
+    if (message.channel.type == ChannelType.DM) {
         return message.author.id == message.client.user?.id ?? false;
     }
 
