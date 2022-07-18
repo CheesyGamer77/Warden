@@ -26,10 +26,10 @@ export default async function onGuildMemberRemove(member: GuildMember | PartialG
         memberSince = i18next.t('logging.leaves.fields.memberSince.unknown');
     }
 
-    embed.addField(
-        i18next.t('logging.leaves.fields.memberSince.name'),
-        memberSince
-    );
+    embed.addFields([{
+        name: i18next.t('logging.leaves.fields.memberSince.name'),
+        value: memberSince
+    }]);
 
     await channel?.send({
         content: user.id,

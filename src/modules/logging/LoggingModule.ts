@@ -125,10 +125,10 @@ export default class LoggingModule extends null {
         // splitting code below taken from https://stackoverflow.com/a/58204391
         const parts = message.content.match(/\b[\w\s]{2000,}?(?=\s)|.+$/g) ?? [ message.content ];
         for (const part of parts) {
-            embed.addField(
-                i18next.t('logging.automod.antispam.filtered.fields.message.name', { lng: lng }),
-                part.trim()
-            );
+            embed.addFields([{
+                name: i18next.t('logging.automod.antispam.filtered.fields.message.name', { lng: lng }),
+                value: part.trim()
+            }]);
         }
 
         await channel?.send({
@@ -156,16 +156,16 @@ export default class LoggingModule extends null {
 
         const mod = opts.moderator;
         if (mod != undefined) {
-            embed.addField(
-                i18next.t('logging.automod.antispam.timeout.fields.moderator.name', { lng: lng }),
-                `${mod.toString()} \`(${mod.id})\``
-            );
+            embed.addFields([{
+                name: i18next.t('logging.automod.antispam.timeout.fields.moderator.name', { lng: lng }),
+                value: `${mod.toString()} \`(${mod.id})\``
+            }]);
         }
 
-        embed.addField(
-            i18next.t('logging.automod.antispam.timeout.fields.reason.name', { lng: lng }),
-            opts.reason ?? i18next.t('logging.automod.antispam.timeout.fields.reason.noneGiven', { lng: lng })
-        );
+        embed.addFields([{
+            name: i18next.t('logging.automod.antispam.timeout.fields.reason.name', { lng: lng }),
+            value: opts.reason ?? i18next.t('logging.automod.antispam.timeout.fields.reason.noneGiven', { lng: lng })
+        }]);
 
         await channel?.send({
             content: target.id,
@@ -237,10 +237,10 @@ export default class LoggingModule extends null {
             });
 
         for (const part of parts) {
-            embed.addField(
-                i18next.t('logging.messages.deletes.fields.message.name', { lng: lng }),
-                part
-            );
+            embed.addFields([{
+                name: i18next.t('logging.messages.deletes.fields.message.name', { lng: lng }),
+                value: part
+            }]);
         }
 
         await channel?.send({

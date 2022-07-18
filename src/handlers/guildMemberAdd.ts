@@ -16,10 +16,10 @@ export default async function onGuildMemberAdd(member: GuildMember) {
             userMention: user.toString()
         }))
         .setColor('Green')
-        .addField(
-            i18next.t('logging.joins.fields.accountCreated.name', { lng: lng }),
-            Formatters.time(user.createdAt, 'R')
-        );
+        .addFields([{
+            name: i18next.t('logging.joins.fields.accountCreated.name', { lng: lng }),
+            value: Formatters.time(user.createdAt, 'R')
+        }]);
 
     await channel?.send({
         content: user.id,

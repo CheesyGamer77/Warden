@@ -54,10 +54,10 @@ function getRoleUpdateEmbed(member: GuildMember, roles: Collection<string, Role>
         .setTitle(title)
         .setDescription(description)
         .setColor(action == 'add' ? 'Green' : 'Red')
-        .addField(
-            i18next.t('logging.userChanges.roles.common.fields.roles.name', { lng: lng }),
-            getSortedRoleMentions(roles)
-        );
+        .addFields([{
+            name: i18next.t('logging.userChanges.roles.common.fields.roles.name', { lng: lng }),
+            value: getSortedRoleMentions(roles)
+        }]);
 }
 
 export default async function onGuildMemberUpdate(before: GuildMember | PartialGuildMember, after: GuildMember) {
@@ -87,10 +87,10 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
             });
             color = 0x1f8b4c;
 
-            embed.addField(
-                i18next.t('logging.userChanges.nickname.set.fields.nickname.name'),
-                newNick ?? user.username
-            );
+            embed.addFields([{
+                name: i18next.t('logging.userChanges.nickname.set.fields.nickname.name'),
+                value: newNick ?? user.username
+            }]);
         }
         else if (updateType == 'CLEARED') {
             // nickname cleared
@@ -101,10 +101,10 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
             });
             color = 0xf1c40f;
 
-            embed.addField(
-                i18next.t('logging.userChanges.nickname.clear.fields.originalNickname.name', { lng: lng }),
-                oldNick ?? before.user.username
-            );
+            embed.addFields([{
+                name: i18next.t('logging.userChanges.nickname.clear.fields.originalNickname.name', { lng: lng }),
+                value: oldNick ?? before.user.username
+            }]);
         }
         else {
             // neither null guard clause
