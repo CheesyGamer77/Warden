@@ -47,11 +47,8 @@ export default class Warden extends null {
             client.login(config.token)
         ]);
 
-
         this.isStarted = true;
         this.logger.info('Warden has started');
-
-        throw new Error("Piss!");
     }
 
     private static async setupTranslations() {
