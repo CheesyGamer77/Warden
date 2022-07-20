@@ -1,6 +1,7 @@
 import { CacheType, CommandInteraction, GuildMember, EmbedBuilder, PermissionFlagsBits, ChatInputCommandInteraction } from 'discord.js';
 import i18next from 'i18next';
 import LoggingModule from '../../modules/logging/LoggingModule';
+import { canModerate } from '../../util/checks';
 import { PermissionLockedSlashCommand } from '../../util/commands/slash';
 import Duration from '../../util/duration';
 
@@ -37,40 +38,58 @@ export default class MuteCommand extends PermissionLockedSlashCommand {
     }
 
     override async invoke(interaction: ChatInputCommandInteraction) {
-        if (interaction.guild == null || interaction.member == null) return;
+        const guild = interaction.guild;
+        if (guild == null || interaction.member == null) return;
 
-        const lng = interaction.guild.preferredLocale;
+        const lng = guild.preferredLocale;
 
         const member = interaction.options.getMember('member') as GuildMember;
         const duration = Duration.ofMinutes(interaction.options.getInteger('minutes', true));
         const reason = interaction.options.getString('reason', false) ?? 'No Reason Provided';
 
-        if (this.botHasPermissions(interaction)) {
-            const endTimestamp = Date.now() + duration.toMilliseconds();
-            await member.disableCommunicationUntil(endTimestamp, reason);
+        if (canModerate(guild.members.me, member) && this.botHasPermissions(interaction)) {
 
+            if(!member.isCommunicationDisabled()) {
+                const endTimestamp = Date.now() + duration.toMilliseconds();
+                await member.disableCommunicationUntil(endTimestamp, reason);
+
+                await interaction.reply({
+                    ephemeral: true,
+                    embeds: [new EmbedBuilder()
+                        .setDescription(i18next.t('commands.mute.success', {
+                            lng: lng,
+                            emoji: ':white_check_mark:',
+                            userMention: member.toString()
+                        }))
+                        .setColor('Green')
+                    ]
+                });
+
+                await LoggingModule.createMuteLog(member, interaction.member, reason);
+            } else {
+                // member already muted
+                await interaction.reply({
+                    ephemeral: true,
+                    embeds: [new EmbedBuilder()
+                        .setDescription(i18next.t('commands.mute.fail.alreadyTimedout', {
+                            lng: lng,
+                            emoji: ':x:',
+                            userMention: member.toString()
+                        }))
+                        .setColor('Red')
+                    ]
+                });
+            }
+        } else {
             await interaction.reply({
                 ephemeral: true,
                 embeds: [new EmbedBuilder()
-                    .setDescription(i18next.t('commands.mute.success', {
-                        lng: lng,
-                        emoji: ':white_check_mark:',
-                        userMention: member.toString()
-                    }))
-                ]
-            });
-
-            await LoggingModule.createMuteLog(member, interaction.member, reason);
-        }
-        else {
-            await interaction.reply({
-                ephemeral: true,
-                embeds: [new EmbedBuilder()
-                    .setDescription(i18next.t('commands.mute.fail', {
+                    .setDescription(i18next.t('commands.mute.fail.unknown', {
                         lng: lng,
                         emoji: ':x:',
                         userMention: member.toString()
                     }))
+                    .setColor('Red')
                 ]
             });
         }

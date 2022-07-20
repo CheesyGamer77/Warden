@@ -36,7 +36,10 @@
         },
         "mute": {
             "success": "{{- emoji}} {{- userMention}} was muted",
-            "fail": "{{- emoji}} Something went wrong while muting {{- userMention}} :("
+            "fail": {
+                "alreadyTimedout": "{{- emoji}} {{- userMention}} is already muted",
+                "unknown": "{{- emoji}} Something went wrong while muting {{- userMention}} :("
+            }
         }
     },
     "logging": {
