@@ -133,7 +133,7 @@ export default class LoggingModule extends null {
         });
     }
 
-    static async createMuteLog(target: GuildMember, moderator: GuildMember | APIInteractionGuildMember, reason: string) {
+    static async createMuteLog(target: GuildMember, moderator: GuildMember | APIInteractionGuildMember, minutes: number, reason: string) {
         const guild = target.guild;
         const lng = guild.preferredLocale;
 
@@ -158,19 +158,17 @@ export default class LoggingModule extends null {
         // increment next case number
         this.caseNumberCache.set(guild.id, caseNumber + 1);
 
-        const actionType = 'Mute';
-        const targetId = target.id;
         const targetMention = target.toString();
         const moderatorMention = moderator.toString();
 
         await actionLogChannel.send({
-            content: targetId,
+            content: target.id,
             embeds: [
                 getEmbedWithTarget(target.user, lng)
                     .setTitle(i18next.t('logging.modActions.title', {
                         lng: lng,
                         caseNumber: caseNumber,
-                        actionType: actionType
+                        actionType: 'Mute'
                     }))
                     .setDescription(i18next.t('logging.modActions.description', {
                         lng: lng,
@@ -197,6 +195,10 @@ export default class LoggingModule extends null {
                             })
                         },
                         {
+                            name: i18next.t('logging.modActions.fields.durationMinutes.name', { lng: lng }),
+                            value: `${minutes}`
+                        },
+                        {
                             name: i18next.t('logging.modActions.fields.reason.name', { lng: lng }),
                             value: reason
                         }
@@ -205,6 +207,7 @@ export default class LoggingModule extends null {
         });
     }
 
+    // TODO: This doesn't belong here. Move this to automod
     static async logMemberSpamming(message: Message) {
         if (message.guild == null) return;
 
@@ -237,6 +240,7 @@ export default class LoggingModule extends null {
         });
     }
 
+    // TODO: This doesn't belong here. Move this to automod
     static async logMemberTimeout(opts: LogMemberTimeoutOptions) {
         const target = opts.target;
         const until = new Date(opts.until);
@@ -272,9 +276,11 @@ export default class LoggingModule extends null {
             embeds: [ embed ],
         });
 
-        await this.createMuteLog(target, mod, opts.reason);
+        // TODO: This just *happens* to always be one minute. Temp workaround till we refactor this whole thing
+        await this.createMuteLog(target, mod, 1, opts.reason);
     }
 
+    // TODO: This doesn't belong here. Move this to message edit handler
     static async logMessageEdit(before: Message | PartialMessage, after: Message) {
         if (after.guild === null || before.content == null || after.content == null) { return; }
 
@@ -314,6 +320,7 @@ export default class LoggingModule extends null {
         });
     }
 
+    // TODO: This doesn't belong here. Move this to message delete handler
     static async logMessageDelete(message: Message) {
         if (message.guild == null || message.content == '') { return; }
 

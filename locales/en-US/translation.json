@@ -101,6 +101,9 @@
                     "name": "Moderator",
                     "value": "{{- moderatorMention}} (id: `{{- moderatorId}}`)"
                 },
+                "durationMinutes": {
+                    "name": "Minutes"
+                },
                 "reason": {
                     "name": "Reason"
                 }

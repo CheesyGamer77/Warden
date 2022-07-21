@@ -65,7 +65,7 @@ export default class MuteCommand extends PermissionLockedSlashCommand {
                     ]
                 });
 
-                await LoggingModule.createMuteLog(member, interaction.member, reason);
+                await LoggingModule.createMuteLog(member, interaction.member, duration.toMinutes(), reason);
             } else {
                 // member already muted
                 await interaction.reply({
