@@ -49,7 +49,7 @@ export default class MuteCommand extends PermissionLockedSlashCommand {
 
         if (canModerate(guild.members.me, member) && this.botHasPermissions(interaction)) {
 
-            if(!member.isCommunicationDisabled()) {
+            if (!member.isCommunicationDisabled()) {
                 const endTimestamp = Date.now() + duration.toMilliseconds();
                 await member.disableCommunicationUntil(endTimestamp, reason);
 
@@ -66,7 +66,8 @@ export default class MuteCommand extends PermissionLockedSlashCommand {
                 });
 
                 await LoggingModule.createMuteLog(member, interaction.member, duration.toMinutes(), reason);
-            } else {
+            }
+            else {
                 // member already muted
                 await interaction.reply({
                     ephemeral: true,
@@ -80,7 +81,8 @@ export default class MuteCommand extends PermissionLockedSlashCommand {
                     ]
                 });
             }
-        } else {
+        }
+        else {
             await interaction.reply({
                 ephemeral: true,
                 embeds: [new EmbedBuilder()
