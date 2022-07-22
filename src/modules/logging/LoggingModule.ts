@@ -1,15 +1,25 @@
-import { PrismaClient, LogConfig } from '@prisma/client';
+import { PrismaClient, LogConfig, ModActionType } from '@prisma/client';
 import { Guild, Formatters, GuildMember, Message, PartialMessage, GuildTextBasedChannel, ChannelType } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
 import i18next from 'i18next';
 import Duration from '../../util/duration';
-import { APIInteractionGuildMember } from 'discord-api-types/v10';
 
 const prisma = new PrismaClient();
 
 export type LogEventType = 'modActions' | 'joins' | 'leaves' | 'userFilter' | 'userChanges' | 'textFilter' | 'escalations' | 'messageEdits' | 'messageDeletes' | 'voiceEvents' | 'threadEvents';
+
+/**
+ * Objects containing a `user` property
+ */
+interface IUser {
+    user: {
+        id: string
+        username: string
+        discriminator: string
+    }
+}
 
 export default class LoggingModule extends null {
     private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(Duration.ofMinutes(15).toMilliseconds());
@@ -125,7 +135,20 @@ export default class LoggingModule extends null {
         });
     }
 
-    static async createMuteLog(target: GuildMember, moderator: GuildMember | APIInteractionGuildMember, minutes: number, reason: string) {
+    /**
+     * Creates a new moderator action log.
+     * This aborts if there is no action log channel defined for the given guild
+     * @param opts The action type, target, moderator, duration (for mutes), and the reason behind the mute
+     */
+    static async createActionLog(opts: {
+        actionType: ModActionType,
+        target: GuildMember,
+        moderator: IUser,
+        minutes?: number,
+        reason: string
+    }) {
+        const target = opts.target;
+        const moderator = opts.moderator;
         const guild = target.guild;
         const lng = guild.preferredLocale;
 
@@ -134,20 +157,17 @@ export default class LoggingModule extends null {
 
         const caseNumber = await this.retrieveNextCaseNumber(guild);
 
-        await prisma.modActions.create({
-            data: {
-                guildId: guild.id,
-                caseNumber: caseNumber,
-                type: 'MUTE',
-                offenderId: target.id,
-                offenderTag: target.user.tag,
-                moderatorId: moderator.user.id,
-                moderatorTag: `${moderator.user.username}#${moderator.user.discriminator}`,
-                reason: reason
-            }
-        });
+        await prisma.modActions.create({ data: {
+            guildId: guild.id,
+            caseNumber: caseNumber,
+            type: opts.actionType,
+            offenderId: target.id,
+            offenderTag: target.user.tag,
+            moderatorId: moderator.user.id,
+            moderatorTag: `${moderator.user.username}#${moderator.user.discriminator}`,
+            reason: opts.reason
+        } });
 
-        // increment next case number
         this.caseNumberCache.set(guild.id, caseNumber + 1);
 
         const targetMention = target.toString();
@@ -188,11 +208,11 @@ export default class LoggingModule extends null {
                         },
                         {
                             name: i18next.t('logging.modActions.fields.durationMinutes.name', { lng: lng }),
-                            value: `${minutes}`
+                            value: `${opts.minutes}`
                         },
                         {
                             name: i18next.t('logging.modActions.fields.reason.name', { lng: lng }),
-                            value: reason
+                            value: opts.reason
                         }
                     )
             ]
@@ -275,7 +295,13 @@ export default class LoggingModule extends null {
         });
 
         // TODO: This just *happens* to always be one minute. Temp workaround till we refactor this whole thing
-        await this.createMuteLog(target, mod, 1, opts.reason);
+        await this.createActionLog({
+            actionType: 'MUTE',
+            target: target,
+            moderator: mod,
+            minutes: 1,
+            reason: opts.reason
+        });
     }
 
     // TODO: This doesn't belong here. Move this to message edit handler

@@ -48,7 +48,6 @@ export default class MuteCommand extends PermissionLockedSlashCommand {
         const reason = interaction.options.getString('reason', false) ?? 'No Reason Provided';
 
         if (canModerate(guild.members.me, member) && this.botHasPermissions(interaction)) {
-
             if (!member.isCommunicationDisabled()) {
                 const endTimestamp = Date.now() + duration.toMilliseconds();
                 await member.disableCommunicationUntil(endTimestamp, reason);
@@ -65,7 +64,13 @@ export default class MuteCommand extends PermissionLockedSlashCommand {
                     ]
                 });
 
-                await LoggingModule.createMuteLog(member, interaction.member, duration.toMinutes(), reason);
+                await LoggingModule.createActionLog({
+                    actionType: 'MUTE',
+                    target: member,
+                    moderator: interaction.member,
+                    minutes: duration.toMinutes(),
+                    reason: reason
+                });
             }
             else {
                 // member already muted
