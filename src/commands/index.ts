@@ -3,10 +3,12 @@ import ConfigCommand from './config';
 import MuteCommand from './moderation/mute';
 import Warden from '../warden';
 import { Client } from 'discord.js';
+import KickCommand from './moderation/kick';
 
 const listener = new CommandListener(
     new ConfigCommand(),
-    new MuteCommand()
+    new MuteCommand(),
+    new KickCommand()
 );
 
 export async function updateCommands(client: Client) {

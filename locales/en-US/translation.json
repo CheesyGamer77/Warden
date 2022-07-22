@@ -40,6 +40,12 @@
                 "alreadyTimedout": "{{- emoji}} {{- userMention}} is already muted",
                 "unknown": "{{- emoji}} Something went wrong while muting {{- userMention}} :("
             }
+        },
+        "kick": {
+            "success": "{{- emoji}} {{- userMention}} was kicked",
+            "fail": {
+                "unknown": "{{- emoji}} Something went wrong while kicking {{- userMention}} :("
+            }
         }
     },
     "logging": {
