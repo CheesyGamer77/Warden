@@ -11,14 +11,6 @@ const prisma = new PrismaClient();
 
 export type LogEventType = 'modActions' | 'joins' | 'leaves' | 'userFilter' | 'userChanges' | 'textFilter' | 'escalations' | 'messageEdits' | 'messageDeletes' | 'voiceEvents' | 'threadEvents';
 
-interface LogMemberTimeoutOptions {
-    target: GuildMember;
-    moderator: GuildMember;
-    reason: string;
-    until: number;
-    channelType: 'escalations';
-}
-
 export default class LoggingModule extends null {
     private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(Duration.ofMinutes(15).toMilliseconds());
     private static caseNumberCache: ExpiryMap<string, number> = new ExpiryMap(Duration.ofMinutes(10).toMilliseconds());
@@ -241,7 +233,13 @@ export default class LoggingModule extends null {
     }
 
     // TODO: This doesn't belong here. Move this to automod
-    static async logMemberTimeout(opts: LogMemberTimeoutOptions) {
+    static async logMemberTimeout(opts: {
+        target: GuildMember;
+        moderator: GuildMember;
+        reason: string;
+        until: number;
+        channelType: 'escalations';
+    }) {
         const target = opts.target;
         const until = new Date(opts.until);
 
