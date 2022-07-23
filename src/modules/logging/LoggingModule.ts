@@ -1,5 +1,5 @@
 import { PrismaClient, LogConfig, ModActionType } from '@prisma/client';
-import { Guild, Formatters, GuildMember, Message, PartialMessage, GuildTextBasedChannel, ChannelType } from 'discord.js';
+import { Guild, Formatters, GuildMember, Message, GuildTextBasedChannel, ChannelType } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
@@ -301,84 +301,6 @@ export default class LoggingModule extends null {
             moderator: mod,
             minutes: 1,
             reason: opts.reason
-        });
-    }
-
-    // TODO: This doesn't belong here. Move this to message edit handler
-    static async logMessageEdit(before: Message | PartialMessage, after: Message) {
-        if (after.guild === null || before.content == null || after.content == null) { return; }
-
-        const channel = await this.retrieveLogChannel('messageEdits', after.guild);
-        const lng = after.guild.preferredLocale;
-
-        const embed = getEmbedWithTarget(after.author, lng)
-            .setTitle(i18next.t('logging.messages.edits.title', { lng: lng }))
-            .setDescription(i18next.t('logging.messages.edits.description', {
-                lng: lng,
-                messageURL: after.url,
-                userMention: after.author.toString(),
-                channelMention: after.channel.toString()
-            }))
-            .setColor('Yellow')
-            .addFields([
-                {
-                    name: i18next.t('logging.messages.edits.fields.before.name', { lng: lng }),
-                    value: before.content
-                },
-                {
-                    name: i18next.t('logging.messages.edits.fields.after.name', { lng: lng }),
-                    value: after.content
-                }
-            ])
-            .setFooter({
-                text: i18next.t('logging.messages.edits.footer', {
-                    lng: lng,
-                    messageId: after.id,
-                    userId: after.author.id
-                })
-            });
-
-        await channel?.send({
-            content: after.author.id,
-            embeds: [ embed ]
-        });
-    }
-
-    // TODO: This doesn't belong here. Move this to message delete handler
-    static async logMessageDelete(message: Message) {
-        if (message.guild == null || message.content == '') { return; }
-
-        const channel = await this.retrieveLogChannel('messageDeletes', message.guild);
-        const lng = message.guild.preferredLocale;
-
-        const parts = message.content.match(/\b[\w\s]{1024,}?(?=\s)|.+$/g) || [ message.content ];
-
-        const embed = getEmbedWithTarget(message.author, lng)
-            .setTitle(i18next.t('logging.messages.deletes.title', { lng: lng }))
-            .setDescription(i18next.t('logging.messages.deletes.description', {
-                lng: lng,
-                userMention: message.author.toString(),
-                channelMention: message.channel.toString()
-            }))
-            .setColor('Red')
-            .setFooter({
-                text: i18next.t('logging.messages.deletes.footer', {
-                    lng: lng,
-                    messageId: message.id,
-                    userId: message.author.id
-                })
-            });
-
-        for (const part of parts) {
-            embed.addFields([{
-                name: i18next.t('logging.messages.deletes.fields.message.name', { lng: lng }),
-                value: part
-            }]);
-        }
-
-        await channel?.send({
-            content: message.author.id,
-            embeds: [ embed ]
         });
     }
 }
