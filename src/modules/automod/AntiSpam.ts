@@ -1,4 +1,4 @@
-import { ChannelType, Guild, GuildMember, Message, PermissionFlagsBits, TextChannel, ThreadChannel, VoiceChannel } from 'discord.js';
+import { ChannelType, Formatters, Guild, GuildMember, Message, PermissionFlagsBits, TextChannel, ThreadChannel, VoiceChannel } from 'discord.js';
 import { createHash } from 'crypto';
 import { canDelete } from '../../util/checks';
 import LoggingModule from '../logging/LoggingModule';
@@ -7,6 +7,8 @@ import UserReputation from './UserReputation';
 import { PrismaClient } from '@prisma/client';
 import AutoMod from '.';
 import Duration from '../../util/duration';
+import { getEmbedWithTarget } from '../../util/embed';
+import i18next from 'i18next';
 
 interface MessageReference {
     readonly guildId: string;
@@ -64,10 +66,36 @@ export default class AntiSpamModule extends null {
     }
 
     private static async deleteSpamMessage(message: Message) {
-        if (message.member == null) return;
+        if (message.guild == null || message.member == null) return;
 
-        const deletedMessage = await message.delete();
-        await LoggingModule.logMemberSpamming(deletedMessage);
+        const channel = await LoggingModule.retrieveLogChannel('textFilter', message.guild);
+        const lng = message.guild.preferredLocale;
+
+        const user = message.author;
+
+        const embed = getEmbedWithTarget(user, lng)
+            .setTitle(i18next.t('logging.automod.antispam.filtered.title', { lng: lng }))
+            .setDescription(i18next.t('logging.automod.antispam.filtered.description', {
+                lng: lng,
+                userMention: user.toString(),
+                channelMention: message.channel.toString()
+            }))
+            .setColor('Blue');
+
+        // splitting code below modified from https://stackoverflow.com/a/58204391
+        const parts = message.content.match(/\b[\w\s]{2000,}?(?=\s)|.+$/g) ?? [ message.content ];
+        for (const part of parts) {
+            embed.addFields([{
+                name: i18next.t('logging.automod.antispam.filtered.fields.message.name', { lng: lng }),
+                value: part.trim()
+            }]);
+        }
+
+        await channel?.send({
+            content: user.id,
+            embeds: [ embed ],
+        });
+
         await UserReputation.modifyReputation(message.member, -0.2);
     }
 
@@ -79,12 +107,42 @@ export default class AntiSpamModule extends null {
         const until = Date.now() + Duration.ofMinutes(1).toMilliseconds();
 
         await member.disableCommunicationUntil(until, reason);
-        await LoggingModule.logMemberTimeout({
+
+        const channel = await LoggingModule.retrieveLogChannel('escalations', member.guild);
+        const lng = member.guild.preferredLocale;
+
+        const embed = getEmbedWithTarget(member.user, lng)
+            .setTitle(i18next.t('logging.automod.antispam.timeout.title', { lng: lng }))
+            .setDescription(i18next.t('logging.automod.antispam.timeout.description', {
+                lng: lng,
+                userMention: member.toString(),
+                untilTimeMentionLong: Formatters.time(until, 'F'),
+                untilTimeMentionRelative: Formatters.time(until, 'R')
+            }))
+            .setColor('Orange');
+
+        embed.addFields([{
+            name: i18next.t('logging.automod.antispam.timeout.fields.moderator.name', { lng: lng }),
+            value: `${me.toString()} \`(${me.id})\``
+        }]);
+
+        embed.addFields([{
+            name: i18next.t('logging.automod.antispam.timeout.fields.reason.name', { lng: lng }),
+            value: reason
+        }]);
+
+        await channel?.send({
+            content: member.id,
+            embeds: [ embed ],
+        });
+
+        // TODO: This just *happens* to always be one minute. Temp workaround till we refactor this whole thing
+        await LoggingModule.createActionLog({
+            actionType: 'MUTE',
             target: member,
             moderator: me,
-            reason: reason,
-            until: until,
-            channelType: 'escalations',
+            minutes: 1,
+            reason: reason
         });
 
         await UserReputation.modifyReputation(member, -0.3);

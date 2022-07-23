@@ -1,5 +1,5 @@
 import { PrismaClient, LogConfig, ModActionType } from '@prisma/client';
-import { Guild, Formatters, GuildMember, Message, GuildTextBasedChannel, ChannelType } from 'discord.js';
+import { Guild, GuildMember, GuildTextBasedChannel, ChannelType } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
@@ -216,91 +216,6 @@ export default class LoggingModule extends null {
                         }
                     )
             ]
-        });
-    }
-
-    // TODO: This doesn't belong here. Move this to automod
-    static async logMemberSpamming(message: Message) {
-        if (message.guild == null) return;
-
-        const channel = await this.retrieveLogChannel('textFilter', message.guild);
-        const lng = message.guild.preferredLocale;
-
-        const user = message.author;
-
-        const embed = getEmbedWithTarget(user, lng)
-            .setTitle(i18next.t('logging.automod.antispam.filtered.title', { lng: lng }))
-            .setDescription(i18next.t('logging.automod.antispam.filtered.description', {
-                lng: lng,
-                userMention: user.toString(),
-                channelMention: message.channel.toString()
-            }))
-            .setColor('Blue');
-
-        // splitting code below modified from https://stackoverflow.com/a/58204391
-        const parts = message.content.match(/\b[\w\s]{2000,}?(?=\s)|.+$/g) ?? [ message.content ];
-        for (const part of parts) {
-            embed.addFields([{
-                name: i18next.t('logging.automod.antispam.filtered.fields.message.name', { lng: lng }),
-                value: part.trim()
-            }]);
-        }
-
-        await channel?.send({
-            content: user.id,
-            embeds: [ embed ],
-        });
-    }
-
-    // TODO: This doesn't belong here. Move this to automod
-    static async logMemberTimeout(opts: {
-        target: GuildMember;
-        moderator: GuildMember;
-        reason: string;
-        until: number;
-        channelType: 'escalations';
-    }) {
-        const target = opts.target;
-        const until = new Date(opts.until);
-
-        const channel = await this.retrieveLogChannel(opts.channelType, target.guild);
-        const lng = target.guild.preferredLocale;
-
-        const embed = getEmbedWithTarget(target.user, lng)
-            .setTitle(i18next.t('logging.automod.antispam.timeout.title', { lng: lng }))
-            .setDescription(i18next.t('logging.automod.antispam.timeout.description', {
-                lng: lng,
-                userMention: target.user.toString(),
-                untilTimeMentionLong: Formatters.time(until, 'F'),
-                untilTimeMentionRelative: Formatters.time(until, 'R')
-            }))
-            .setColor('Orange');
-
-        const mod = opts.moderator;
-        if (mod != undefined) {
-            embed.addFields([{
-                name: i18next.t('logging.automod.antispam.timeout.fields.moderator.name', { lng: lng }),
-                value: `${mod.toString()} \`(${mod.id})\``
-            }]);
-        }
-
-        embed.addFields([{
-            name: i18next.t('logging.automod.antispam.timeout.fields.reason.name', { lng: lng }),
-            value: opts.reason ?? i18next.t('logging.automod.antispam.timeout.fields.reason.noneGiven', { lng: lng })
-        }]);
-
-        await channel?.send({
-            content: target.id,
-            embeds: [ embed ],
-        });
-
-        // TODO: This just *happens* to always be one minute. Temp workaround till we refactor this whole thing
-        await this.createActionLog({
-            actionType: 'MUTE',
-            target: target,
-            moderator: mod,
-            minutes: 1,
-            reason: opts.reason
         });
     }
 }
