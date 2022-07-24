@@ -4,11 +4,13 @@ import MuteCommand from './moderation/mute';
 import Warden from '../warden';
 import { Client } from 'discord.js';
 import KickCommand from './moderation/kick';
+import BanCommand from './moderation/ban';
 
 const listener = new CommandListener(
     new ConfigCommand(),
     new MuteCommand(),
-    new KickCommand()
+    new KickCommand(),
+    new BanCommand()
 );
 
 export async function updateCommands(client: Client) {

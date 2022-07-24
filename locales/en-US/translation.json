@@ -46,6 +46,12 @@
             "fail": {
                 "unknown": "{{- emoji}} Something went wrong while kicking {{- userMention}} :("
             }
+        },
+        "ban": {
+            "success": "{{- emoji}} {{- userMention}} was banned",
+            "fail": {
+                "unknown": "{{- emoji}} Something went wrong while banning {{- userMention}} :("
+            }
         }
     },
     "logging": {
