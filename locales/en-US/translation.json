@@ -52,6 +52,12 @@
             "fail": {
                 "unknown": "{{- emoji}} Something went wrong while banning {{- userMention}} :("
             }
+        },
+        "unban": {
+            "success": "{{- emoji}} {{- userMention}} was unbanned",
+            "fail": {
+                "unknown": "{{- emoji}} Something went wrong while unbanning {{- userMention}} :("
+            }
         }
     },
     "logging": {

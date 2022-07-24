@@ -5,12 +5,14 @@ import Warden from '../warden';
 import { Client } from 'discord.js';
 import KickCommand from './moderation/kick';
 import BanCommand from './moderation/ban';
+import UnbanCommand from './moderation/unban';
 
 const listener = new CommandListener(
     new ConfigCommand(),
     new MuteCommand(),
     new KickCommand(),
-    new BanCommand()
+    new BanCommand(),
+    new UnbanCommand()
 );
 
 export async function updateCommands(client: Client) {
