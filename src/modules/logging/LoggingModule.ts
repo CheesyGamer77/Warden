@@ -1,5 +1,5 @@
 import { PrismaClient, LogConfig, ModActionType } from '@prisma/client';
-import { Guild, GuildMember, GuildTextBasedChannel, ChannelType } from 'discord.js';
+import { Guild, GuildTextBasedChannel, ChannelType, User } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
@@ -142,14 +142,15 @@ export default class LoggingModule extends null {
      */
     static async createActionLog(opts: {
         actionType: ModActionType,
-        target: GuildMember,
+        guild: Guild,
+        target: User,
         moderator: IUser,
         minutes?: number,
         reason: string
     }) {
         const target = opts.target;
         const moderator = opts.moderator;
-        const guild = target.guild;
+        const guild = opts.guild;
         const lng = guild.preferredLocale;
 
         const actionLogChannel = await this.retrieveLogChannel('modActions', guild);
@@ -162,7 +163,7 @@ export default class LoggingModule extends null {
             caseNumber: caseNumber,
             type: opts.actionType,
             offenderId: target.id,
-            offenderTag: target.user.tag,
+            offenderTag: target.tag,
             moderatorId: moderator.user.id,
             moderatorTag: `${moderator.user.username}#${moderator.user.discriminator}`,
             reason: opts.reason
@@ -176,7 +177,7 @@ export default class LoggingModule extends null {
         await actionLogChannel.send({
             content: target.id,
             embeds: [
-                getEmbedWithTarget(target.user, lng)
+                getEmbedWithTarget(target, lng)
                     .setTitle(i18next.t('logging.modActions.title', {
                         lng: lng,
                         caseNumber: caseNumber,

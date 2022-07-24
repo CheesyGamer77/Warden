@@ -139,7 +139,8 @@ export default class AntiSpamModule extends null {
         // TODO: This just *happens* to always be one minute. Temp workaround till we refactor this whole thing
         await LoggingModule.createActionLog({
             actionType: 'MUTE',
-            target: member,
+            guild: member.guild,
+            target: member.user,
             moderator: me,
             minutes: 1,
             reason: reason
