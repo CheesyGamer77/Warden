@@ -1,13 +1,13 @@
 import { Guild } from 'discord.js';
 import ExpiryMap from 'expiry-map';
-import Duration from '../../util/duration';
+import Duration from '../../../util/duration';
 
 /**
  * Represents an entity used to moderate specific types of content.
  * Auto mod runners are the backbone of the auto moderation system. They process and respond
  * to a particular input context depending on the guild's configuration of said runner.
  */
-export default abstract class AutoModRunner<Config, Context extends AutoModContext<Config>, Results extends AutoModRunnerResults> {
+export default abstract class AutoModRunner<Config, Context extends AutoModContext<Config>, Results extends AutoModRunnerResults> extends null {
     /**
      * Main entrypoint for the automod runner. Given the context, this determines whether
      * the runner should continue to process and handle the context or not.

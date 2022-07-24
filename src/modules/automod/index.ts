@@ -2,7 +2,7 @@ import { AutoModConfig, PrismaClient } from '@prisma/client';
 import { Guild, GuildMember } from 'discord.js';
 import ExpiryMap from 'expiry-map';
 import Duration from '../../util/duration';
-import NameSanitizerModule from './NameSanitizer';
+import NameSanitizerModule from './runners/name_sanitizer';
 
 const prisma = new PrismaClient();
 

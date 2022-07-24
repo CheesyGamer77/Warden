@@ -1,12 +1,12 @@
 import { ChannelType, Guild, GuildMember, Message, PermissionFlagsBits, TextChannel, ThreadChannel, VoiceChannel } from 'discord.js';
 import { createHash } from 'crypto';
-import { canDelete } from '../../util/checks';
-import LoggingModule from '../logging/LoggingModule';
+import { canDelete } from '../../../../util/checks';
+import LoggingModule from '../../../logging/LoggingModule';
 import ExpiryMap from 'expiry-map';
-import UserReputation from './UserReputation';
+import UserReputation from '../../UserReputation';
 import { PrismaClient } from '@prisma/client';
-import AutoMod from '.';
-import Duration from '../../util/duration';
+import AutoMod from '../..';
+import Duration from '../../../../util/duration';
 
 interface MessageReference {
     readonly guildId: string;
@@ -25,7 +25,7 @@ type IgnorableChannel = TextChannel | ThreadChannel | VoiceChannel;
 
 const prisma = new PrismaClient();
 
-export default class AntiSpamModule extends null {
+export default class AntiSpamModule {
     private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(Duration.ofMinutes(1).toMilliseconds());
     private static ignoredEntitiesCache: ExpiryMap<string, Set<string>> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
 

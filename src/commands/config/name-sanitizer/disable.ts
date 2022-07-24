@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import i18next from 'i18next';
-import NameSanitizerModule from '../../../modules/automod/NameSanitizer';
+import NameSanitizerModule from '../../../modules/automod/runners/name_sanitizer';
 import { Subcommand } from '../../../util/commands/slash';
 
 export default class DisableCommand extends Subcommand {
