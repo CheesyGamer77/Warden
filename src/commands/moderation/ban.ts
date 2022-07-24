@@ -15,7 +15,7 @@ export default class BanCommand extends PermissionLockedSlashCommand {
             )
             .addStringOption(option => option
                 .setName('reason')
-                .setDescription('The reason behind banning the member')
+                .setDescription('The reason behind banning the user')
                 .setRequired(false)
             );
     }
