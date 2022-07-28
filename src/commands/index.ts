@@ -7,6 +7,7 @@ import KickCommand from './moderation/kick';
 import BanCommand from './moderation/ban';
 import UnbanCommand from './moderation/unban';
 import CaseCommand from './moderation/case';
+import WarnCommand from './moderation/warn';
 
 const listener = new CommandListener(
     new BanCommand(),
@@ -14,7 +15,8 @@ const listener = new CommandListener(
     new ConfigCommand(),
     new KickCommand(),
     new MuteCommand(),
-    new UnbanCommand()
+    new UnbanCommand(),
+    new WarnCommand()
 );
 
 export async function updateCommands(client: Client) {

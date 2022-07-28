@@ -77,6 +77,26 @@
             "fail": {
                 "unknown": "{{- emoji}} Something went wrong while unbanning {{- userMention}} :("
             }
+        },
+        "warn": {
+            "success": {
+                "dm": {
+                    "title": "You were warned",
+                    "description": "You were warned in `{{- guildName}}`",
+                    "fields": {
+                        "reason": {
+                            "name": "Reason"
+                        }
+                    }
+                },
+                "reply": {
+                    "description": "{{- emoji}} {{- memberMention}} was warned"
+                }
+            },
+            "fail": {
+                "blocked": "{{- emoji}} Warning logged for {{- memberMention}}, but I could not dm them",
+                "unknown": "{{- emoji}} Something went very wrong when attempting to warn {{- memberMention}}"
+            }
         }
     },
     "logging": {

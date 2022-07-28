@@ -4,6 +4,9 @@ export function getPastTenseSuffix(input: string) {
     const last = input[input.length - 1];
     if (last.toLowerCase() == 'e') return input.concat('d');
 
+    // TODO workaround for `BAN` action types
+    if (input.endsWith('an')) return input.concat('ned');
+
     return input.concat('ed');
 }
 
