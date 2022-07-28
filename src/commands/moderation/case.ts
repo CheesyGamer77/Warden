@@ -3,6 +3,7 @@ import { ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits } from '
 import i18next from 'i18next';
 import { PermissionLockedSlashCommand } from '../../util/commands/slash';
 import { getEmbedWithTarget } from '../../util/embed';
+import { capitalizeFirstLetter } from '../../util/string';
 
 const prisma = new PrismaClient();
 
@@ -85,7 +86,7 @@ export default class CaseCommand extends PermissionLockedSlashCommand {
                 .setTitle(i18next.t('commands.case.success.title', {
                     lng: lng,
                     caseNumber: caseNumber,
-                    actionType: caseLog.type
+                    actionType: capitalizeFirstLetter(caseLog.type)
                 }))
                 .setColor('Green')
             ] });
