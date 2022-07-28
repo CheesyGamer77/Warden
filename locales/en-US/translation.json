@@ -34,11 +34,29 @@
                 "disable": "{{- emoji}} Updated display names will no longer be sanitized"
             }
         },
-        "mute": {
-            "success": "{{- emoji}} {{- userMention}} was muted",
+        "ban": {
+            "success": "{{- emoji}} {{- userMention}} was banned",
             "fail": {
-                "alreadyTimedout": "{{- emoji}} {{- userMention}} is already muted",
-                "unknown": "{{- emoji}} Something went wrong while muting {{- userMention}} :("
+                "unknown": "{{- emoji}} Something went wrong while banning {{- userMention}} :("
+            }
+        },
+        "case": {
+            "success": {
+                "title": "Case {{- caseNumber}} | {{- actionType}}",
+                "fields": {
+                    "user": {
+                        "name": "User"
+                    },
+                    "moderator": {
+                        "name": "Moderator"
+                    },
+                    "reason": {
+                        "name": "Reason"
+                    }
+                }
+            },
+            "fail": {
+                "notFound": "{{- emoji}} No case number `{{- caseNumber}}` found"
             }
         },
         "kick": {
@@ -47,10 +65,11 @@
                 "unknown": "{{- emoji}} Something went wrong while kicking {{- userMention}} :("
             }
         },
-        "ban": {
-            "success": "{{- emoji}} {{- userMention}} was banned",
+        "mute": {
+            "success": "{{- emoji}} {{- userMention}} was muted",
             "fail": {
-                "unknown": "{{- emoji}} Something went wrong while banning {{- userMention}} :("
+                "alreadyTimedout": "{{- emoji}} {{- userMention}} is already muted",
+                "unknown": "{{- emoji}} Something went wrong while muting {{- userMention}} :("
             }
         },
         "unban": {

@@ -6,12 +6,14 @@ import { Client } from 'discord.js';
 import KickCommand from './moderation/kick';
 import BanCommand from './moderation/ban';
 import UnbanCommand from './moderation/unban';
+import CaseCommand from './moderation/case';
 
 const listener = new CommandListener(
-    new ConfigCommand(),
-    new MuteCommand(),
-    new KickCommand(),
     new BanCommand(),
+    new CaseCommand(),
+    new ConfigCommand(),
+    new KickCommand(),
+    new MuteCommand(),
     new UnbanCommand()
 );
 
