@@ -5,6 +5,7 @@ import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
 import i18next from 'i18next';
 import Duration from '../../util/duration';
+import { capitalizeFirstLetter, getPastTenseSuffix } from '../../util/string';
 
 const prisma = new PrismaClient();
 
@@ -174,6 +175,8 @@ export default class LoggingModule extends null {
         const targetMention = target.toString();
         const moderatorMention = moderator.toString();
 
+        const actionType = opts.actionType.toLowerCase();
+
         await actionLogChannel.send({
             content: target.id,
             embeds: [
@@ -181,12 +184,12 @@ export default class LoggingModule extends null {
                     .setTitle(i18next.t('logging.modActions.title', {
                         lng: lng,
                         caseNumber: caseNumber,
-                        actionType: 'Mute'
+                        actionType: capitalizeFirstLetter(actionType)
                     }))
                     .setDescription(i18next.t('logging.modActions.description', {
                         lng: lng,
                         targetMention: targetMention,
-                        actionType: 'muted',
+                        actionType: getPastTenseSuffix(actionType),
                         moderatorMention: moderatorMention
                     }))
                     .setColor('Gold')
