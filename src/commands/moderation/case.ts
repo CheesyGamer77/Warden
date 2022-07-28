@@ -24,7 +24,7 @@ export default class CaseCommand extends PermissionLockedSlashCommand {
 
         const lng = guild.preferredLocale;
 
-        const caseNumber = interaction.options.getInteger('number', true)
+        const caseNumber = interaction.options.getInteger('number', true);
         const caseLog = await prisma.modActions.findUnique({
             where: {
                 guildId_caseNumber: {
@@ -39,7 +39,7 @@ export default class CaseCommand extends PermissionLockedSlashCommand {
                 embeds: [ new EmbedBuilder()
                     .setDescription(i18next.t('commands.case.fail.notFound', {
                         lng: lng,
-                        emoji: ":x:",
+                        emoji: ':x:',
                         caseNumber: caseNumber
                     }))
                     .setColor('Red')
