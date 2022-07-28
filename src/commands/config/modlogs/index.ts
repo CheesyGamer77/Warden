@@ -18,6 +18,7 @@ export default class ModlogsGroup extends SubcommandGroup {
         { name: 'Text Filter', value: 'textFilterChannelId' },
         { name: 'Message Deletes', value: 'messageDeletesChannelId' },
         { name: 'Message Edits', value: 'messageEditsChannelId' },
+        { name: 'Moderator Actions', value: 'modActionsChannelId' },
         { name: 'Thread Channel Events', value: 'threadEventsChannelId' },
         { name: 'Voice Chat Events', value: 'voiceEventsChannelId' }
     ];
