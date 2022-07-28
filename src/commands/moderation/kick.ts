@@ -42,7 +42,7 @@ export default class KickCommand extends PermissionLockedSlashCommand {
                 embeds: [ new EmbedBuilder()
                     .setDescription(i18next.t('commands.kick.success', {
                         lng: lng,
-                        emoji: ':white_checkmark:',
+                        emoji: ':white_check_mark:',
                         userMention: targetMention
                     }))
                     .setColor('Green')

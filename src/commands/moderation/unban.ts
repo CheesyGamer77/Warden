@@ -41,7 +41,7 @@ export default class UnbanCommand extends PermissionLockedSlashCommand {
                 embeds: [ new EmbedBuilder()
                     .setDescription(i18next.t('commands.unban.success', {
                         lng: lng,
-                        emoji: ':white_checkmark:',
+                        emoji: ':white_check_mark:',
                         userMention: targetMention
                     }))
                     .setColor('Green')

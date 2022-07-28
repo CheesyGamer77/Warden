@@ -43,7 +43,7 @@ export default class BanCommand extends PermissionLockedSlashCommand {
                 embeds: [ new EmbedBuilder()
                     .setDescription(i18next.t('commands.ban.success', {
                         lng: lng,
-                        emoji: ':white_checkmark:',
+                        emoji: ':white_check_mark:',
                         userMention: targetMention
                     }))
                     .setColor('Green')
