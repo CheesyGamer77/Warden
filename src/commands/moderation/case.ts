@@ -24,11 +24,12 @@ export default class CaseCommand extends PermissionLockedSlashCommand {
 
         const lng = guild.preferredLocale;
 
+        const caseNumber = interaction.options.getInteger('number', true)
         const caseLog = await prisma.modActions.findUnique({
             where: {
                 guildId_caseNumber: {
                     guildId: guild.id,
-                    caseNumber: interaction.options.getInteger('number', true)
+                    caseNumber: caseNumber
                 }
             }
         });
@@ -36,7 +37,11 @@ export default class CaseCommand extends PermissionLockedSlashCommand {
         if (caseLog == null) {
             await interaction.reply({
                 embeds: [ new EmbedBuilder()
-                    .setDescription(i18next.t('commands.case.fail.notFound', { lng: lng }))
+                    .setDescription(i18next.t('commands.case.fail.notFound', {
+                        lng: lng,
+                        emoji: ":x:",
+                        caseNumber: caseNumber
+                    }))
                     .setColor('Red')
                 ] });
 
@@ -59,10 +64,29 @@ export default class CaseCommand extends PermissionLockedSlashCommand {
                 }));
         }
 
+        baseEmbed.addFields([
+            {
+                name: i18next.t('commands.case.success.fields.user.name', { lng: lng }),
+                value: `${caseLog.offenderTag} (\`${caseLog.offenderId}\`)`
+            },
+            {
+                name: i18next.t('commands.case.success.fields.moderator.name', { lng: lng }),
+                value: `${caseLog.moderatorTag} (\`${caseLog.moderatorId}\`)`
+            },
+            {
+                name: i18next.t('commands.case.success.fields.reason.name', { lng: lng }),
+                value: caseLog.reason
+            }
+        ]);
+
         await interaction.reply({
             content: caseLog.offenderId,
             embeds: [ baseEmbed
-                .setDescription(i18next.t('commands.case.success.'))
+                .setTitle(i18next.t('commands.case.success.title', {
+                    lng: lng,
+                    caseNumber: caseNumber,
+                    actionType: caseLog.type
+                }))
                 .setColor('Green')
             ] });
     }
