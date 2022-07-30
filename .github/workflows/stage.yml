@@ -1,0 +1,24 @@
+name: Stage and Deploy
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{secrets.SSH_HOST}}
+        key: ${{secrets.SSH-KEY}}
+        username: ${{secrets.SSH_USERNAME}}
+
+        script:
+          cd /opt/bots/Warden
+          git checkout main
+          git pull
+          npm install
+          npm run build
+          systemctl restart Warden
