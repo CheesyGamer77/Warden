@@ -24,6 +24,10 @@ client.once('ready', async () => {
     await updateCommands(client);
 });
 
+process.on('uncaughtException', error => {
+    Warden.logger.error('Encountered an unexpected error :(', error);
+});
+
 client.on('guildMemberAdd', async (member) => await handlers.onGuildMemberAdd(member));
 
 client.on('guildMemberRemove', async (member) => await handlers.onGuildMemberRemove(member));

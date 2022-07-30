@@ -1,54 +1,52 @@
-import { PrismaClient, LogConfig } from '@prisma/client';
-import { Guild, TextChannel, Formatters, GuildMember, Message, PartialMessage, GuildTextBasedChannel, ChannelType } from 'discord.js';
+import { PrismaClient, LogConfig, ModActionType } from '@prisma/client';
+import { Guild, GuildTextBasedChannel, ChannelType, User } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
 import i18next from 'i18next';
+import Duration from '../../util/duration';
+import { capitalizeFirstLetter, getPastTenseSuffix } from '../../util/string';
 
 const prisma = new PrismaClient();
 
-export type LogEventType = 'joins' | 'leaves' | 'userFilter' | 'userChanges' | 'textFilter' | 'escalations' | 'messageEdits' | 'messageDeletes' | 'voiceEvents' | 'threadEvents';
+export type LogEventType = 'modActions' | 'joins' | 'leaves' | 'userFilter' | 'userChanges' | 'textFilter' | 'escalations' | 'messageEdits' | 'messageDeletes' | 'voiceEvents' | 'threadEvents';
 
-interface LogMemberTimeoutOptions {
-    target: GuildMember;
-    moderator: GuildMember | undefined;
-    reason: string | undefined;
-    until: number;
-    channelType: 'escalations';
+/**
+ * Objects containing a `user` property
+ */
+interface IUser {
+    user: {
+        id: string
+        username: string
+        discriminator: string
+    }
 }
 
 export default class LoggingModule extends null {
-    private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(15 * 1000 * 60);
+    private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(Duration.ofMinutes(15).toMilliseconds());
+    private static caseNumberCache: ExpiryMap<string, number> = new ExpiryMap(Duration.ofMinutes(10).toMilliseconds());
 
-    private static async createBlankLogConfiguration(guild: Guild): Promise<LogConfig> {
-        const data = await prisma.logConfig.create({
-            data: {
-                guildId: guild.id,
-            },
+    private static async fetchAndCacheConfiguration(guild: Guild) {
+        const data = { guildId: guild.id };
+        const config = await prisma.logConfig.upsert({
+            where: data,
+            update: {},
+            create: data
         });
 
-        this.configCache.set(guild.id, data);
+        this.configCache.set(guild.id, config);
 
-        return data;
+        return config;
     }
 
     /**
-     * Fetches a guild's logging configuration.
-     * If the configuration is cached, this will return the cached entry and not query the database.
-     *
-     * This will create a new blank configuration and return the blank entry in the event that the config is not found.
+     * Retrieves a guild's logging configuration.
+     * This returns the cached config entry if found, or query the database for an existing/default configuration otherwise.
      * @param guild The guild to fetch the config of
      * @returns The configuration
      */
-    static async retrieveConfiguration(guild: Guild): Promise<LogConfig> {
-        const data = this.configCache.get(guild.id) ?? await prisma.logConfig.findUnique({
-            where: {
-                guildId: guild.id,
-            },
-        });
-
-        // fallback to new blank config if not found in cache or db
-        return data != null ? data : await this.createBlankLogConfiguration(guild);
+    static async retrieveConfiguration(guild: Guild) {
+        return this.configCache.get(guild.id) ?? await this.fetchAndCacheConfiguration(guild);
     }
 
     /**
@@ -58,7 +56,7 @@ export default class LoggingModule extends null {
      * @param guild The guild to fetch the log channel from
      * @returns The TextChannel if it exists, else null
      */
-    static async retrieveLogChannel(event: LogEventType, guild: Guild): Promise<TextChannel | null> {
+    static async retrieveLogChannel(event: LogEventType, guild: Guild) {
         const config = await this.retrieveConfiguration(guild);
 
         const channelId = config[event + 'ChannelId' as keyof LogConfig];
@@ -105,147 +103,123 @@ export default class LoggingModule extends null {
         });
     }
 
-    static async logMemberSpamming(message: Message) {
-        if (message.guild == null) return;
+    private static async fetchAndCacheNextCaseNumber(guild: Guild) {
+        const guildId = guild.id;
+        const nextCaseNumber = await prisma.modActions.count({
+            where: {
+                guildId: guildId
+            }
+        }) + 1;
 
-        const channel = await this.retrieveLogChannel('textFilter', message.guild);
-        const lng = message.guild.preferredLocale;
+        this.caseNumberCache.set(guildId, nextCaseNumber);
 
-        const user = message.author;
-
-        const embed = getEmbedWithTarget(user, lng)
-            .setTitle(i18next.t('logging.automod.antispam.filtered.title', { lng: lng }))
-            .setDescription(i18next.t('logging.automod.antispam.filtered.description', {
-                lng: lng,
-                userMention: user.toString(),
-                channelMention: message.channel.toString()
-            }))
-            .setColor('Blue');
-
-        // splitting code below taken from https://stackoverflow.com/a/58204391
-        const parts = message.content.match(/\b[\w\s]{2000,}?(?=\s)|.+$/g) ?? [ message.content ];
-        for (const part of parts) {
-            embed.addFields([{
-                name: i18next.t('logging.automod.antispam.filtered.fields.message.name', { lng: lng }),
-                value: part.trim()
-            }]);
-        }
-
-        await channel?.send({
-            content: user.id,
-            embeds: [ embed ],
-        });
+        return nextCaseNumber;
     }
 
-    static async logMemberTimeout(opts: LogMemberTimeoutOptions) {
-        const target = opts.target;
-        const until = new Date(opts.until);
-
-        const channel = await this.retrieveLogChannel(opts.channelType, target.guild);
-        const lng = target.guild.preferredLocale;
-
-        const embed = getEmbedWithTarget(target.user, lng)
-            .setTitle(i18next.t('logging.automod.antispam.timeout.title', { lng: lng }))
-            .setDescription(i18next.t('logging.automod.antispam.timeout.description', {
-                lng: lng,
-                userMention: target.user.toString(),
-                untilTimeMentionLong: Formatters.time(until, 'F'),
-                untilTimeMentionRelative: Formatters.time(until, 'R')
-            }))
-            .setColor('Orange');
-
-        const mod = opts.moderator;
-        if (mod != undefined) {
-            embed.addFields([{
-                name: i18next.t('logging.automod.antispam.timeout.fields.moderator.name', { lng: lng }),
-                value: `${mod.toString()} \`(${mod.id})\``
-            }]);
-        }
-
-        embed.addFields([{
-            name: i18next.t('logging.automod.antispam.timeout.fields.reason.name', { lng: lng }),
-            value: opts.reason ?? i18next.t('logging.automod.antispam.timeout.fields.reason.noneGiven', { lng: lng })
-        }]);
-
-        await channel?.send({
-            content: target.id,
-            embeds: [ embed ],
-        });
+    /**
+     * Retrieves the next case number for a particular guild.
+     * Used when creating new moderation case logs.
+     * @param guild The guild to retrieve the next case number for
+     */
+    private static async retrieveNextCaseNumber(guild: Guild) {
+        return this.caseNumberCache.get(guild.id) ?? await this.fetchAndCacheNextCaseNumber(guild);
     }
 
-    static async logMessageEdit(before: Message | PartialMessage, after: Message) {
-        if (after.guild === null || before.content == null || after.content == null) { return; }
-
-        const channel = await this.retrieveLogChannel('messageEdits', after.guild);
-        const lng = after.guild.preferredLocale;
-
-        const embed = getEmbedWithTarget(after.author, lng)
-            .setTitle(i18next.t('logging.messages.edits.title', { lng: lng }))
-            .setDescription(i18next.t('logging.messages.edits.description', {
-                lng: lng,
-                messageURL: after.url,
-                userMention: after.author.toString(),
-                channelMention: after.channel.toString()
-            }))
-            .setColor('Yellow')
-            .addFields([
-                {
-                    name: i18next.t('logging.messages.edits.fields.before.name', { lng: lng }),
-                    value: before.content
-                },
-                {
-                    name: i18next.t('logging.messages.edits.fields.after.name', { lng: lng }),
-                    value: after.content
+    static async fetchActionByCaseNumber(guild: Guild, caseNumber: number) {
+        return await prisma.modActions.findUnique({
+            where: {
+                guildId_caseNumber: {
+                    guildId: guild.id,
+                    caseNumber: caseNumber
                 }
-            ])
-            .setFooter({
-                text: i18next.t('logging.messages.edits.footer', {
-                    lng: lng,
-                    messageId: after.id,
-                    userId: after.author.id
-                })
-            });
-
-        await channel?.send({
-            content: after.author.id,
-            embeds: [ embed ]
+            }
         });
     }
 
-    static async logMessageDelete(message: Message) {
-        if (message.guild == null || message.content == '') { return; }
+    /**
+     * Creates a new moderator action log.
+     * This aborts if there is no action log channel defined for the given guild
+     * @param opts The action type, target, moderator, duration (for mutes), and the reason behind the mute
+     */
+    static async createActionLog(opts: {
+        actionType: ModActionType,
+        guild: Guild,
+        target: User,
+        moderator: IUser,
+        minutes?: number,
+        reason: string
+    }) {
+        const target = opts.target;
+        const moderator = opts.moderator;
+        const guild = opts.guild;
+        const lng = guild.preferredLocale;
 
-        const channel = await this.retrieveLogChannel('messageDeletes', message.guild);
-        const lng = message.guild.preferredLocale;
+        const actionLogChannel = await this.retrieveLogChannel('modActions', guild);
+        if (actionLogChannel == null) return;
 
-        const parts = message.content.match(/\b[\w\s]{1024,}?(?=\s)|.+$/g) || [ message.content ];
+        const caseNumber = await this.retrieveNextCaseNumber(guild);
 
-        const embed = getEmbedWithTarget(message.author, lng)
-            .setTitle(i18next.t('logging.messages.deletes.title', { lng: lng }))
-            .setDescription(i18next.t('logging.messages.deletes.description', {
-                lng: lng,
-                userMention: message.author.toString(),
-                channelMention: message.channel.toString()
-            }))
-            .setColor('Red')
-            .setFooter({
-                text: i18next.t('logging.messages.deletes.footer', {
-                    lng: lng,
-                    messageId: message.id,
-                    userId: message.author.id
-                })
-            });
+        await prisma.modActions.create({ data: {
+            guildId: guild.id,
+            caseNumber: caseNumber,
+            type: opts.actionType,
+            offenderId: target.id,
+            offenderTag: target.tag,
+            moderatorId: moderator.user.id,
+            moderatorTag: `${moderator.user.username}#${moderator.user.discriminator}`,
+            reason: opts.reason
+        } });
 
-        for (const part of parts) {
-            embed.addFields([{
-                name: i18next.t('logging.messages.deletes.fields.message.name', { lng: lng }),
-                value: part
-            }]);
-        }
+        this.caseNumberCache.set(guild.id, caseNumber + 1);
 
-        await channel?.send({
-            content: message.author.id,
-            embeds: [ embed ]
+        const targetMention = target.toString();
+        const moderatorMention = moderator.toString();
+
+        const actionType = opts.actionType.toLowerCase();
+
+        await actionLogChannel.send({
+            content: target.id,
+            embeds: [
+                getEmbedWithTarget(target, lng)
+                    .setTitle(i18next.t('logging.modActions.title', {
+                        lng: lng,
+                        caseNumber: caseNumber,
+                        actionType: capitalizeFirstLetter(actionType)
+                    }))
+                    .setDescription(i18next.t('logging.modActions.description', {
+                        lng: lng,
+                        targetMention: targetMention,
+                        actionType: getPastTenseSuffix(actionType),
+                        moderatorMention: moderatorMention
+                    }))
+                    .setColor('Gold')
+                    .addFields(
+                        {
+                            name: i18next.t('logging.modActions.fields.member.name', { lng: lng }),
+                            value: i18next.t('logging.modActions.fields.member.value', {
+                                lng: lng,
+                                memberMention: targetMention,
+                                memberId: target.id
+                            })
+                        },
+                        {
+                            name: i18next.t('logging.modActions.fields.moderator.name', { lng: lng }),
+                            value: i18next.t('logging.modActions.fields.moderator.value', {
+                                lng: lng,
+                                moderatorMention: moderatorMention,
+                                moderatorId: moderator.user.id
+                            })
+                        },
+                        {
+                            name: i18next.t('logging.modActions.fields.durationMinutes.name', { lng: lng }),
+                            value: `${opts.minutes}`
+                        },
+                        {
+                            name: i18next.t('logging.modActions.fields.reason.name', { lng: lng }),
+                            value: opts.reason
+                        }
+                    )
+            ]
         });
     }
 }

@@ -1,9 +1,7 @@
-# This workflow will run eslint on Pull Requests
-
-name: ESLint
+name: PR
 on: [pull_request]
 jobs:
-  lint:
+  pr:
     runs-on: ubuntu-latest
     steps:
     - name: Chekout Repository
@@ -18,4 +16,7 @@ jobs:
     - run: npm ci
 
     - name: Lint
-      run: npx eslint . --ext .js,.jsx,.ts,.tsx
+      run: npm run lint
+
+    - name: Test
+      run: npm run test

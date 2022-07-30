@@ -7,23 +7,26 @@ import client from './client';
 import config from '../config.json';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
+import { TransformableInfo } from 'logform';
+
+const printfFormat = (msg: TransformableInfo) => `${msg.timestamp} [${msg.level.toUpperCase()}] ${msg.message}` as const;
 
 export default class Warden extends null {
     public static readonly logger = createLogger({
-        level: 'info',
+        level: 'debug',
         format: format.combine(
-            format.timestamp({ format: 'MM/DD/YYYY HH:mm:ss' }),
+            format.timestamp(),
             format.errors({ stack: true }),
             format.splat(),
-            format.json()
         ),
-        defaultMeta: { service: 'Warden' },
         transports: [
-            new transports.File({ filename: 'bot.log' }),
+            new transports.File({
+                filename: 'bot.log',
+                format: format.printf(printfFormat),
+            }),
             new transports.Console({
                 format: format.combine(
-                    format.colorize(),
-                    format.simple()
+                    format.cli()
                 )
             })
         ]
@@ -43,7 +46,6 @@ export default class Warden extends null {
             this.setupTranslations(),
             client.login(config.token)
         ]);
-
 
         this.isStarted = true;
         this.logger.info('Warden has started');

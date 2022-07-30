@@ -33,6 +33,70 @@
                 "enable": "{{- emoji}} Updated display names will now be sanitized",
                 "disable": "{{- emoji}} Updated display names will no longer be sanitized"
             }
+        },
+        "ban": {
+            "success": "{{- emoji}} {{- userMention}} was banned",
+            "fail": {
+                "unknown": "{{- emoji}} Something went wrong while banning {{- userMention}} :("
+            }
+        },
+        "case": {
+            "success": {
+                "title": "Case {{- caseNumber}} | {{- actionType}}",
+                "fields": {
+                    "user": {
+                        "name": "User"
+                    },
+                    "moderator": {
+                        "name": "Moderator"
+                    },
+                    "reason": {
+                        "name": "Reason"
+                    }
+                }
+            },
+            "fail": {
+                "notFound": "{{- emoji}} No case number `{{- caseNumber}}` found"
+            }
+        },
+        "kick": {
+            "success": "{{- emoji}} {{- userMention}} was kicked",
+            "fail": {
+                "unknown": "{{- emoji}} Something went wrong while kicking {{- userMention}} :("
+            }
+        },
+        "mute": {
+            "success": "{{- emoji}} {{- userMention}} was muted",
+            "fail": {
+                "alreadyTimedout": "{{- emoji}} {{- userMention}} is already muted",
+                "unknown": "{{- emoji}} Something went wrong while muting {{- userMention}} :("
+            }
+        },
+        "unban": {
+            "success": "{{- emoji}} {{- userMention}} was unbanned",
+            "fail": {
+                "unknown": "{{- emoji}} Something went wrong while unbanning {{- userMention}} :("
+            }
+        },
+        "warn": {
+            "success": {
+                "dm": {
+                    "title": "You were warned",
+                    "description": "You were warned in `{{- guildName}}`",
+                    "fields": {
+                        "reason": {
+                            "name": "Reason"
+                        }
+                    }
+                },
+                "reply": {
+                    "description": "{{- emoji}} {{- memberMention}} was warned"
+                }
+            },
+            "fail": {
+                "blocked": "{{- emoji}} Warning logged for {{- memberMention}}, but I could not dm them",
+                "unknown": "{{- emoji}} Something went very wrong when attempting to warn {{- memberMention}}"
+            }
         }
     },
     "logging": {
@@ -58,8 +122,7 @@
                             "name": "Moderator"
                         },
                         "reason": {
-                            "name": "Reason",
-                            "noneGiven": "No Reason Given"
+                            "name": "Reason"
                         }
                     }
                 }
@@ -80,6 +143,26 @@
                             "name": "Reason"
                         }
                     }
+                }
+            }
+        },
+        "modActions": {
+            "title": "Case {{- caseNumber}} | {{- actionType}}",
+            "description": "{{- targetMention}} was {{- actionType}} by {{- moderatorMention}}",
+            "fields": {
+                "member": {
+                    "name": "Member",
+                    "value": "{{- memberMention}} (id: `{{- memberId}}`)"
+                },
+                "moderator": {
+                    "name": "Moderator",
+                    "value": "{{- moderatorMention}} (id: `{{- moderatorId}}`)"
+                },
+                "durationMinutes": {
+                    "name": "Minutes"
+                },
+                "reason": {
+                    "name": "Reason"
                 }
             }
         },
