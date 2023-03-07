@@ -10,6 +10,13 @@
                     "guild": "{{- emoji}} Antispam will now filter incoming messages in all channels",
                     "channel": "{{- emoji}} Antispam will now filter incoming messages in {{- channelMention}}"
                 },
+                "view": {
+                    "title": "Antispam Configuration",
+                    "description": {
+                        "disabled": "Antispam is disabled in this guild.",
+                        "enabled": "Antispam is enabled in this guild. There are {{- ignoredChannelsCount}} ignored channels:\n{{-ignoredChannelMentions}}"
+                    }
+                }
             },
             "modlogs": {
                 "common": {
