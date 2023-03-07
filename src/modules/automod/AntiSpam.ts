@@ -9,6 +9,7 @@ import AutoMod from '.';
 import Duration from '../../util/duration';
 import { getEmbedWithTarget } from '../../util/embed';
 import i18next from 'i18next';
+import ExpirySet from 'expiry-set';
 
 interface MessageReference {
     readonly guildId: string;
@@ -27,7 +28,7 @@ const prisma = new PrismaClient();
 
 export default class AntiSpamModule extends null {
     private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(Duration.ofMinutes(1).toMilliseconds());
-    private static ignoredEntitiesCache: ExpiryMap<string, Set<string>> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
+    private static ignoredEntitiesCache: ExpirySet<string> = new ExpirySet(Duration.ofMinutes(30).toMilliseconds());
 
     private static getContentHash(message: Message) {
         return createHash('md5').update(message.content.toLowerCase()).digest('hex');
