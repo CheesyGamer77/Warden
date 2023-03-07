@@ -1,4 +1,4 @@
-import { ChannelType, Formatters, Guild, GuildMember, Message, PermissionFlagsBits, TextChannel, ThreadChannel, VoiceChannel } from 'discord.js';
+import { ChannelType, Formatters, Guild, GuildMember, GuildTextBasedChannel, Message, PermissionFlagsBits } from 'discord.js';
 import { createHash } from 'crypto';
 import { canDelete } from '../../util/checks';
 import LoggingModule from '../logging/LoggingModule';
@@ -22,8 +22,6 @@ interface AntiSpamEntry {
     hash: string;
     references: MessageReference[]
 }
-
-type IgnorableChannel = TextChannel | ThreadChannel | VoiceChannel;
 
 const prisma = new PrismaClient();
 
@@ -149,7 +147,7 @@ export default class AntiSpamModule extends null {
         await UserReputation.modifyReputation(member, -0.3);
     }
 
-    private static async channelIsIgnored(channel: IgnorableChannel) {
+    private static async channelIsIgnored(channel: GuildTextBasedChannel) {
         const channelId = channel.id;
 
         const ignored = this.ignoredEntitiesCache.has(channelId);
@@ -196,7 +194,7 @@ export default class AntiSpamModule extends null {
      * This automatically adds the entry to the anti-spam's ignored channels cache.
      * @param channel The channel to ignore
      */
-    static async ignoreChannel(channel: IgnorableChannel) {
+    static async ignoreChannel(channel: GuildTextBasedChannel) {
         const channelId = channel.id;
         const guildId = channel.guildId;
 
@@ -213,7 +211,7 @@ export default class AntiSpamModule extends null {
      * This automatically modifies the anti-spam's ignored channels cache appropriately.
      * @param channel
      */
-    static async unIgnoreChannel(channel: IgnorableChannel) {
+    static async unIgnoreChannel(channel: GuildTextBasedChannel) {
         const channelId = channel.id;
         const guildId = channel.guildId;
 
