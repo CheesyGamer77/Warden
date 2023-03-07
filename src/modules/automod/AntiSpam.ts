@@ -200,6 +200,10 @@ export default class AntiSpamModule extends null {
         const channelId = channel.id;
         const guildId = channel.guildId;
 
+        if (this.ignoredEntitiesCache.has(channelId)) return;
+
+        this.ignoredEntitiesCache.add(channelId);
+
         await prisma.antiSpamIgnoredChannels.create({
             data: {
                 guildId: guildId,
@@ -217,6 +221,10 @@ export default class AntiSpamModule extends null {
     static async unIgnoreChannel(channel: GuildTextBasedChannel) {
         const channelId = channel.id;
         const guildId = channel.guildId;
+
+        if (!this.ignoredEntitiesCache.has(channelId)) return;
+
+        this.ignoredEntitiesCache.delete(channelId);
 
         await prisma.antiSpamIgnoredChannels.delete({
             where: {
