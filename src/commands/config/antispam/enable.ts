@@ -35,7 +35,7 @@ export default class EnableCommand extends Subcommand {
             description = i18next.t('commands.config.antispam.enable.channel', {
                 lng: lng,
                 emoji: ':white_check_mark:',
-                channel: channel.toString()
+                channelMention: channel.toString()
             });
         }
 
