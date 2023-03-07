@@ -193,6 +193,7 @@ export default class AntiSpamModule extends null {
     /**
      * Sets a text channel to be ignored by the anti-spam.
      * This automatically adds the entry to the anti-spam's ignored channels cache.
+     * If the text channel is already ignored, the operation is cancelled.
      * @param channel The channel to ignore
      */
     static async ignoreChannel(channel: GuildTextBasedChannel) {
@@ -210,7 +211,8 @@ export default class AntiSpamModule extends null {
     /**
      * Sets a text channel to be moderated by the anti-spam again (assuming it's enabled for the guild).
      * This automatically modifies the anti-spam's ignored channels cache appropriately.
-     * @param channel
+     * If the text channel is already unignored, the operation is cancelled.
+     * @param channel The channel to ignore
      */
     static async unIgnoreChannel(channel: GuildTextBasedChannel) {
         const channelId = channel.id;
