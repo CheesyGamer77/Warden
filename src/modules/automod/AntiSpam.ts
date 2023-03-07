@@ -10,6 +10,7 @@ import Duration from '../../util/duration';
 import { getEmbedWithTarget } from '../../util/embed';
 import i18next from 'i18next';
 import ExpirySet from 'expiry-set';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 interface MessageReference {
     readonly guildId: string;
@@ -197,17 +198,18 @@ export default class AntiSpamModule extends null {
      * @param channel The channel to ignore
      */
     static async ignoreChannel(channel: GuildTextBasedChannel) {
-        const channelId = channel.id;
-        const guildId = channel.guildId;
+        const data = { guildId: channel.guildId, channelId: channel.id };
+        const { channelId } = data;
 
         if (this.ignoredEntitiesCache.has(channelId)) return;
 
         this.ignoredEntitiesCache.add(channelId);
 
-        await prisma.antiSpamIgnoredChannels.create({
-            data: {
-                guildId: guildId,
-                channelId: channelId
+        await prisma.antiSpamIgnoredChannels.upsert({
+            create: data,
+            update: {},
+            where: {
+                guildId_channelId: data
             }
         });
     }
@@ -219,21 +221,28 @@ export default class AntiSpamModule extends null {
      * @param channel The channel to ignore
      */
     static async unIgnoreChannel(channel: GuildTextBasedChannel) {
-        const channelId = channel.id;
-        const guildId = channel.guildId;
+        const data = { guildId: channel.guildId, channelId: channel.id };
+        const { guildId, channelId } = data;
 
         if (!this.ignoredEntitiesCache.has(channelId)) return;
 
         this.ignoredEntitiesCache.delete(channelId);
 
-        await prisma.antiSpamIgnoredChannels.delete({
-            where: {
-                guildId_channelId: {
-                    guildId: guildId,
-                    channelId: channelId
+        try {
+            await prisma.antiSpamIgnoredChannels.delete({
+                where: {
+                    guildId_channelId: {
+                        guildId: guildId,
+                        channelId: channelId
+                    }
                 }
+            });
+        }
+        catch (e) {
+            if (e instanceof PrismaClientKnownRequestError) {
+                return;
             }
-        });
+        }
     }
 
     static async process(message: Message) {
