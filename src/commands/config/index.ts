@@ -1,5 +1,6 @@
 import { ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js';
 import { SlashCommand } from '../../util/commands/slash';
+import AntispamGroup from './antispam';
 import ModlogsGroup from './modlogs';
 import NameSanitizerGroup from './name-sanitizer';
 
@@ -13,6 +14,7 @@ export default class ConfigCommand extends SlashCommand {
         super('config', 'Configuration commands');
         this.dataBuilder.setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
         this.addSubcommandGroups(
+            new AntispamGroup(),
             new ModlogsGroup(),
             new NameSanitizerGroup()
         );
