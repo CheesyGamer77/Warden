@@ -2,14 +2,14 @@
     "commands": {
         "config": {
             "antispam": {
+                "disable": {
+                    "guild": "{{- emoji}} Antispam will now ignore incoming messages in all channels",
+                    "channel": "{{- emoji}} Antispam will now ignore incoming messages in {{- channelMention}}"
+                },
                 "enable": {
                     "guild": "{{- emoji}} Antispam will now filter incoming messages in all channels",
                     "channel": "{{- emoji}} Antispam will now filter incoming messages in {{- channelMention}}"
                 },
-                "disable": {
-                    "guild": "{{- emoji}} Antispam will now ignore incoming messages in all channels",
-                    "channel": "{{- emoji}} Antispam will now ignore incoming messages in {{- channelMention}}"
-                }
             },
             "modlogs": {
                 "common": {
