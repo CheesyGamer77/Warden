@@ -2,6 +2,6 @@ function placeholder() {
     return true;
 }
 
-test("A test :)", () => {
+test('A test :)', () => {
     expect(placeholder()).toBe(true);
 });

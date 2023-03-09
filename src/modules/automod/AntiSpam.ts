@@ -222,17 +222,13 @@ export default class AntiSpamModule extends null {
      */
     static async unIgnoreChannel(channel: GuildTextBasedChannel) {
         const data = { guildId: channel.guildId, channelId: channel.id };
-        const { guildId, channelId } = data;
 
-        this.ignoredEntitiesCache.delete(channelId);
+        this.ignoredEntitiesCache.delete(data.channelId);
 
         try {
             await prisma.antiSpamIgnoredChannels.delete({
                 where: {
-                    guildId_channelId: {
-                        guildId: guildId,
-                        channelId: channelId
-                    }
+                    guildId_channelId: data
                 }
             });
         }
