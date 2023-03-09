@@ -224,8 +224,6 @@ export default class AntiSpamModule extends null {
         const data = { guildId: channel.guildId, channelId: channel.id };
         const { guildId, channelId } = data;
 
-        if (!this.ignoredEntitiesCache.has(channelId)) return;
-
         this.ignoredEntitiesCache.delete(channelId);
 
         try {
