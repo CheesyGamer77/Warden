@@ -16,6 +16,9 @@ for (const pair of Object.entries(replacements)) {
 
 const prisma = new PrismaClient();
 
+/**
+ * Module for automatically removing fancy text characters from nicknames.
+ */
 export default class NameSanitizerModule extends null {
     private static readonly configCache: ExpiryMap<string, NameSanitizerConfig> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
 
@@ -33,12 +36,23 @@ export default class NameSanitizerModule extends null {
         return member.guild.members.me?.permissions.has(PermissionFlagsBits.ManageNicknames) ?? false;
     }
 
+    /**
+     * Sets whether the name sanitizer is enabled for the given guild or not.
+     * @param guild The guild to enable/disable the name sanitizer in.
+     * @param enabled Whether the name sanitizer is enabled or not.
+     */
     public static async setEnabled(guild: Guild, enabled: boolean) {
         const cache = await AutoMod.retrieveConfig(guild);
         cache.antiSpamEnabled = enabled;
         await AutoMod.setConfig(guild, cache);
     }
 
+    /**
+     * Retrieves the name santizier configuration for the given guild.
+     * This will fetch the configuration from the database if the configuration is not already cached.
+     * @param guild The guild to retrieve the configuration of
+     * @returns The retrieved name sanitizer configuration
+     */
     public static async retrieveConfig(guild: Guild) {
         const guildId = guild.id;
 
@@ -54,7 +68,21 @@ export default class NameSanitizerModule extends null {
     }
 
     /**
-     * Sanitizes a member's display name according to a particular guild's configuration
+     * Sanitizes a member's display name according to a particular guild's configuration.
+     *
+     * ## Pre-Checks
+     * This method immediately returns if:
+     * - The guild does not have a user filter log channel configured.
+     * - The target member is not able to be moderated on.
+     *
+     * ## Caching
+     * This method may retrieve and cache any previously non-cached automod and logging configurations for the guild of which
+     * the member originates from.
+     *
+     * ## After Execution
+     *
+     * The member's nickname will be modified if the sanitized nickname does not match their original nickname.
+     *
      * @param member The member who's name should be sanitized
      */
     public static async sanitize(member: GuildMember) {
