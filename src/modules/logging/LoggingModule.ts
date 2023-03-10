@@ -5,7 +5,7 @@ import { getEmbedWithTarget } from '../../util/embed';
 import ExpiryMap from 'expiry-map';
 import i18next from 'i18next';
 import Duration from '../../util/duration';
-import { capitalizeFirstLetter, getPastTenseSuffix } from '../../util/string';
+import { capitalizeFirstLetter, getPastTense } from '../../util/string';
 
 const prisma = new PrismaClient();
 
@@ -197,7 +197,7 @@ export default class LoggingModule extends null {
                     .setDescription(i18next.t('logging.modActions.description', {
                         lng: lng,
                         targetMention: targetMention,
-                        actionType: getPastTenseSuffix(actionType),
+                        actionType: getPastTense(actionType),
                         moderatorMention: moderatorMention
                     }))
                     .setColor('Gold')

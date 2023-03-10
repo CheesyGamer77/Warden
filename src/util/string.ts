@@ -1,4 +1,11 @@
-export function getPastTenseSuffix(input: string) {
+/**
+ * Gets the past-tense of a given word.
+ *
+ * This is very goofy.
+ * @param input The input string
+ * @returns The input string in past-tense
+ */
+export function getPastTense(input: string) {
     if (input.length == 0) return input;
 
     const last = input[input.length - 1];
@@ -10,6 +17,11 @@ export function getPastTenseSuffix(input: string) {
     return input.concat('ed');
 }
 
+/**
+ * Capitalizes the first letter in a string.
+ * @param input The input string
+ * @returns The string, but with the first letter capitalized
+ */
 export function capitalizeFirstLetter(input: string) {
     input = input.toLowerCase();
 

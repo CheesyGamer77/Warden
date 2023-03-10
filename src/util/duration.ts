@@ -27,10 +27,20 @@ export default class Duration {
         return Duration.ofSeconds(minutes * 60);
     }
 
+    /**
+     * Constructs a duration in hours
+     * @param hours The number of hours in the duration
+     * @returns The duration
+     */
     public static ofHours(hours: number) {
         return Duration.ofMinutes(hours * 60);
     }
 
+    /**
+     * Constructs a duration in days
+     * @param days The number of days in the duration
+     * @returns The duration
+     */
     public static ofDays(days: number) {
         return Duration.ofHours(days * 24);
     }
@@ -59,10 +69,18 @@ export default class Duration {
         return this.toSeconds() / 60;
     }
 
+    /**
+     * Returns this duration in hours
+     * @returns The hour value in this duration
+     */
     public toHours() {
         return this.toMinutes() / 60;
     }
 
+    /**
+     * Returns this duration in days
+     * @returns The day value in this duration
+     */
     public toDays() {
         return this.toHours() / 24;
     }
