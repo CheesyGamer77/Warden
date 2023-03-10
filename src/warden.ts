@@ -4,10 +4,10 @@
 
 import { createLogger, format, transports } from 'winston';
 import client from './client';
-import config from '../config.json';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import { TransformableInfo } from 'logform';
+import * as dotenv from 'dotenv';
 
 const printfFormat = (msg: TransformableInfo) => `${msg.timestamp} [${msg.level.toUpperCase()}] ${msg.message}` as const;
 
@@ -41,6 +41,7 @@ export default class Warden extends null {
      * Starts Warden, including logging into Discord and setting up translations.
      */
     public static async init() {
+        dotenv.config();
         if (this.isStarted) {
             this.logger.warn('Attempted to initialize Warden multiple times!', new Error('Attempted to re-initialize'));
             return;
@@ -50,7 +51,7 @@ export default class Warden extends null {
 
         await Promise.all([
             this.setupTranslations(),
-            client.login(config.token)
+            client.login(process.env.TOKEN)
         ]);
 
         this.isStarted = true;
