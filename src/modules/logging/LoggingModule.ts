@@ -22,6 +22,14 @@ interface IUser {
     }
 }
 
+/**
+ * Module for logging moderation-related details and updates.
+ *
+ * A log type without an associated channel will not be utilized in the guild.
+ *
+ * By default, guilds are assigned an empty configuration. IE, no logging takes place.
+ * Log details are not stored outside of Discord.
+ */
 export default class LoggingModule extends null {
     private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(Duration.ofMinutes(15).toMilliseconds());
     private static caseNumberCache: ExpiryMap<string, number> = new ExpiryMap(Duration.ofMinutes(10).toMilliseconds());
