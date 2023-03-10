@@ -27,6 +27,17 @@ interface AntiSpamEntry {
 
 const prisma = new PrismaClient();
 
+/**
+ * Module for preventing spam in the form of excessive, repeated messages.
+ *
+ * Each message sent has its content hashed and added to an expiry cache. Content hashes that occur a certain ammount
+ * will result in the incoming message marked as spam. Message authors may be automatically timed out as a result of
+ * frequently posting spam messages.
+ *
+ * This module utilizes message frequency, rather than the message's content, to identify spam messages. Messages with content
+ * that is commonly associated with spam, such as newline spam, zero-width-space spam, copypastas, etc may not be marked
+ * as spam until the message is repeated excessively.
+ */
 export default class AntiSpamModule extends null {
     private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(Duration.ofMinutes(1).toMilliseconds());
     private static ignoredEntitiesCache: ExpirySet<string> = new ExpirySet(Duration.ofMinutes(30).toMilliseconds());
@@ -239,6 +250,35 @@ export default class AntiSpamModule extends null {
         }
     }
 
+    /**
+     * Processes a given message against the antispam.
+     *
+     * ## Pre-checks
+     * This method immediately returns if any of the following occur:
+     * - The guild that is associated with the provided message has disabled the antispam.
+     * - The message was posted in a DM Channel or News Channel.
+     * - The message has no member associated with it.
+     * - The message was written by a bot.
+     * - The message author has `MANAGE_MESSAGES` permissions.
+     * - The message was posted in a channel configured to be ignored by the antispam.
+     *
+     * ## Caching
+     * This method may retrieve and cache any previously non-cached automod configurations for the guild of which
+     * the message originates from.
+     *
+     * ## After Execution
+     * The author of the provided message will receive a small user reputation increase if the message is not moderated.
+     * The author will have their user reputation decreased if the message is moderated.
+     *
+     * The provided message will be deleted under the following conditions:
+     * - The bot is able to delete the message.
+     * - The user has posted three of the same exact messages within the past minute.
+     *
+     * The author of the provided message will be also timed out for 1 minute if the user has
+     * posted five of the same exact messages within the past minute.
+     *
+     * @param {Message} message The message to further process
+     */
     static async process(message: Message) {
         const channel = message.channel;
         const member = message.member;
