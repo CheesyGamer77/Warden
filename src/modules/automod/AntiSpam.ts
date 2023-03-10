@@ -277,7 +277,7 @@ export default class AntiSpamModule extends null {
      * The author of the provided message will be also timed out for 1 minute if the user has
      * posted five of the same exact messages within the past minute.
      *
-     * @param {Message} message The message to further process
+     * @param message The message to further process
      */
     static async process(message: Message) {
         const channel = message.channel;
