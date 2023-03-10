@@ -9,6 +9,14 @@ function clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
 }
 
+/**
+ * Module for interacting with user reputation.
+ *
+ * User reputation is used to gague the behavior of a user by adding reputation when messages are not
+ * moderated, and removing reputation if a message is moderated.
+ *
+ * By default, a user is assigned a reputation of 0.
+ */
 export default class extends null{
     private static reputationCache: ExpiryMap<string, Reputation> = new ExpiryMap(15 * 60 * 1000);
 
