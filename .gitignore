@@ -37,7 +37,8 @@ Thumbs.db
 # Ignore built ts files
 dist/**/*
 
-# Ignore yarn.lock
+# Ignore package locks
+package-lock.json
 yarn.lock
 
 # Ignore Bot Configuration
