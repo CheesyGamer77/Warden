@@ -5,10 +5,10 @@
   "main": "./dist/index.js",
   "private": true,
   "scripts": {
-    "build": "npm run clean && tsc && prisma generate",
+    "build": "yarn clean && tsc && prisma generate",
     "clean": "rimraf ./dist",
     "coverage": "jest --coverage",
-    "deploy": "npm run build && node ./dist/src",
+    "deploy": "yarn build && node ./dist/src",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lintfix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "test": "jest"
