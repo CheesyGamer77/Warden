@@ -11,6 +11,9 @@ import { TransformableInfo } from 'logform';
 
 const printfFormat = (msg: TransformableInfo) => `${msg.timestamp} [${msg.level.toUpperCase()}] ${msg.message}` as const;
 
+/**
+ * Content moderation and logging bot for Discord.
+ */
 export default class Warden extends null {
     public static readonly logger = createLogger({
         level: 'debug',
@@ -34,6 +37,9 @@ export default class Warden extends null {
 
     private static isStarted = false;
 
+    /**
+     * Starts Warden, including logging into Discord and setting up translations.
+     */
     public static async init() {
         if (this.isStarted) {
             this.logger.warn('Attempted to initialize Warden multiple times!', new Error('Attempted to re-initialize'));
