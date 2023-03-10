@@ -44,8 +44,8 @@ export default class extends null{
     }
 
     /**
-     * Fetches a particular member's reputation in their current guild. If no reputation data exist, they are given
-     * a default reputation value of `0`
+     * Fetches a particular member's reputation in their current guild. If no reputation data exists, they are given
+     * a default reputation value of `0`.
      * @param member The member to fetch the reputation of
      * @returns The member's reputation
      */
@@ -63,7 +63,7 @@ export default class extends null{
     }
 
     /**
-     * Modifies the reputation of a given member
+     * Modifies the reputation of a given member.
      * @param member The member to modify the reputation of
      * @param offset The number to add to the reputation. Use negative numbers to subtract reputation
      */
