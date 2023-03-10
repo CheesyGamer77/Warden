@@ -253,7 +253,7 @@ export default class AntiSpamModule extends null {
     /**
      * Processes a given message against the antispam.
      *
-     * ## Pre-checks
+     * ## Pre-Checks
      * This method immediately returns if any of the following occur:
      * - The guild that is associated with the provided message has disabled the antispam.
      * - The message was posted in a DM Channel or News Channel.
