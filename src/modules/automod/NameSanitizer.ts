@@ -19,10 +19,19 @@ const prisma = new PrismaClient();
 /**
  * Module for automatically removing fancy text characters from nicknames.
  */
-export default class NameSanitizerModule extends null {
-    private static readonly configCache: ExpiryMap<string, NameSanitizerConfig> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
+export default class NameSanitizerModule {
+    private readonly configCache: ExpiryMap<string, NameSanitizerConfig> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
+    private static _instance: NameSanitizerModule | undefined = undefined;
 
-    private static cleanFancyText(content: string) {
+    public static get instance() {
+        if (!this._instance) {
+            this._instance = new NameSanitizerModule();
+        }
+
+        return this._instance;
+    }
+
+    private cleanFancyText(content: string) {
         let sanitized = '';
 
         for (const char of content) {
@@ -32,7 +41,7 @@ export default class NameSanitizerModule extends null {
         return sanitized;
     }
 
-    private static canOverwriteName(member: GuildMember): boolean {
+    private canOverwriteName(member: GuildMember): boolean {
         return member.guild.members.me?.permissions.has(PermissionFlagsBits.ManageNicknames) ?? false;
     }
 
@@ -41,7 +50,7 @@ export default class NameSanitizerModule extends null {
      * @param guild The guild to enable/disable the name sanitizer in.
      * @param enabled Whether the name sanitizer is enabled or not.
      */
-    public static async setEnabled(guild: Guild, enabled: boolean) {
+    public async setEnabled(guild: Guild, enabled: boolean) {
         const cache = await AutoMod.instance.retrieveConfig(guild);
         cache.antiSpamEnabled = enabled;
         await AutoMod.instance.setConfig(guild, cache);
@@ -53,7 +62,7 @@ export default class NameSanitizerModule extends null {
      * @param guild The guild to retrieve the configuration of
      * @returns The retrieved name sanitizer configuration
      */
-    public static async retrieveConfig(guild: Guild) {
+    public async retrieveConfig(guild: Guild) {
         const guildId = guild.id;
 
         return this.configCache.get(guild.id) ?? await prisma.nameSanitizerConfig.upsert({
@@ -85,7 +94,7 @@ export default class NameSanitizerModule extends null {
      *
      * @param member The member who's name should be sanitized
      */
-    public static async sanitize(member: GuildMember) {
+    public async sanitize(member: GuildMember) {
         const channel = await LoggingModule.retrieveLogChannel('userFilter', member.guild);
         if (channel == null || !canModerate(member.guild.members.me, member)) return;
 

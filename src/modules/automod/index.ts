@@ -57,6 +57,6 @@ export default class AutoMod {
 
     public async handleNameChange(member: GuildMember) {
         const config = await this.retrieveConfig(member.guild);
-        if (config.nameSanitizerEnabled) await NameSanitizerModule.sanitize(member);
+        if (config.nameSanitizerEnabled) await NameSanitizerModule.instance.sanitize(member);
     }
 }

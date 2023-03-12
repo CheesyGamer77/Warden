@@ -15,7 +15,7 @@ export default class EnableCommand extends Subcommand {
         const guild = interaction.guild;
         const lng = guild.preferredLocale;
 
-        await NameSanitizerModule.setEnabled(guild, true);
+        await NameSanitizerModule.instance.setEnabled(guild, true);
         await interaction.reply({
             embeds: [
                 new EmbedBuilder()
