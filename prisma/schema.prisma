@@ -31,33 +31,33 @@ model Reputation {
 }
 
 model AutoModConfig {
-  guildId         String   @id
-  antiSpamEnabled Boolean @default(false)
+  guildId              String  @id
+  antiSpamEnabled      Boolean @default(false)
   nameSanitizerEnabled Boolean @default(false)
 }
 
 model AntiSpamIgnoredChannels {
-  guildId   String
-  channelId String
+  guildId               String
+  channelId             String
 
   @@unique([guildId, channelId])
 }
 
 model NameSanitizerConfig {
-  guildId String @id
-  blankFallbackName String @default("nickname")
+  guildId              String  @id
+  blankFallbackName    String  @default("nickname")
   cleanFancyCharacters Boolean @default(false)
 }
 
 model ModActions {
-  guildId String
-  caseNumber Int
-  type ModActionType
-  offenderId String
-  offenderTag String
-  moderatorId String
+  guildId      String
+  caseNumber   Int
+  type         ModActionType
+  offenderId   String
+  offenderTag  String
+  moderatorId  String
   moderatorTag String
-  reason String @default("No Reason Provided")
+  reason       String        @default("No Reason Provided")
 
   @@unique([guildId, caseNumber])
 }
