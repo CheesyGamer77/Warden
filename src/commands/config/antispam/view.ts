@@ -1,10 +1,7 @@
-import { PrismaClient } from '@prisma/client';
 import { ChatInputCommandInteraction, ColorResolvable, EmbedBuilder } from 'discord.js';
 import i18next from 'i18next';
-import AutoMod from '../../../modules/automod';
 import { Subcommand } from 'cheesyutils.js';
-
-const prisma = new PrismaClient();
+import AntiSpamModule from '../../../modules/automod/AntiSpam';
 
 export default class ViewCommand extends Subcommand {
     // TODO: Localize command data
@@ -25,8 +22,8 @@ export default class ViewCommand extends Subcommand {
         let description = '';
         let color: ColorResolvable;
 
-        const { antiSpamEnabled } = await AutoMod.instance.retrieveConfig(guild);
-        if (!antiSpamEnabled) {
+        const config = await AntiSpamModule.instance.retrieveConfig(guild);
+        if (!config.enabled) {
             description = i18next.t('commands.config.antispam.view.description.disabled', {
                 lng: lng
             });
@@ -34,18 +31,15 @@ export default class ViewCommand extends Subcommand {
             color = 'Red';
         }
         else {
-            const ignoredChannelMentions = (await prisma.antiSpamIgnoredChannels.findMany({ where: {
-                guildId: guild.id
-            } })).map(entry => `• <#${entry.channelId}>`);
+            const ignoredChannelMentions = config.ignoredChannels.map(entry => `• <#${entry.channelId}>`).join('\n');
 
             const count = ignoredChannelMentions.length;
 
-            const ignoredChannelMentionsString = count > 0 ? ignoredChannelMentions.join('\n') : '<none>';
-
+            // TODO: Localize '<none>'
             description = i18next.t('commands.config.antispam.view.description.enabled', {
                 lng: lng,
                 ignoredChannelsCount: count,
-                ignoredChannelMentions: ignoredChannelMentionsString
+                ignoredChannelMentions: count > 0 ? ignoredChannelMentions : '<none>'
             });
 
             color = 'Blurple';

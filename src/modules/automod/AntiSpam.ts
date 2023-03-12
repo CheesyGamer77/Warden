@@ -4,8 +4,7 @@ import { canDelete } from '../../util/checks';
 import LoggingModule from '../logging/LoggingModule';
 import ExpiryMap from 'expiry-map';
 import UserReputation from './UserReputation';
-import { PrismaClient } from '@prisma/client';
-import AutoMod from '.';
+import { AntispamConfig, AntiSpamIgnoredChannels, PrismaClient } from '@prisma/client';
 import Duration from '../../util/duration';
 import { getEmbedWithTarget } from '../../util/embed';
 import i18next from 'i18next';
@@ -25,6 +24,10 @@ interface AntiSpamEntry {
     references: MessageReference[]
 }
 
+type AntiSpamConfigWithChannels = AntispamConfig & {
+    ignoredChannels: AntiSpamIgnoredChannels[]
+}
+
 const prisma = new PrismaClient();
 
 /**
@@ -39,7 +42,10 @@ const prisma = new PrismaClient();
  * as spam until the message is repeated excessively.
  */
 export default class AntiSpamModule {
+    private configCache: ExpiryMap<string, AntiSpamConfigWithChannels> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
     private entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(Duration.ofMinutes(1).toMilliseconds());
+
+    // TODO: This is now redundant
     private ignoredEntitiesCache: ExpirySet<string> = new ExpirySet(Duration.ofMinutes(30).toMilliseconds());
     private static _instance: AntiSpamModule | undefined = undefined;
 
@@ -190,10 +196,76 @@ export default class AntiSpamModule {
         return data !== undefined;
     }
 
+    /**
+     * Retrieves the antispam configuration for a particular guild.
+     *
+     * If the configuration is not already cached, this will fetch said config from the database and cache it for future use.
+     * @param guild The guild to retrieve the configuration for
+     */
+    public async retrieveConfig(guild: Guild) {
+        return this.configCache.get(guild.id) ?? await prisma.antispamConfig.upsert({
+            where: {
+                guildId: guild.id
+            },
+            create: {
+                guildId: guild.id
+            },
+            update: {},
+            include: {
+                ignoredChannels: true
+            }
+        });
+    }
+
+    private async setConfig(guild: Guild, config: AntiSpamConfigWithChannels) {
+        const channelsTransform = [...config.ignoredChannels.map(c => {
+            return {
+                where: {
+                    guildId_channelId: {
+                        guildId: guild.id,
+                        channelId: c.channelId
+                    }
+                },
+                create: {
+                    channelId: c.channelId
+                }
+            };
+        })];
+
+        const transform = {
+            ...config,
+            ignoredChannels: {
+                connectOrCreate: channelsTransform
+            }
+        };
+
+        this.configCache.set(guild.id, config);
+
+        await prisma.antispamConfig.upsert({
+            where: {
+                guildId: guild.id
+            },
+            create: transform,
+            update: {
+                ignoredChannels: {
+                    upsert: [...channelsTransform.map(t => {
+                        return {
+                            ...t,
+                            update: t.create
+                        };
+                    })]
+                }
+            },
+            include: {
+                ignoredChannels: true
+            }
+        });
+    }
+
     private async setEnabled(guild: Guild, enabled: boolean) {
-        const config = await AutoMod.instance.retrieveConfig(guild);
-        config.antiSpamEnabled = enabled;
-        await AutoMod.instance.setConfig(guild, config);
+        const config = await this.retrieveConfig(guild);
+        config.enabled = enabled;
+        await this.setConfig(guild, config);
     }
 
     /**
@@ -297,7 +369,7 @@ export default class AntiSpamModule {
 
         // ignore if the antispam is disabled for the guild
         const guild = message.guild;
-        if (guild != null && !(await AutoMod.instance.retrieveConfig(guild)).antiSpamEnabled) return;
+        if (guild != null && !(await this.retrieveConfig(guild)).enabled) return;
 
         // ignore DM and news channels, non-guild messages, and messages with a null member author
         if (channel.type == ChannelType.DM || channel.type == ChannelType.GuildNews || member == null) return;
