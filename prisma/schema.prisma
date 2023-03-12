@@ -30,21 +30,23 @@ model Reputation {
   @@unique([guildId, userId])
 }
 
-model AutoModConfig {
-  guildId              String  @id
-  antiSpamEnabled      Boolean @default(false)
-  nameSanitizerEnabled Boolean @default(false)
+model AntispamConfig {
+  guildId         String                    @id
+  enabled         Boolean                   @default(false)
+  ignoredChannels AntiSpamIgnoredChannels[]
 }
 
 model AntiSpamIgnoredChannels {
-  guildId               String
-  channelId             String
+  guildId        String
+  channelId      String
+  AntispamConfig AntispamConfig @relation(fields: [guildId], references: [guildId])
 
   @@unique([guildId, channelId])
 }
 
 model NameSanitizerConfig {
   guildId              String  @id
+  enabled              Boolean @default(false)
   blankFallbackName    String  @default("nickname")
   cleanFancyCharacters Boolean @default(false)
 }
