@@ -30,9 +30,22 @@ interface IUser {
  * By default, guilds are assigned an empty configuration. IE, no logging takes place.
  * Log details are not stored outside of Discord.
  */
-export default class LoggingModule extends null {
+export default class LoggingModule {
     private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(Duration.ofMinutes(15).toMilliseconds());
     private static caseNumberCache: ExpiryMap<string, number> = new ExpiryMap(Duration.ofMinutes(10).toMilliseconds());
+
+    private static _instance: LoggingModule | undefined = undefined;
+
+    /**
+     * Returns the current instance of LoggingModule
+     */
+    public static get instance() {
+        if (!this._instance) {
+            this._instance = new LoggingModule();
+        }
+
+        return this._instance;
+    }
 
     private static async fetchAndCacheConfiguration(guild: Guild) {
         const data = { guildId: guild.id };
