@@ -8,8 +8,6 @@ import { AntispamConfig, AntiSpamIgnoredChannels, PrismaClient } from '@prisma/c
 import Duration from '../../util/duration';
 import { getEmbedWithTarget } from '../../util/embed';
 import i18next from 'i18next';
-import ExpirySet from 'expiry-set';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 interface MessageReference {
     readonly guildId: string;
@@ -44,9 +42,6 @@ const prisma = new PrismaClient();
 export default class AntiSpamModule {
     private configCache: ExpiryMap<string, AntiSpamConfigWithChannels> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
     private entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(Duration.ofMinutes(1).toMilliseconds());
-
-    // TODO: This is now redundant
-    private ignoredEntitiesCache: ExpirySet<string> = new ExpirySet(Duration.ofMinutes(30).toMilliseconds());
     private static _instance: AntiSpamModule | undefined = undefined;
 
     /**
@@ -179,21 +174,11 @@ export default class AntiSpamModule {
     }
 
     private async channelIsIgnored(channel: GuildTextBasedChannel) {
-        const channelId = channel.id;
+        // This does not require a cache check since we already keep the ignored channels with the cached config
+        const config = await this.retrieveConfig(channel.guild);
+        const entry = config.ignoredChannels.find(c => c.channelId === channel.id);
 
-        const ignored = this.ignoredEntitiesCache.has(channelId);
-        if (ignored !== undefined) return ignored;
-
-        const data = await prisma.antiSpamIgnoredChannels.findUnique({
-            where: {
-                guildId_channelId: {
-                    guildId: channel.guildId,
-                    channelId: channelId
-                }
-            }
-        });
-
-        return data !== undefined;
+        return entry !== undefined;
     }
 
     /**
@@ -296,42 +281,25 @@ export default class AntiSpamModule {
         const data = { guildId: channel.guildId, channelId: channel.id };
         const { channelId } = data;
 
-        if (this.ignoredEntitiesCache.has(channelId)) return;
+        const config = await this.retrieveConfig(channel.guild);
+        if ((await this.channelIsIgnored(channel))) return;
 
-        this.ignoredEntitiesCache.add(channelId);
+        config.ignoredChannels.push({ guildId: data.guildId, channelId });
 
-        await prisma.antiSpamIgnoredChannels.upsert({
-            create: data,
-            update: {},
-            where: {
-                guildId_channelId: data
-            }
-        });
+        await this.setConfig(channel.guild, config);
     }
 
     /**
      * Sets a text channel to be moderated by the anti-spam again (assuming it's enabled for the guild).
      * This automatically modifies the anti-spam's ignored channels cache appropriately.
      * If the text channel is already unignored, the operation is cancelled.
-     * @param channel The channel to ignore
+     * @param channel The channel to no longer ignore
      */
     async unIgnoreChannel(channel: GuildTextBasedChannel) {
-        const data = { guildId: channel.guildId, channelId: channel.id };
+        const config = await this.retrieveConfig(channel.guild);
+        config.ignoredChannels = config.ignoredChannels.filter(c => c.channelId !== channel.id);
 
-        this.ignoredEntitiesCache.delete(data.channelId);
-
-        try {
-            await prisma.antiSpamIgnoredChannels.delete({
-                where: {
-                    guildId_channelId: data
-                }
-            });
-        }
-        catch (e) {
-            if (e instanceof PrismaClientKnownRequestError) {
-                return;
-            }
-        }
+        await this.setConfig(channel.guild, config);
     }
 
     /**
