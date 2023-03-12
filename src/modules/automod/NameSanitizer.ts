@@ -4,7 +4,6 @@ import { canModerate } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import LoggingModule from '../logging/LoggingModule';
 import i18next from 'i18next';
-import AutoMod from '.';
 import ExpiryMap from 'expiry-map';
 import { NameSanitizerConfig, PrismaClient } from '@prisma/client';
 import Duration from '../../util/duration';
@@ -45,15 +44,28 @@ export default class NameSanitizerModule {
         return member.guild.members.me?.permissions.has(PermissionFlagsBits.ManageNicknames) ?? false;
     }
 
+    private async setConfig(guild: Guild, config: NameSanitizerConfig) {
+        await prisma.nameSanitizerConfig.upsert({
+            where: {
+                guildId: guild.id
+            },
+            create: config,
+            update: config
+        });
+
+        this.configCache.set(guild.id, config);
+    }
+
     /**
      * Sets whether the name sanitizer is enabled for the given guild or not.
      * @param guild The guild to enable/disable the name sanitizer in.
      * @param enabled Whether the name sanitizer is enabled or not.
      */
     public async setEnabled(guild: Guild, enabled: boolean) {
-        const cache = await AutoMod.instance.retrieveConfig(guild);
-        cache.antiSpamEnabled = enabled;
-        await AutoMod.instance.setConfig(guild, cache);
+        const config = await this.retrieveConfig(guild);
+        config.enabled = enabled;
+
+        await this.setConfig(guild, config);
     }
 
     /**
@@ -144,5 +156,14 @@ export default class NameSanitizerModule {
                 ],
             });
         }
+    }
+
+    /**
+     * Handles an incoming name change
+     * @param member The member who's name was changed
+     */
+    public async handleNameChange(member: GuildMember) {
+        const config = await this.retrieveConfig(member.guild);
+        if (config.enabled) await this.sanitize(member);
     }
 }

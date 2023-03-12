@@ -2,7 +2,7 @@ import { Collection, GuildMember, EmbedBuilder, PartialGuildMember, Role } from 
 import LoggingModule from '../modules/logging/LoggingModule';
 import { getEmbedWithTarget } from '../util/embed';
 import i18next from 'i18next';
-import AutoMod from '../modules/automod';
+import NameSanitizerModule from '../modules/automod/NameSanitizer';
 
 function displayNameHasChanged(before: GuildMember, after: GuildMember) {
     return before.displayName != after.displayName;
@@ -139,7 +139,7 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
         });
 
         // sanitize said nickname if enabled
-        await AutoMod.instance.handleNameChange(after);
+        await NameSanitizerModule.instance.handleNameChange(after);
     }
 
     // check if roles were changed
