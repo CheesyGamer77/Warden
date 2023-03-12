@@ -38,19 +38,31 @@ const prisma = new PrismaClient();
  * that is commonly associated with spam, such as newline spam, zero-width-space spam, copypastas, etc may not be marked
  * as spam until the message is repeated excessively.
  */
-export default class AntiSpamModule extends null {
-    private static entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(Duration.ofMinutes(1).toMilliseconds());
-    private static ignoredEntitiesCache: ExpirySet<string> = new ExpirySet(Duration.ofMinutes(30).toMilliseconds());
+export default class AntiSpamModule {
+    private entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(Duration.ofMinutes(1).toMilliseconds());
+    private ignoredEntitiesCache: ExpirySet<string> = new ExpirySet(Duration.ofMinutes(30).toMilliseconds());
+    private static _instance: AntiSpamModule | undefined = undefined;
 
-    private static getContentHash(message: Message) {
+    /**
+     * Returns the current instance of AntiSpamModule.
+     */
+    public static get instance() {
+        if (!this._instance) {
+            this._instance = new AntiSpamModule();
+        }
+
+        return this._instance;
+    }
+
+    private getContentHash(message: Message) {
         return createHash('md5').update(message.content.toLowerCase()).digest('hex');
     }
 
-    private static getSpamKey(message: Message) {
+    private getSpamKey(message: Message) {
         return `${message.guildId}:${message.author.id}:${this.getContentHash(message)}`;
     }
 
-    private static getMessageReference(message: Message): MessageReference {
+    private getMessageReference(message: Message): MessageReference {
         if (message.guildId == null) throw new Error('Message References must have a non-null guild id');
 
         return {
@@ -61,7 +73,7 @@ export default class AntiSpamModule extends null {
         };
     }
 
-    private static setAndGetEntry(message: Message): AntiSpamEntry {
+    private setAndGetEntry(message: Message): AntiSpamEntry {
         const key = this.getSpamKey(message);
 
         const entry = this.entryCache.get(key) ?? {
@@ -76,7 +88,7 @@ export default class AntiSpamModule extends null {
         return entry;
     }
 
-    private static async deleteSpamMessage(message: Message) {
+    private async deleteSpamMessage(message: Message) {
         if (message.guild == null || message.member == null) return;
 
         const channel = await LoggingModule.retrieveLogChannel('textFilter', message.guild);
@@ -110,7 +122,7 @@ export default class AntiSpamModule extends null {
         await UserReputation.modifyReputation(message.member, -0.2);
     }
 
-    private static async timeoutMember(member: GuildMember, instances: number) {
+    private async timeoutMember(member: GuildMember, instances: number) {
         const me = member.guild.members.me;
         if (me == null) return;
 
@@ -160,7 +172,7 @@ export default class AntiSpamModule extends null {
         await UserReputation.modifyReputation(member, -0.3);
     }
 
-    private static async channelIsIgnored(channel: GuildTextBasedChannel) {
+    private async channelIsIgnored(channel: GuildTextBasedChannel) {
         const channelId = channel.id;
 
         const ignored = this.ignoredEntitiesCache.has(channelId);
@@ -178,7 +190,7 @@ export default class AntiSpamModule extends null {
         return data !== undefined;
     }
 
-    private static async setEnabled(guild: Guild, enabled: boolean) {
+    private async setEnabled(guild: Guild, enabled: boolean) {
         const config = await AutoMod.retrieveConfig(guild);
         config.antiSpamEnabled = enabled;
         await AutoMod.setConfig(guild, config);
@@ -189,7 +201,7 @@ export default class AntiSpamModule extends null {
      * This automatically updates the automod config cache respectively.
      * @param guild The guild to disable the anti-spam for
      */
-    static async ignoreGuild(guild: Guild) {
+    async ignoreGuild(guild: Guild) {
         await this.setEnabled(guild, false);
     }
 
@@ -198,7 +210,7 @@ export default class AntiSpamModule extends null {
      * This automatically updates the automod config cache respectively.
      * @param guild The guild to enable the anti-spam for
      */
-    static async unignoreGuild(guild: Guild) {
+    async unignoreGuild(guild: Guild) {
         await this.setEnabled(guild, true);
     }
 
@@ -208,7 +220,7 @@ export default class AntiSpamModule extends null {
      * If the text channel is already ignored, the operation is cancelled.
      * @param channel The channel to ignore
      */
-    static async ignoreChannel(channel: GuildTextBasedChannel) {
+    async ignoreChannel(channel: GuildTextBasedChannel) {
         const data = { guildId: channel.guildId, channelId: channel.id };
         const { channelId } = data;
 
@@ -231,7 +243,7 @@ export default class AntiSpamModule extends null {
      * If the text channel is already unignored, the operation is cancelled.
      * @param channel The channel to ignore
      */
-    static async unIgnoreChannel(channel: GuildTextBasedChannel) {
+    async unIgnoreChannel(channel: GuildTextBasedChannel) {
         const data = { guildId: channel.guildId, channelId: channel.id };
 
         this.ignoredEntitiesCache.delete(data.channelId);
@@ -279,7 +291,7 @@ export default class AntiSpamModule extends null {
      *
      * @param message The message to further process
      */
-    static async process(message: Message) {
+    async process(message: Message) {
         const channel = message.channel;
         const member = message.member;
 
