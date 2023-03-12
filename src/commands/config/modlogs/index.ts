@@ -1,5 +1,6 @@
 import { LogConfig } from '@prisma/client';
-import { SubcommandGroup } from '../../../util/commands/slash';
+import { SubcommandGroup } from 'cheesyutils.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 import SetCommand from './set';
 import ViewCommand from './view';
 
@@ -30,4 +31,8 @@ export default class ModlogsGroup extends SubcommandGroup {
             new ViewCommand()
         );
     }
+
+
+    // eslint-disable-next-line
+    override async invoke(ctx: ChatInputCommandInteraction) {}
 }

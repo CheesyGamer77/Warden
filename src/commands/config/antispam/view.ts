@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { ChatInputCommandInteraction, ColorResolvable, EmbedBuilder } from 'discord.js';
 import i18next from 'i18next';
 import AutoMod from '../../../modules/automod';
-import { Subcommand } from '../../../util/commands/slash';
+import { Subcommand } from 'cheesyutils.js';
 
 const prisma = new PrismaClient();
 

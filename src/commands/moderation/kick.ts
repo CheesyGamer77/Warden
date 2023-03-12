@@ -8,7 +8,7 @@ export default class KickCommand extends PermissionLockedSlashCommand {
     constructor() {
         super('kick', 'Kicks a member from the server', PermissionFlagsBits.KickMembers);
 
-        this.dataBuilder
+        this.data
             .addUserOption(option => option
                 .setName('member')
                 .setDescription('The member to kick')

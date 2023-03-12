@@ -12,7 +12,7 @@ export default class MuteCommand extends PermissionLockedSlashCommand {
     constructor() {
         // TODO: Localize command data
         super('mute', 'Prevents a member from speaking temporarily', PermissionFlagsBits.ModerateMembers);
-        this.dataBuilder
+        this.data
             .addUserOption(option => option
                 .setName('member')
                 .setDescription('The member to mute')

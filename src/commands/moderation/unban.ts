@@ -7,7 +7,7 @@ export default class UnbanCommand extends PermissionLockedSlashCommand {
     constructor() {
         super('unban', 'Unbans a member from the server', PermissionFlagsBits.BanMembers);
 
-        this.dataBuilder
+        this.data
             .addUserOption(option => option
                 .setName('user')
                 .setDescription('The user to unban')

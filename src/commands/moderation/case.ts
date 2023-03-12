@@ -11,7 +11,7 @@ export default class CaseCommand extends PermissionLockedSlashCommand {
     constructor() {
         super('case', 'Displays information about a particular mod log case', PermissionFlagsBits.ManageGuild);
 
-        this.dataBuilder.addIntegerOption(option => option
+        this.data.addIntegerOption(option => option
             .setName('number')
             .setDescription('The case number of the case to view information of')
             .setRequired(true)

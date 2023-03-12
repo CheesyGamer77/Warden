@@ -2,13 +2,13 @@ import { ColorResolvable, ChatInputCommandInteraction, EmbedBuilder } from 'disc
 import i18next from 'i18next';
 import ModlogsGroup, { LogConfigKeys } from '.';
 import LoggingModule from '../../../modules/logging/LoggingModule';
-import { Subcommand } from '../../../util/commands/slash';
+import { Subcommand } from 'cheesyutils.js';
 
 export default class ViewCommand extends Subcommand {
     // TODO: Localize command data
     constructor() {
         super('view', 'View moderation log configuration');
-        this.dataBuilder
+        this.data
             .addStringOption(option => option
                 .setName('type')
                 .setDescription('The type of moderation log event to view the configured channel for')
@@ -85,7 +85,7 @@ export default class ViewCommand extends Subcommand {
         }
 
         await interaction.reply({
-            content: content != '' ? content : null,
+            content: content != '' ? content : undefined,
             embeds: [ embed ]
         });
     }

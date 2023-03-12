@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import i18next from 'i18next';
 import NameSanitizerModule from '../../../modules/automod/NameSanitizer';
-import { Subcommand } from '../../../util/commands/slash';
+import { Subcommand } from 'cheesyutils.js';
 
 export default class DisableCommand extends Subcommand {
     // TODO: Localize command data

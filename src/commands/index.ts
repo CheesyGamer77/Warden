@@ -1,4 +1,4 @@
-import CommandListener from '../util/commands/CommandListener';
+import { CommandListener } from 'cheesyutils.js';
 import ConfigCommand from './config';
 import MuteCommand from './moderation/mute';
 import Warden from '../warden';

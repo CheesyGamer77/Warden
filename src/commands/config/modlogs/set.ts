@@ -1,6 +1,6 @@
 import { ChannelType, ChatInputCommandInteraction, GuildTextBasedChannel, EmbedBuilder } from 'discord.js';
 import ModlogsGroup, { LogConfigKeys } from '.';
-import { Subcommand } from '../../../util/commands/slash';
+import { Subcommand } from 'cheesyutils.js';
 import LoggingModule, { LogEventType } from '../../../modules/logging/LoggingModule';
 import i18next from 'i18next';
 
@@ -8,7 +8,7 @@ export default class SetCommand extends Subcommand {
     // TODO: Localize command data
     constructor() {
         super('set', 'Configure moderation logs');
-        this.dataBuilder
+        this.data
             .addStringOption(option => option
                 .setName('type')
                 .setDescription('The type of moderation log to set the configured channel of')

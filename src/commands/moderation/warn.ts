@@ -7,7 +7,7 @@ export default class WarnCommand extends PermissionLockedSlashCommand {
     constructor() {
         super('warn', 'Warns a member in direct messages', PermissionFlagsBits.ModerateMembers);
 
-        this.dataBuilder
+        this.data
             .addUserOption(option => option
                 .setName('member')
                 .setDescription('The member to warn')

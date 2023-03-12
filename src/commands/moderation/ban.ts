@@ -7,7 +7,7 @@ export default class BanCommand extends PermissionLockedSlashCommand {
     constructor() {
         super('ban', 'Bans a member from the server', PermissionFlagsBits.BanMembers);
 
-        this.dataBuilder
+        this.data
             .addUserOption(option => option
                 .setName('user')
                 .setDescription('The user to ban')
