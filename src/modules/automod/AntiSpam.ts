@@ -119,7 +119,7 @@ export default class AntiSpamModule {
             embeds: [ embed ],
         });
 
-        await UserReputation.modifyReputation(message.member, -0.2);
+        await UserReputation.instance.modifyReputation(message.member, -0.2);
     }
 
     private async timeoutMember(member: GuildMember, instances: number) {
@@ -169,7 +169,7 @@ export default class AntiSpamModule {
             reason: reason
         });
 
-        await UserReputation.modifyReputation(member, -0.3);
+        await UserReputation.instance.modifyReputation(member, -0.3);
     }
 
     private async channelIsIgnored(channel: GuildTextBasedChannel) {
@@ -319,7 +319,7 @@ export default class AntiSpamModule {
             }
         }
         else {
-            await UserReputation.modifyReputation(member, 0.035);
+            await UserReputation.instance.modifyReputation(member, 0.035);
         }
     }
 }

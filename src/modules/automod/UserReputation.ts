@@ -17,14 +17,26 @@ function clamp(value: number, min: number, max: number): number {
  *
  * By default, a user is assigned a reputation of 0.
  */
-export default class extends null{
-    private static reputationCache: ExpiryMap<string, Reputation> = new ExpiryMap(15 * 60 * 1000);
+export default class UserReputation {
+    private reputationCache: ExpiryMap<string, Reputation> = new ExpiryMap(15 * 60 * 1000);
+    private static _instance: UserReputation | undefined = undefined;
 
-    private static getKey(member: GuildMember): string {
+    /**
+     * Returns the current instance of UserReputation
+     */
+    public static get instance() {
+        if (!this._instance) {
+            this._instance = new UserReputation();
+        }
+
+        return this._instance;
+    }
+
+    private getKey(member: GuildMember): string {
         return `${member.guild.id}:${member.id}`;
     }
 
-    private static async createDefaultReputation(member: GuildMember): Promise<Reputation> {
+    private async createDefaultReputation(member: GuildMember): Promise<Reputation> {
         const defaultRep = 0;
 
         const guildId = member.guild.id;
@@ -57,7 +69,7 @@ export default class extends null{
      * @param member The member to fetch the reputation of
      * @returns The member's reputation
      */
-    static async fetchReputation(member: GuildMember): Promise<Reputation> {
+    async fetchReputation(member: GuildMember): Promise<Reputation> {
         const data = this.reputationCache.get(this.getKey(member)) ?? await prisma.reputation.findUnique({
             where: {
                 guildId_userId: {
@@ -75,7 +87,7 @@ export default class extends null{
      * @param member The member to modify the reputation of
      * @param offset The number to add to the reputation. Use negative numbers to subtract reputation
      */
-    static async modifyReputation(member: GuildMember, offset: number) {
+    async modifyReputation(member: GuildMember, offset: number) {
         const data = await this.fetchReputation(member);
 
         data.reputation = new Decimal(clamp(data.reputation.toNumber() + offset, -5, 5));
