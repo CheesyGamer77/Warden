@@ -139,7 +139,7 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
         });
 
         // sanitize said nickname if enabled
-        await AutoMod.handleNameChange(after);
+        await AutoMod.instance.handleNameChange(after);
     }
 
     // check if roles were changed

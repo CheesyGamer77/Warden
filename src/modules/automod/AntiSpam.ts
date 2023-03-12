@@ -191,9 +191,9 @@ export default class AntiSpamModule {
     }
 
     private async setEnabled(guild: Guild, enabled: boolean) {
-        const config = await AutoMod.retrieveConfig(guild);
+        const config = await AutoMod.instance.retrieveConfig(guild);
         config.antiSpamEnabled = enabled;
-        await AutoMod.setConfig(guild, config);
+        await AutoMod.instance.setConfig(guild, config);
     }
 
     /**
@@ -297,7 +297,7 @@ export default class AntiSpamModule {
 
         // ignore if the antispam is disabled for the guild
         const guild = message.guild;
-        if (guild != null && !(await AutoMod.retrieveConfig(guild)).antiSpamEnabled) return;
+        if (guild != null && !(await AutoMod.instance.retrieveConfig(guild)).antiSpamEnabled) return;
 
         // ignore DM and news channels, non-guild messages, and messages with a null member author
         if (channel.type == ChannelType.DM || channel.type == ChannelType.GuildNews || member == null) return;

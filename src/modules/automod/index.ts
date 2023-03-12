@@ -6,8 +6,20 @@ import NameSanitizerModule from './NameSanitizer';
 
 const prisma = new PrismaClient();
 
-export default class AutoMod extends null {
-    private static configCache: ExpiryMap<string, AutoModConfig> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
+export default class AutoMod {
+    private configCache: ExpiryMap<string, AutoModConfig> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
+    private static _instance: AutoMod | undefined = undefined;
+
+    /**
+     * Returns the current instance of AutoMod
+     */
+    public static get instance() {
+        if (!this._instance) {
+            this._instance = new AutoMod();
+        }
+
+        return this._instance;
+    }
 
     /**
      * Retrieves the automod configuration for a particular guild.
@@ -15,7 +27,7 @@ export default class AutoMod extends null {
      * @param guild The guild to retrieve the automod configuration of
      * @returns The configuration
      */
-    public static async retrieveConfig(guild: Guild) {
+    public async retrieveConfig(guild: Guild) {
         const guildId = guild.id;
 
         return this.configCache.get(guildId) ?? await prisma.autoModConfig.upsert({
@@ -29,7 +41,7 @@ export default class AutoMod extends null {
         });
     }
 
-    public static async setConfig(guild: Guild, newConfig: AutoModConfig) {
+    public async setConfig(guild: Guild, newConfig: AutoModConfig) {
         const guildId = guild.id;
 
         await prisma.autoModConfig.upsert({
@@ -43,7 +55,7 @@ export default class AutoMod extends null {
         this.configCache.set(guild.id, newConfig);
     }
 
-    public static async handleNameChange(member: GuildMember) {
+    public async handleNameChange(member: GuildMember) {
         const config = await this.retrieveConfig(member.guild);
         if (config.nameSanitizerEnabled) await NameSanitizerModule.sanitize(member);
     }

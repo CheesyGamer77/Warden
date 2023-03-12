@@ -25,7 +25,7 @@ export default class ViewCommand extends Subcommand {
         let description = '';
         let color: ColorResolvable;
 
-        const { antiSpamEnabled } = await AutoMod.retrieveConfig(guild);
+        const { antiSpamEnabled } = await AutoMod.instance.retrieveConfig(guild);
         if (!antiSpamEnabled) {
             description = i18next.t('commands.config.antispam.view.description.disabled', {
                 lng: lng

@@ -42,9 +42,9 @@ export default class NameSanitizerModule extends null {
      * @param enabled Whether the name sanitizer is enabled or not.
      */
     public static async setEnabled(guild: Guild, enabled: boolean) {
-        const cache = await AutoMod.retrieveConfig(guild);
+        const cache = await AutoMod.instance.retrieveConfig(guild);
         cache.antiSpamEnabled = enabled;
-        await AutoMod.setConfig(guild, cache);
+        await AutoMod.instance.setConfig(guild, cache);
     }
 
     /**
