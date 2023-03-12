@@ -32,8 +32,6 @@ export default class SetCommand extends Subcommand {
         const modlogType = opts.getString('type', true);
         const channel = opts.getChannel('channel', false) as GuildTextBasedChannel | null;
 
-        const content = '';
-
         const config = await LoggingModule.retrieveConfiguration(interaction.guild);
         const oldChannelId = config[modlogType as LogConfigKeys];
 
@@ -59,7 +57,6 @@ export default class SetCommand extends Subcommand {
             );
 
         await interaction.reply({
-            content: content != '' ? content : null,
             embeds: [ embed ]
         });
     }
