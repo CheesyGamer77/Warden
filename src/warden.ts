@@ -14,8 +14,8 @@ const printfFormat = (msg: TransformableInfo) => `${msg.timestamp} [${msg.level.
 /**
  * Content moderation and logging bot for Discord.
  */
-export default class Warden extends null {
-    public static readonly logger = createLogger({
+export default class Warden {
+    public readonly logger = createLogger({
         level: 'debug',
         format: format.combine(
             format.timestamp(),
@@ -35,12 +35,24 @@ export default class Warden extends null {
         ]
     });
 
-    private static isStarted = false;
+    private static _instance: Warden | undefined = undefined;
+    private isStarted = false;
+
+    /**
+     * Returns the current instance of Warden
+     */
+    public static get instance() {
+        if (!this._instance) {
+            this._instance = new Warden();
+        }
+
+        return this._instance;
+    }
 
     /**
      * Starts Warden, including logging into Discord and setting up translations.
      */
-    public static async init() {
+    public async init() {
         dotenv.config();
         if (this.isStarted) {
             this.logger.warn('Attempted to initialize Warden multiple times!', new Error('Attempted to re-initialize'));
@@ -58,7 +70,7 @@ export default class Warden extends null {
         this.logger.info('Warden has started');
     }
 
-    private static async setupTranslations() {
+    private async setupTranslations() {
         this.logger.debug('Setting up translations...');
 
         await i18next.use(Backend).init({

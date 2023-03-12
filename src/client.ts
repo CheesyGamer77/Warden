@@ -20,12 +20,12 @@ const client = new Client({
     ] });
 
 client.once('ready', async () => {
-    Warden.logger.info('Warden is ready');
+    Warden.instance.logger.info('Warden is ready');
     await updateCommands(client);
 });
 
 process.on('uncaughtException', error => {
-    Warden.logger.error('Encountered an unexpected error :(', error);
+    Warden.instance.logger.error('Encountered an unexpected error :(', error);
 });
 
 client.on('guildMemberAdd', async (member) => await handlers.onGuildMemberAdd(member));

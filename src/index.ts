@@ -6,4 +6,4 @@
 
 import Warden from './warden';
 
-(async () => await Warden.init())();
+(async () => await Warden.instance.init())();

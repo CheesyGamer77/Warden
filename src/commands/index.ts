@@ -24,7 +24,7 @@ export async function updateCommands(client: Client) {
 
     await client.application?.commands.set(commands);
 
-    Warden.logger.debug(`Updated ${commands.length} commands`);
+    Warden.instance.logger.debug(`Updated ${commands.length} commands`);
 }
 
 export {
