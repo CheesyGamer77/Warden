@@ -4,9 +4,9 @@ import { canModerate } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import LoggingModule from '../logging/LoggingModule';
 import i18next from 'i18next';
-import ExpiryMap from 'expiry-map';
 import { NameSanitizerConfig, PrismaClient } from '@prisma/client';
 import Duration from '../../util/duration';
+import { ToggleableConfigHolder } from '.';
 
 const fancy_replacements = new Map<string, string>();
 for (const pair of Object.entries(replacements)) {
@@ -18,13 +18,12 @@ const prisma = new PrismaClient();
 /**
  * Module for automatically removing fancy text characters from nicknames.
  */
-export default class NameSanitizerModule {
-    private readonly configCache: ExpiryMap<string, NameSanitizerConfig> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
+export default class NameSanitizerModule extends ToggleableConfigHolder<NameSanitizerConfig> {
     private static _instance: NameSanitizerModule | undefined = undefined;
 
     public static get instance() {
         if (!this._instance) {
-            this._instance = new NameSanitizerModule();
+            this._instance = new NameSanitizerModule(Duration.ofMinutes(30));
         }
 
         return this._instance;
@@ -44,47 +43,24 @@ export default class NameSanitizerModule {
         return member.guild.members.me?.permissions.has(PermissionFlagsBits.ManageNicknames) ?? false;
     }
 
-    private async setConfig(guild: Guild, config: NameSanitizerConfig) {
-        await prisma.nameSanitizerConfig.upsert({
+    protected override getDefaultConfig(guild: Guild): NameSanitizerConfig {
+        return {
+            guildId: guild.id,
+            enabled: false,
+            blankFallbackName: 'nickname',
+            cleanFancyCharacters: false
+        };
+    }
+
+    protected override async upsertConfig(guild: Guild, config: NameSanitizerConfig, fetch: boolean): Promise<NameSanitizerConfig> {
+        const update = !fetch ? config : {};
+
+        return await prisma.nameSanitizerConfig.upsert({
             where: {
                 guildId: guild.id
             },
             create: config,
-            update: config
-        });
-
-        this.configCache.set(guild.id, config);
-    }
-
-    /**
-     * Sets whether the name sanitizer is enabled for the given guild or not.
-     * @param guild The guild to enable/disable the name sanitizer in.
-     * @param enabled Whether the name sanitizer is enabled or not.
-     */
-    public async setEnabled(guild: Guild, enabled: boolean) {
-        const config = await this.retrieveConfig(guild);
-        config.enabled = enabled;
-
-        await this.setConfig(guild, config);
-    }
-
-    /**
-     * Retrieves the name santizier configuration for the given guild.
-     * This will fetch the configuration from the database if the configuration is not already cached.
-     * @param guild The guild to retrieve the configuration of
-     * @returns The retrieved name sanitizer configuration
-     */
-    public async retrieveConfig(guild: Guild) {
-        const guildId = guild.id;
-
-        return this.configCache.get(guild.id) ?? await prisma.nameSanitizerConfig.upsert({
-            where: {
-                guildId: guildId
-            },
-            create: {
-                guildId: guildId
-            },
-            update: {}
+            update: update
         });
     }
 

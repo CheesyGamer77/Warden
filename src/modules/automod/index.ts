@@ -37,6 +37,7 @@ export abstract class ConfigHolder<ConfigType extends Config> {
         return config;
     }
 
+    // TODO: This might need a different class type parameter in the future in order to allow for the usage of db default values
     /**
      * Returns the default configuration to use for the given guild.
      * @param guild The guild to get the default config of.
