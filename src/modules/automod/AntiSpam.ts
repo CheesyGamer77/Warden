@@ -10,18 +10,9 @@ import { getEmbedWithTarget } from '../../util/embed';
 import i18next from 'i18next';
 import { ToggleableConfigHolder } from '.';
 
-// TODO: Zombie code
-interface MessageReference {
-    readonly guildId: string;
-    readonly channelId: string;
-    readonly id: string;
-    readonly createdAt: number;
-}
-
-interface AntiSpamEntry {
+type AntiSpamEntry = {
     count: number;
     hash: string;
-    references: MessageReference[]
 }
 
 type AntiSpamConfigWithChannels = AntispamConfig & {
@@ -68,25 +59,12 @@ export default class AntiSpamModule extends ToggleableConfigHolder<AntiSpamConfi
         return `${message.guildId}:${message.author.id}:${this.getContentHash(message)}`;
     }
 
-    // TODO: Zombie code
-    private getMessageReference(message: Message): MessageReference {
-        if (message.guildId == null) throw new Error('Message References must have a non-null guild id');
-
-        return {
-            guildId: message.guildId,
-            channelId: message.channelId,
-            id: message.id,
-            createdAt: message.createdTimestamp,
-        };
-    }
-
     private setAndGetEntry(message: Message): AntiSpamEntry {
         const key = this.getSpamKey(message);
 
         const entry = this.entryCache.get(key) ?? {
             count: 0,
             hash: this.getContentHash(message),
-            references: [ this.getMessageReference(message) ],
         };
 
         entry.count += 1;
