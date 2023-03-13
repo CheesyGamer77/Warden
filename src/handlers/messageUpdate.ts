@@ -9,7 +9,7 @@ export default async function onMessageUpdate(before: Message | PartialMessage, 
 
     if (after.guild === null || before.content == null || after.content == null) { return; }
 
-    const channel = await LoggingModule.retrieveLogChannel('messageEdits', after.guild);
+    const channel = await LoggingModule.instance.retrieveLogChannel('messageEdits', after.guild);
     const lng = after.guild.preferredLocale;
 
     const embed = getEmbedWithTarget(after.author, lng)

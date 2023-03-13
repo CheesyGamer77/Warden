@@ -83,7 +83,7 @@ export default class NameSanitizerModule extends ToggleableConfigHolder<NameSani
      * @param member The member who's name should be sanitized
      */
     public async sanitize(member: GuildMember) {
-        const channel = await LoggingModule.retrieveLogChannel('userFilter', member.guild);
+        const channel = await LoggingModule.instance.retrieveLogChannel('userFilter', member.guild);
         if (channel == null || !canModerate(member.guild.members.me, member)) return;
 
         const config = await this.retrieveConfig(member.guild);

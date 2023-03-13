@@ -8,7 +8,7 @@ export default async function onMessageDelete(message: Message | PartialMessage)
 
     if (message.guild == null || message.content == '') { return; }
 
-    const channel = await LoggingModule.retrieveLogChannel('messageDeletes', message.guild);
+    const channel = await LoggingModule.instance.retrieveLogChannel('messageDeletes', message.guild);
     const lng = message.guild.preferredLocale;
 
     const parts = message.content.match(/\b[\w\s]{1024,}?(?=\s)|.+$/g) || [ message.content ];

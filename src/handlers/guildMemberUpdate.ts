@@ -65,7 +65,7 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
     if (before.partial) return;
 
     const guild = after.guild;
-    const channel = await LoggingModule.retrieveLogChannel('userChanges', guild);
+    const channel = await LoggingModule.instance.retrieveLogChannel('userChanges', guild);
     const lng = after.guild.preferredLocale;
 
     if (displayNameHasChanged(before, after)) {

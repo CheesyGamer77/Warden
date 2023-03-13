@@ -3,7 +3,7 @@ import i18next from 'i18next';
 import LoggingModule from '../modules/logging/LoggingModule';
 
 export default async function onThreadDelete(thread: ThreadChannel) {
-    const channel = await LoggingModule.retrieveLogChannel('threadEvents', thread.guild);
+    const channel = await LoggingModule.instance.retrieveLogChannel('threadEvents', thread.guild);
 
     const lng = thread.guild.preferredLocale;
 

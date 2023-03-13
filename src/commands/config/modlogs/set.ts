@@ -32,10 +32,10 @@ export default class SetCommand extends Subcommand {
         const modlogType = opts.getString('type', true);
         const channel = opts.getChannel('channel', false) as GuildTextBasedChannel | null;
 
-        const config = await LoggingModule.retrieveConfiguration(interaction.guild);
+        const config = await LoggingModule.instance.retrieveConfiguration(interaction.guild);
         const oldChannelId = config[modlogType as LogConfigKeys];
 
-        await LoggingModule.setLogChannel(interaction.guild, modlogType.replace('ChannelId', '') as LogEventType, channel);
+        await LoggingModule.instance.setLogChannel(interaction.guild, modlogType.replace('ChannelId', '') as LogEventType, channel);
 
         const NOT_SET = i18next.t('commands.config.modlogs.common.notSet');
         const embed = new EmbedBuilder()

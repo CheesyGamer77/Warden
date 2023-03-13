@@ -64,7 +64,7 @@ export default class MuteCommand extends PermissionLockedSlashCommand {
                     ]
                 });
 
-                await LoggingModule.createActionLog({
+                await LoggingModule.instance.createActionLog({
                     actionType: 'MUTE',
                     guild: guild,
                     target: member.user,

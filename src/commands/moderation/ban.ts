@@ -50,7 +50,7 @@ export default class BanCommand extends PermissionLockedSlashCommand {
                 ]
             });
 
-            await LoggingModule.createActionLog({
+            await LoggingModule.instance.createActionLog({
                 actionType: 'BAN',
                 guild: guild,
                 target: target,

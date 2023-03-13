@@ -31,8 +31,8 @@ interface IUser {
  * Log details are not stored outside of Discord.
  */
 export default class LoggingModule {
-    private static configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(Duration.ofMinutes(15).toMilliseconds());
-    private static caseNumberCache: ExpiryMap<string, number> = new ExpiryMap(Duration.ofMinutes(10).toMilliseconds());
+    private configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(Duration.ofMinutes(15).toMilliseconds());
+    private caseNumberCache: ExpiryMap<string, number> = new ExpiryMap(Duration.ofMinutes(10).toMilliseconds());
 
     private static _instance: LoggingModule | undefined = undefined;
 
@@ -47,7 +47,7 @@ export default class LoggingModule {
         return this._instance;
     }
 
-    private static async fetchAndCacheConfiguration(guild: Guild) {
+    private async fetchAndCacheConfiguration(guild: Guild) {
         const data = { guildId: guild.id };
         const config = await prisma.logConfig.upsert({
             where: data,
@@ -66,7 +66,7 @@ export default class LoggingModule {
      * @param guild The guild to fetch the config of
      * @returns The configuration
      */
-    static async retrieveConfiguration(guild: Guild) {
+    async retrieveConfiguration(guild: Guild) {
         return this.configCache.get(guild.id) ?? await this.fetchAndCacheConfiguration(guild);
     }
 
@@ -77,7 +77,7 @@ export default class LoggingModule {
      * @param guild The guild to fetch the log channel from
      * @returns The TextChannel if it exists, else null
      */
-    static async retrieveLogChannel(event: LogEventType, guild: Guild) {
+    async retrieveLogChannel(event: LogEventType, guild: Guild) {
         const config = await this.retrieveConfiguration(guild);
 
         const channelId = config[event + 'ChannelId' as keyof LogConfig];
@@ -100,7 +100,7 @@ export default class LoggingModule {
      * @param event The event type to set the channel for
      * @param channel The channel to use for logging the aformentioned event, or `null` to un-set
      */
-    static async setLogChannel(guild: Guild, event: LogEventType, channel: GuildTextBasedChannel | null) {
+    async setLogChannel(guild: Guild, event: LogEventType, channel: GuildTextBasedChannel | null) {
         const guildId = guild.id;
         const key = event + 'ChannelId' as keyof Omit<LogConfig, 'guildId'>;
         const newValue = channel?.id ?? null;
@@ -124,7 +124,7 @@ export default class LoggingModule {
         });
     }
 
-    private static async fetchAndCacheNextCaseNumber(guild: Guild) {
+    private async fetchAndCacheNextCaseNumber(guild: Guild) {
         const guildId = guild.id;
         const nextCaseNumber = await prisma.modActions.count({
             where: {
@@ -142,11 +142,11 @@ export default class LoggingModule {
      * Used when creating new moderation case logs.
      * @param guild The guild to retrieve the next case number for
      */
-    private static async retrieveNextCaseNumber(guild: Guild) {
+    private async retrieveNextCaseNumber(guild: Guild) {
         return this.caseNumberCache.get(guild.id) ?? await this.fetchAndCacheNextCaseNumber(guild);
     }
 
-    static async fetchActionByCaseNumber(guild: Guild, caseNumber: number) {
+    async fetchActionByCaseNumber(guild: Guild, caseNumber: number) {
         return await prisma.modActions.findUnique({
             where: {
                 guildId_caseNumber: {
@@ -162,7 +162,7 @@ export default class LoggingModule {
      * This aborts if there is no action log channel defined for the given guild
      * @param opts The action type, target, moderator, duration (for mutes), and the reason behind the mute
      */
-    static async createActionLog(opts: {
+    async createActionLog(opts: {
         actionType: ModActionType,
         guild: Guild,
         target: User,

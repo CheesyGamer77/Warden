@@ -76,7 +76,7 @@ export default class AntiSpamModule extends ToggleableConfigHolder<AntiSpamConfi
     private async deleteSpamMessage(message: Message) {
         if (message.guild == null || message.member == null) return;
 
-        const channel = await LoggingModule.retrieveLogChannel('textFilter', message.guild);
+        const channel = await LoggingModule.instance.retrieveLogChannel('textFilter', message.guild);
         const lng = message.guild.preferredLocale;
 
         const user = message.author;
@@ -116,7 +116,7 @@ export default class AntiSpamModule extends ToggleableConfigHolder<AntiSpamConfi
 
         await member.disableCommunicationUntil(until, reason);
 
-        const channel = await LoggingModule.retrieveLogChannel('escalations', member.guild);
+        const channel = await LoggingModule.instance.retrieveLogChannel('escalations', member.guild);
         const lng = member.guild.preferredLocale;
 
         const embed = getEmbedWithTarget(member.user, lng)
@@ -146,7 +146,7 @@ export default class AntiSpamModule extends ToggleableConfigHolder<AntiSpamConfi
 
         // TODO: This just *happens* to always be one minute. Temp workaround till we refactor this whole thing
         // This should also be customizable
-        await LoggingModule.createActionLog({
+        await LoggingModule.instance.createActionLog({
             actionType: 'MUTE',
             guild: member.guild,
             target: member.user,

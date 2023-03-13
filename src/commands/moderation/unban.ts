@@ -48,7 +48,7 @@ export default class UnbanCommand extends PermissionLockedSlashCommand {
                 ]
             });
 
-            await LoggingModule.createActionLog({
+            await LoggingModule.instance.createActionLog({
                 actionType: 'UNBAN',
                 guild: guild,
                 target: target,

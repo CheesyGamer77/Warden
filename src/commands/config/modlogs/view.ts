@@ -22,7 +22,7 @@ export default class ViewCommand extends Subcommand {
 
         const guild = interaction.guild;
         const lng = guild.preferredLocale;
-        const config = await LoggingModule.retrieveConfiguration(guild);
+        const config = await LoggingModule.instance.retrieveConfiguration(guild);
 
         let content = '';
         let description = '';

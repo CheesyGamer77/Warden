@@ -4,7 +4,7 @@ import { getEmbedWithTarget } from '../util/embed';
 import i18next from 'i18next';
 
 export default async function onGuildMemberRemove(member: GuildMember | PartialGuildMember) {
-    const channel = await LoggingModule.retrieveLogChannel('leaves', member.guild);
+    const channel = await LoggingModule.instance.retrieveLogChannel('leaves', member.guild);
     const lng = member.guild.preferredLocale;
 
     const user = member.user;

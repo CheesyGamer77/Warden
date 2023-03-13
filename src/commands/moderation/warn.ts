@@ -78,7 +78,7 @@ export default class WarnCommand extends PermissionLockedSlashCommand {
         }
 
         await Promise.all([
-            LoggingModule.createActionLog({
+            LoggingModule.instance.createActionLog({
                 actionType: 'WARN',
                 guild: guild,
                 target: member.user,

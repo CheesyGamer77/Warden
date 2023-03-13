@@ -49,7 +49,7 @@ export default class KickCommand extends PermissionLockedSlashCommand {
                 ]
             });
 
-            await LoggingModule.createActionLog({
+            await LoggingModule.instance.createActionLog({
                 actionType: 'KICK',
                 guild: guild,
                 target: target.user,

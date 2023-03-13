@@ -7,7 +7,7 @@ export default async function onThreadCreate(thread: ThreadChannel, isNew: boole
     // AND when the client is added to a thread
     if (!isNew) { return; }
 
-    const channel = await LoggingModule.retrieveLogChannel('threadEvents', thread.guild);
+    const channel = await LoggingModule.instance.retrieveLogChannel('threadEvents', thread.guild);
     const lng = thread.guild.preferredLocale;
 
     let ownerMention, ownerId = thread.ownerId;

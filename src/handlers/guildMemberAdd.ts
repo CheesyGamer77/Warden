@@ -4,7 +4,7 @@ import LoggingModule from '../modules/logging/LoggingModule';
 import { getEmbedWithTarget } from '../util/embed';
 
 export default async function onGuildMemberAdd(member: GuildMember) {
-    const channel = await LoggingModule.retrieveLogChannel('joins', member.guild);
+    const channel = await LoggingModule.instance.retrieveLogChannel('joins', member.guild);
     const lng = member.guild.preferredLocale;
 
     const user = member.user;

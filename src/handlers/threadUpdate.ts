@@ -3,7 +3,7 @@ import i18next from 'i18next';
 import LoggingModule from '../modules/logging/LoggingModule';
 
 export default async function onThreadUpdate(before: ThreadChannel, after: ThreadChannel) {
-    const channel = await LoggingModule.retrieveLogChannel('threadEvents', after.guild);
+    const channel = await LoggingModule.instance.retrieveLogChannel('threadEvents', after.guild);
 
     const lng = after.guild.preferredLocale;
 
