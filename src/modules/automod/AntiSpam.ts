@@ -8,6 +8,7 @@ import { AntispamConfig, AntiSpamIgnoredChannels, PrismaClient } from '@prisma/c
 import Duration from '../../util/duration';
 import { getEmbedWithTarget } from '../../util/embed';
 import i18next from 'i18next';
+import { ToggleableConfigHolder } from '.';
 
 // TODO: Zombie code
 interface MessageReference {
@@ -40,10 +41,13 @@ const prisma = new PrismaClient();
  * that is commonly associated with spam, such as newline spam, zero-width-space spam, copypastas, etc may not be marked
  * as spam until the message is repeated excessively.
  */
-export default class AntiSpamModule {
-    private configCache: ExpiryMap<string, AntiSpamConfigWithChannels> = new ExpiryMap(Duration.ofMinutes(30).toMilliseconds());
+export default class AntiSpamModule extends ToggleableConfigHolder<AntiSpamConfigWithChannels> {
     private entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(Duration.ofMinutes(1).toMilliseconds());
     private static _instance: AntiSpamModule | undefined = undefined;
+
+    private constructor() {
+        super(Duration.ofMinutes(30));
+    }
 
     /**
      * Returns the current instance of AntiSpamModule.
@@ -185,29 +189,8 @@ export default class AntiSpamModule {
         return entry !== undefined;
     }
 
-    /**
-     * Retrieves the antispam configuration for a particular guild.
-     *
-     * If the configuration is not already cached, this will fetch said config from the database and cache it for future use.
-     * @param guild The guild to retrieve the configuration for
-     */
-    public async retrieveConfig(guild: Guild) {
-        return this.configCache.get(guild.id) ?? await prisma.antispamConfig.upsert({
-            where: {
-                guildId: guild.id
-            },
-            create: {
-                guildId: guild.id
-            },
-            update: {},
-            include: {
-                ignoredChannels: true
-            }
-        });
-    }
-
     private getUpsertTransforms(config: AntiSpamConfigWithChannels) {
-        return [...config.ignoredChannels.map(c => {
+        const base = [...config.ignoredChannels.map(c => {
             return {
                 where: {
                     guildId_channelId: {
@@ -220,45 +203,52 @@ export default class AntiSpamModule {
                 }
             };
         })];
-    }
 
-    private async setConfig(guild: Guild, config: AntiSpamConfigWithChannels) {
-        const transforms = this.getUpsertTransforms(config);
-
-        const transform = {
-            ...config,
-            ignoredChannels: {
-                connectOrCreate: transforms
+        return {
+            create: {
+                ...base
+            },
+            update: {
+                upsert: [...base.map(t => {
+                    return {
+                        ...t,
+                        update: t.create
+                    };
+                })]
             }
         };
+    }
 
-        this.configCache.set(guild.id, config);
+    protected override getDefaultConfig(guild: Guild): AntiSpamConfigWithChannels {
+        return {
+            guildId: guild.id,
+            enabled: false,
+            ignoredChannels: []
+        };
+    }
 
-        await prisma.antispamConfig.upsert({
+    protected override async upsertConfig(guild: Guild, config: AntiSpamConfigWithChannels, fetch: boolean): Promise<AntiSpamConfigWithChannels> {
+        const transforms = this.getUpsertTransforms(config);
+
+        const update = !fetch ? { ...config, ignoredChannels: { ...transforms.update } } : {};
+
+        return await prisma.antispamConfig.upsert({
             where: {
                 guildId: guild.id
             },
-            create: transform,
-            update: {
+            create: {
+                ...config,
                 ignoredChannels: {
-                    upsert: [...transforms.map(t => {
-                        return {
-                            ...t,
-                            update: t.create
-                        };
-                    })]
+                    connectOrCreate: {
+                        ...transforms.create
+                    }
                 }
             },
+            update: update,
             include: {
                 ignoredChannels: true
             }
         });
-    }
-
-    private async setEnabled(guild: Guild, enabled: boolean) {
-        const config = await this.retrieveConfig(guild);
-        config.enabled = enabled;
-        await this.setConfig(guild, config);
     }
 
     /**
