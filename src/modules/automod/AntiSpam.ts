@@ -9,6 +9,7 @@ import Duration from '../../util/duration';
 import { getEmbedWithTarget } from '../../util/embed';
 import i18next from 'i18next';
 
+// TODO: Zombie code
 interface MessageReference {
     readonly guildId: string;
     readonly channelId: string;
@@ -63,6 +64,7 @@ export default class AntiSpamModule {
         return `${message.guildId}:${message.author.id}:${this.getContentHash(message)}`;
     }
 
+    // TODO: Zombie code
     private getMessageReference(message: Message): MessageReference {
         if (message.guildId == null) throw new Error('Message References must have a non-null guild id');
 
@@ -161,6 +163,7 @@ export default class AntiSpamModule {
         });
 
         // TODO: This just *happens* to always be one minute. Temp workaround till we refactor this whole thing
+        // This should also be customizable
         await LoggingModule.createActionLog({
             actionType: 'MUTE',
             guild: member.guild,
@@ -173,6 +176,7 @@ export default class AntiSpamModule {
         await UserReputation.instance.modifyReputation(member, -0.3);
     }
 
+    // TODO: This is redundant
     private async channelIsIgnored(channel: GuildTextBasedChannel) {
         // This does not require a cache check since we already keep the ignored channels with the cached config
         const config = await this.retrieveConfig(channel.guild);
@@ -202,12 +206,12 @@ export default class AntiSpamModule {
         });
     }
 
-    private async setConfig(guild: Guild, config: AntiSpamConfigWithChannels) {
-        const channelsTransform = [...config.ignoredChannels.map(c => {
+    private getUpsertTransforms(config: AntiSpamConfigWithChannels) {
+        return [...config.ignoredChannels.map(c => {
             return {
                 where: {
                     guildId_channelId: {
-                        guildId: guild.id,
+                        guildId: c.guildId,
                         channelId: c.channelId
                     }
                 },
@@ -216,11 +220,15 @@ export default class AntiSpamModule {
                 }
             };
         })];
+    }
+
+    private async setConfig(guild: Guild, config: AntiSpamConfigWithChannels) {
+        const transforms = this.getUpsertTransforms(config);
 
         const transform = {
             ...config,
             ignoredChannels: {
-                connectOrCreate: channelsTransform
+                connectOrCreate: transforms
             }
         };
 
@@ -233,7 +241,7 @@ export default class AntiSpamModule {
             create: transform,
             update: {
                 ignoredChannels: {
-                    upsert: [...channelsTransform.map(t => {
+                    upsert: [...transforms.map(t => {
                         return {
                             ...t,
                             update: t.create
