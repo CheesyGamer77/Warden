@@ -24,7 +24,7 @@ export default class EnableCommand extends Subcommand {
         const channel = interaction.options.getChannel('channel') as GuildTextBasedChannel;
 
         if (!channel) {
-            await AntiSpamModule.instance.unignoreGuild(guild);
+            await AntiSpamModule.instance.setEnabled(guild, true);
             description = i18next.t('commands.config.antispam.enable.guild', {
                 lng: lng,
                 emoji: ':white_check_mark:'

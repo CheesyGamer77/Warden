@@ -252,24 +252,6 @@ export default class AntiSpamModule extends ToggleableConfigHolder<AntiSpamConfi
     }
 
     /**
-     * Disables the anti-spam for a particular guild.
-     * This automatically updates the automod config cache respectively.
-     * @param guild The guild to disable the anti-spam for
-     */
-    async ignoreGuild(guild: Guild) {
-        await this.setEnabled(guild, false);
-    }
-
-    /**
-     * Enables the anti-spam for a particular guild.
-     * This automatically updates the automod config cache respectively.
-     * @param guild The guild to enable the anti-spam for
-     */
-    async unignoreGuild(guild: Guild) {
-        await this.setEnabled(guild, true);
-    }
-
-    /**
      * Sets a text channel to be ignored by the anti-spam.
      * This automatically adds the entry to the anti-spam's ignored channels cache.
      * If the text channel is already ignored, the operation is cancelled.
