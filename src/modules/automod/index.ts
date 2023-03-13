@@ -33,7 +33,11 @@ export abstract class ConfigHolder<ConfigType extends Config> {
 
     private async fetchConfig(guild: Guild) {
         const config = await this.upsertConfig(guild, this.getDefaultConfig(guild), true);
-        this.configCache.set(guild.id, config);
+
+        if (!fetch) {
+            this.configCache.set(guild.id, config);
+        }
+
         return config;
     }
 
