@@ -1,6 +1,6 @@
 import { ChannelType, ChatInputCommandInteraction, EmbedBuilder, GuildTextBasedChannel } from 'discord.js';
 import i18next from 'i18next';
-import AntiSpamModule from '../../../modules/automod/AntiSpam';
+import AntiSpamModule from '../../../modules/automod/antispam';
 import { Subcommand } from 'cheesyutils.js';
 
 export default class DisableCommand extends Subcommand {

@@ -1,12 +1,12 @@
 import { Guild, GuildMember, PermissionFlagsBits } from 'discord.js';
-import replacements from '../../../data/fancy_replacements.json';
-import { canModerate } from '../../util/checks';
-import { getEmbedWithTarget } from '../../util/embed';
-import LoggingModule from '../logging/LoggingModule';
+import replacements from '../../../../data/fancy_replacements.json';
+import { canModerate } from '../../../util/checks';
+import { getEmbedWithTarget } from '../../../util/embed';
+import LoggingModule from '../../logging/LoggingModule';
 import i18next from 'i18next';
 import { NameSanitizerConfig, Prisma, PrismaClient } from '@prisma/client';
-import Duration from '../../util/duration';
-import { ToggleableConfigHolder } from '.';
+import Duration from '../../../util/duration';
+import { ToggleableConfigHolder } from '..';
 
 const fancy_replacements = new Map<string, string>();
 for (const pair of Object.entries(replacements)) {

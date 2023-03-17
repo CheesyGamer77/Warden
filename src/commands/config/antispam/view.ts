@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, ColorResolvable, EmbedBuilder } from 'discord.js';
 import i18next from 'i18next';
 import { Subcommand } from 'cheesyutils.js';
-import AntiSpamModule from '../../../modules/automod/AntiSpam';
+import AntiSpamModule from '../../../modules/automod/antispam';
 
 export default class ViewCommand extends Subcommand {
     // TODO: Localize command data

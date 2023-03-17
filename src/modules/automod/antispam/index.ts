@@ -1,14 +1,14 @@
 import { ChannelType, Formatters, Guild, GuildMember, GuildTextBasedChannel, Message, PermissionFlagsBits } from 'discord.js';
 import { createHash } from 'crypto';
-import { canDelete } from '../../util/checks';
-import LoggingModule from '../logging/LoggingModule';
+import { canDelete } from '../../../util/checks';
+import LoggingModule from '../../logging/LoggingModule';
 import ExpiryMap from 'expiry-map';
-import UserReputation from './UserReputation';
+import UserReputation from '../UserReputation';
 import { AntispamConfig, AntiSpamIgnoredChannels, PrismaClient, Prisma } from '@prisma/client';
-import Duration from '../../util/duration';
-import { getEmbedWithTarget } from '../../util/embed';
+import Duration from '../../../util/duration';
+import { getEmbedWithTarget } from '../../../util/embed';
 import i18next from 'i18next';
-import { ToggleableConfigHolder } from '.';
+import { ToggleableConfigHolder } from '..';
 
 type AntiSpamEntry = {
     count: number;
@@ -21,8 +21,7 @@ type AntiSpamConfigWithChannels = AntispamConfig & {
 
 const prisma = new PrismaClient();
 
-// Type reduction for creating antispam configs in prisma.
-// TODO: Might not be needed
+// Type alias/reduction for creating antispam configs in prisma.
 type AntiSpamCreateInput = Omit<Prisma.AntispamConfigCreateInput, 'ignoredChannels'> & {
     ignoredChannels?: Pick<Prisma.AntiSpamIgnoredChannelsCreateNestedManyWithoutAntispamConfigInput, 'connectOrCreate'>
 }
@@ -240,6 +239,9 @@ export default class AntiSpamModule extends ToggleableConfigHolder<AntiSpamConfi
     }
 
     protected override async upsertConfig(guild: Guild, config: AntiSpamConfigWithChannels | AntiSpamCreateInput, fetch: boolean): Promise<AntiSpamConfigWithChannels> {
+        // Upserting antispam configurations is a lot weirder than other configuration holders.
+        // This is due to the fact that creating and updating one-to-many relationships (ex: ignored channels) requires
+        // differing sets of inputs depending on the operation.
         const transforms = this.getUpsertTransforms(config);
 
         const update = !fetch ? { ...config, ignoredChannels: { ...transforms.update } } : {};

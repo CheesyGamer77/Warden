@@ -2,7 +2,7 @@ import { Collection, GuildMember, EmbedBuilder, PartialGuildMember, Role } from 
 import LoggingModule from '../modules/logging/LoggingModule';
 import { getEmbedWithTarget } from '../util/embed';
 import i18next from 'i18next';
-import NameSanitizerModule from '../modules/automod/NameSanitizer';
+import NameSanitizerModule from '../modules/automod/name_sanitizer';
 
 function displayNameHasChanged(before: GuildMember, after: GuildMember) {
     return before.displayName != after.displayName;

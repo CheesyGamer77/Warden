@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import i18next from 'i18next';
-import NameSanitizerModule from '../../../modules/automod/NameSanitizer';
+import NameSanitizerModule from '../../../modules/automod/name_sanitizer';
 import { Subcommand } from 'cheesyutils.js';
 
 export default class EnableCommand extends Subcommand {
