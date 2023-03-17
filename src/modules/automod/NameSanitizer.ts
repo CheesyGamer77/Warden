@@ -4,7 +4,7 @@ import { canModerate } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
 import LoggingModule from '../logging/LoggingModule';
 import i18next from 'i18next';
-import { NameSanitizerConfig, PrismaClient } from '@prisma/client';
+import { NameSanitizerConfig, Prisma, PrismaClient } from '@prisma/client';
 import Duration from '../../util/duration';
 import { ToggleableConfigHolder } from '.';
 
@@ -18,7 +18,7 @@ const prisma = new PrismaClient();
 /**
  * Module for automatically removing fancy text characters from nicknames.
  */
-export default class NameSanitizerModule extends ToggleableConfigHolder<NameSanitizerConfig> {
+export default class NameSanitizerModule extends ToggleableConfigHolder<NameSanitizerConfig, Prisma.NameSanitizerConfigCreateInput> {
     private static _instance: NameSanitizerModule | undefined = undefined;
 
     public static get instance() {
@@ -52,7 +52,7 @@ export default class NameSanitizerModule extends ToggleableConfigHolder<NameSani
         };
     }
 
-    protected override async upsertConfig(guild: Guild, config: NameSanitizerConfig, fetch: boolean): Promise<NameSanitizerConfig> {
+    protected override async upsertConfig(guild: Guild, config: NameSanitizerConfig | Prisma.NameSanitizerConfigCreateInput, fetch: boolean): Promise<NameSanitizerConfig> {
         const update = !fetch ? config : {};
 
         return await prisma.nameSanitizerConfig.upsert({

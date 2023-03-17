@@ -1,4 +1,4 @@
-import { PrismaClient, LogConfig, ModActionType } from '@prisma/client';
+import { PrismaClient, LogConfig, ModActionType, Prisma } from '@prisma/client';
 import { Guild, GuildTextBasedChannel, ChannelType, User } from 'discord.js';
 import { canMessage } from '../../util/checks';
 import { getEmbedWithTarget } from '../../util/embed';
@@ -6,6 +6,7 @@ import ExpiryMap from 'expiry-map';
 import i18next from 'i18next';
 import Duration from '../../util/duration';
 import { capitalizeFirstLetter, getPastTense } from '../../util/string';
+import { ConfigHolder } from '../automod';
 
 const prisma = new PrismaClient();
 
@@ -30,8 +31,7 @@ interface IUser {
  * By default, guilds are assigned an empty configuration. IE, no logging takes place.
  * Log details are not stored outside of Discord.
  */
-export default class LoggingModule {
-    private configCache: ExpiryMap<string, LogConfig> = new ExpiryMap(Duration.ofMinutes(15).toMilliseconds());
+export default class LoggingModule extends ConfigHolder<LogConfig, Prisma.LogConfigCreateInput> {
     private caseNumberCache: ExpiryMap<string, number> = new ExpiryMap(Duration.ofMinutes(10).toMilliseconds());
 
     private static _instance: LoggingModule | undefined = undefined;
@@ -41,33 +41,10 @@ export default class LoggingModule {
      */
     public static get instance() {
         if (!this._instance) {
-            this._instance = new LoggingModule();
+            this._instance = new LoggingModule(Duration.ofMinutes(15));
         }
 
         return this._instance;
-    }
-
-    private async fetchAndCacheConfiguration(guild: Guild) {
-        const data = { guildId: guild.id };
-        const config = await prisma.logConfig.upsert({
-            where: data,
-            update: {},
-            create: data
-        });
-
-        this.configCache.set(guild.id, config);
-
-        return config;
-    }
-
-    /**
-     * Retrieves a guild's logging configuration.
-     * This returns the cached config entry if found, or query the database for an existing/default configuration otherwise.
-     * @param guild The guild to fetch the config of
-     * @returns The configuration
-     */
-    async retrieveConfiguration(guild: Guild) {
-        return this.configCache.get(guild.id) ?? await this.fetchAndCacheConfiguration(guild);
     }
 
     /**
@@ -78,7 +55,7 @@ export default class LoggingModule {
      * @returns The TextChannel if it exists, else null
      */
     async retrieveLogChannel(event: LogEventType, guild: Guild) {
-        const config = await this.retrieveConfiguration(guild);
+        const config = await this.retrieveConfig(guild);
 
         const channelId = config[event + 'ChannelId' as keyof LogConfig];
 
@@ -105,22 +82,17 @@ export default class LoggingModule {
         const key = event + 'ChannelId' as keyof Omit<LogConfig, 'guildId'>;
         const newValue = channel?.id ?? null;
 
-        const config = await this.retrieveConfiguration(guild);
+        const config = await this.retrieveConfig(guild);
         config[key] = newValue;
-        this.configCache.set(guildId, config);
 
-        // a bit cursed, but gets the job done :shrug:
-        const update = <LogConfig>{};
-        update[key] = newValue;
-        const create = update;
-        create['guildId'] = guildId;
+        await this.upsertConfig(guild, config, false);
 
         await prisma.logConfig.upsert({
             where: {
                 guildId: guildId
             },
-            update: update,
-            create: create
+            update: config,
+            create: config
         });
     }
 
@@ -144,6 +116,24 @@ export default class LoggingModule {
      */
     private async retrieveNextCaseNumber(guild: Guild) {
         return this.caseNumberCache.get(guild.id) ?? await this.fetchAndCacheNextCaseNumber(guild);
+    }
+
+    protected override getDefaultConfig(guild: Guild): Prisma.LogConfigCreateInput {
+        return {
+            guildId: guild.id
+        };
+    }
+
+    protected override async upsertConfig(guild: Guild, config: LogConfig | Prisma.LogConfigCreateInput, fetch: boolean): Promise<LogConfig> {
+        const update = !fetch ? config : {};
+
+        return await prisma.logConfig.upsert({
+            where: {
+                guildId: guild.id
+            },
+            create: config,
+            update: update
+        });
     }
 
     async fetchActionByCaseNumber(guild: Guild, caseNumber: number) {

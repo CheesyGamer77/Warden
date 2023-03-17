@@ -4,7 +4,7 @@ import { canDelete } from '../../util/checks';
 import LoggingModule from '../logging/LoggingModule';
 import ExpiryMap from 'expiry-map';
 import UserReputation from './UserReputation';
-import { AntispamConfig, AntiSpamIgnoredChannels, PrismaClient } from '@prisma/client';
+import { AntispamConfig, AntiSpamIgnoredChannels, PrismaClient, Prisma } from '@prisma/client';
 import Duration from '../../util/duration';
 import { getEmbedWithTarget } from '../../util/embed';
 import i18next from 'i18next';
@@ -21,6 +21,12 @@ type AntiSpamConfigWithChannels = AntispamConfig & {
 
 const prisma = new PrismaClient();
 
+// Type reduction for creating antispam configs in prisma.
+// TODO: Might not be needed
+type AntiSpamCreateInput = Omit<Prisma.AntispamConfigCreateInput, 'ignoredChannels'> & {
+    ignoredChannels?: Pick<Prisma.AntiSpamIgnoredChannelsCreateNestedManyWithoutAntispamConfigInput, 'connectOrCreate'>
+}
+
 /**
  * Module for preventing spam in the form of excessive, repeated messages.
  *
@@ -32,7 +38,7 @@ const prisma = new PrismaClient();
  * that is commonly associated with spam, such as newline spam, zero-width-space spam, copypastas, etc may not be marked
  * as spam until the message is repeated excessively.
  */
-export default class AntiSpamModule extends ToggleableConfigHolder<AntiSpamConfigWithChannels> {
+export default class AntiSpamModule extends ToggleableConfigHolder<AntiSpamConfigWithChannels, AntiSpamCreateInput> {
     private entryCache: ExpiryMap<string, AntiSpamEntry> = new ExpiryMap(Duration.ofMinutes(1).toMilliseconds());
     private static _instance: AntiSpamModule | undefined = undefined;
 
@@ -167,45 +173,73 @@ export default class AntiSpamModule extends ToggleableConfigHolder<AntiSpamConfi
         return entry !== undefined;
     }
 
-    private getUpsertTransforms(config: AntiSpamConfigWithChannels) {
-        const base = [...config.ignoredChannels.map(c => {
-            return {
-                where: {
-                    guildId_channelId: {
-                        guildId: c.guildId,
+    // this is needed due to TypeScript union shenanigans
+    private isPrismaCreateInput(config: AntiSpamConfigWithChannels | AntiSpamCreateInput): config is AntiSpamCreateInput {
+        const ignoredChannels = config.ignoredChannels;
+
+        // create inputs have a potentially undefined ignoredChannels prop
+        // if the ignoredChannel prop is defined, create inputs will never have a 'guildId' or 'channelId' prop
+        return ignoredChannels ? !Object.prototype.hasOwnProperty.call(ignoredChannels, 'guildId') : false;
+    }
+
+    private getUpsertTransforms(config: AntiSpamConfigWithChannels | AntiSpamCreateInput) {
+        if (!this.isPrismaCreateInput(config)) {
+            const base = [...config.ignoredChannels.map(c => {
+                return {
+                    where: {
+                        guildId_channelId: {
+                            guildId: c.guildId,
+                            channelId: c.channelId
+                        }
+                    },
+                    create: {
                         channelId: c.channelId
                     }
-                },
+                };
+            })];
+
+            return {
                 create: {
-                    channelId: c.channelId
+                    ...base
+                },
+                update: {
+                    upsert: [...base.map(t => {
+                        return {
+                            ...t,
+                            update: t.create
+                        };
+                    })]
                 }
             };
-        })];
+        }
+        else {
+            // this is needed cause Prisma enumerables can either be an array of objects or a single object
+            const d = config.ignoredChannels?.connectOrCreate ?? [];
+            const base = Array.isArray(d) ? d : [d] ?? [];
 
+            return {
+                create: {
+                    ...base
+                },
+                update: {
+                    upsert: [...base.map(t => {
+                        return {
+                            ...t,
+                            update: t.create
+                        };
+                    })]
+                }
+            };
+        }
+    }
+
+    protected override getDefaultConfig(guild: Guild): AntiSpamCreateInput {
         return {
-            create: {
-                ...base
-            },
-            update: {
-                upsert: [...base.map(t => {
-                    return {
-                        ...t,
-                        update: t.create
-                    };
-                })]
-            }
+            guildId: guild.id
         };
     }
 
-    protected override getDefaultConfig(guild: Guild): AntiSpamConfigWithChannels {
-        return {
-            guildId: guild.id,
-            enabled: false,
-            ignoredChannels: []
-        };
-    }
-
-    protected override async upsertConfig(guild: Guild, config: AntiSpamConfigWithChannels, fetch: boolean): Promise<AntiSpamConfigWithChannels> {
+    protected override async upsertConfig(guild: Guild, config: AntiSpamConfigWithChannels | AntiSpamCreateInput, fetch: boolean): Promise<AntiSpamConfigWithChannels> {
         const transforms = this.getUpsertTransforms(config);
 
         const update = !fetch ? { ...config, ignoredChannels: { ...transforms.update } } : {};

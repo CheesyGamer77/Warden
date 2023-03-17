@@ -23,7 +23,7 @@ export type ToggleableConfig = Config & {
  * Cache implementation is abstracted away, so inherited classes need only implement the
  * database logic.
  */
-export abstract class ConfigHolder<ConfigType extends Config> {
+export abstract class ConfigHolder<ConfigType extends Config, ConfigCreateParams extends Config> {
     protected readonly prisma = new PrismaClient();
     private readonly configCache: ExpiryMap<string, ConfigType>;
 
@@ -41,13 +41,12 @@ export abstract class ConfigHolder<ConfigType extends Config> {
         return config;
     }
 
-    // TODO: This might need a different class type parameter in the future in order to allow for the usage of db default values
     /**
      * Returns the default configuration to use for the given guild.
      * @param guild The guild to get the default config of.
      * @returns The configuration to use for the guild.
      */
-    protected abstract getDefaultConfig(guild: Guild): ConfigType;
+    protected abstract getDefaultConfig(guild: Guild): ConfigCreateParams;
 
     /**
      * Upserts the provided configuration for the given guild to the database.
@@ -58,7 +57,7 @@ export abstract class ConfigHolder<ConfigType extends Config> {
      * @param config The configuration to upsert.
      * @param fetch Whether this upsert operation is a fetch or not.
      */
-    protected abstract upsertConfig(guild: Guild, config: ConfigType, fetch: boolean): Promise<ConfigType>;
+    protected abstract upsertConfig(guild: Guild, config: ConfigType | ConfigCreateParams, fetch: boolean): Promise<ConfigType>;
 
     /**
      * Retrieves the configuration for this holder.
@@ -88,7 +87,7 @@ export abstract class ConfigHolder<ConfigType extends Config> {
 /**
  * Abstraction for entities that hold guild configurations that are toggleable at the guild level.
  */
-export abstract class ToggleableConfigHolder<ConfigType extends ToggleableConfig> extends ConfigHolder<ConfigType> {
+export abstract class ToggleableConfigHolder<ConfigType extends ToggleableConfig, ConfigCreateParams extends Config> extends ConfigHolder<ConfigType, ConfigCreateParams> {
     /**
      * Enables or disables the configuration for the given guild.
      * @param guild The guild to enable/disable the config of.
