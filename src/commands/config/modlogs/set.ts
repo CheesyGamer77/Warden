@@ -32,7 +32,7 @@ export default class SetCommand extends Subcommand {
         const modlogType = opts.getString('type', true);
         const channel = opts.getChannel('channel', false) as GuildTextBasedChannel | null;
 
-        const config = await LoggingModule.instance.retrieveConfiguration(interaction.guild);
+        const config = await LoggingModule.instance.retrieveConfig(interaction.guild);
         const oldChannelId = config[modlogType as LogConfigKeys];
 
         await LoggingModule.instance.setLogChannel(interaction.guild, modlogType.replace('ChannelId', '') as LogEventType, channel);
