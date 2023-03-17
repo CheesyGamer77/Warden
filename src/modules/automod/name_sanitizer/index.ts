@@ -6,7 +6,7 @@ import LoggingModule from '../../logging/LoggingModule';
 import i18next from 'i18next';
 import { NameSanitizerConfig, Prisma, PrismaClient } from '@prisma/client';
 import Duration from '../../../util/duration';
-import { ToggleableConfigHolder } from '..';
+import { ToggleableConfigHolder } from '../../../util/config';
 
 const fancy_replacements = new Map<string, string>();
 for (const pair of Object.entries(replacements)) {

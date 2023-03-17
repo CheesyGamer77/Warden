@@ -8,7 +8,7 @@ import { AntispamConfig, AntiSpamIgnoredChannels, PrismaClient, Prisma } from '@
 import Duration from '../../../util/duration';
 import { getEmbedWithTarget } from '../../../util/embed';
 import i18next from 'i18next';
-import { ToggleableConfigHolder } from '..';
+import { ToggleableConfigHolder } from '../../../util/config';
 
 type AntiSpamEntry = {
     count: number;

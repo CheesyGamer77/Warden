@@ -6,7 +6,7 @@ import ExpiryMap from 'expiry-map';
 import i18next from 'i18next';
 import Duration from '../../util/duration';
 import { capitalizeFirstLetter, getPastTense } from '../../util/string';
-import { ConfigHolder } from '../automod';
+import { ConfigHolder } from '../../util/config';
 
 const prisma = new PrismaClient();
 
