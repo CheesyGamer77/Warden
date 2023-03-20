@@ -95,3 +95,12 @@ export function canPurgeMessages(channel: GuildBasedChannel) {
         PermissionFlagsBits.ReadMessageHistory,
     ]) ?? false;
 }
+
+/**
+ * Returns whether the bot can change the nickname of the provided member.
+ * @param member The member to check if the bot can change the nickname of.
+ * @returns Whether the bot can change the member's nickname or not.
+ */
+export function canOverwriteName(member: GuildMember): boolean {
+    return member.guild.members.me?.permissions.has(PermissionFlagsBits.ManageNicknames) ?? false;
+}

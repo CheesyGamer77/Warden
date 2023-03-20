@@ -1,17 +1,12 @@
-import { Guild, GuildMember, PermissionFlagsBits } from 'discord.js';
-import replacements from '../../../../data/fancy_replacements.json';
-import { canModerate } from '../../../util/checks';
+import { Guild, GuildMember } from 'discord.js';
+import { canModerate, canOverwriteName } from '../../../util/checks';
 import { getEmbedWithTarget } from '../../../util/embed';
 import LoggingModule from '../../logging/LoggingModule';
 import i18next from 'i18next';
 import { NameSanitizerConfig, Prisma, PrismaClient } from '@prisma/client';
 import Duration from '../../../util/duration';
 import { ToggleableConfigHolder } from '../../../util/config';
-
-const fancy_replacements = new Map<string, string>();
-for (const pair of Object.entries(replacements)) {
-    fancy_replacements.set(pair[0], pair[1]);
-}
+import { replaceFancyCharacters } from './sanitizers';
 
 const prisma = new PrismaClient();
 
@@ -27,20 +22,6 @@ export default class NameSanitizerModule extends ToggleableConfigHolder<NameSani
         }
 
         return this._instance;
-    }
-
-    private cleanFancyText(content: string) {
-        let sanitized = '';
-
-        for (const char of content) {
-            sanitized = sanitized.concat(fancy_replacements.get(char) ?? char);
-        }
-
-        return sanitized;
-    }
-
-    private canOverwriteName(member: GuildMember): boolean {
-        return member.guild.members.me?.permissions.has(PermissionFlagsBits.ManageNicknames) ?? false;
     }
 
     protected override getDefaultConfig(guild: Guild): NameSanitizerConfig {
@@ -92,9 +73,9 @@ export default class NameSanitizerModule extends ToggleableConfigHolder<NameSani
         const lng = member.guild.preferredLocale;
         let sanitized: string = name;
 
-        if (config.cleanFancyCharacters) sanitized = this.cleanFancyText(name);
+        if (config.cleanFancyCharacters) sanitized = replaceFancyCharacters(name);
 
-        if (name != sanitized && this.canOverwriteName(member)) {
+        if (name != sanitized && canOverwriteName(member)) {
             // If the sanitized name ends up being empty, resort to the guild's fallback blank nickname
             if (sanitized.trim() === '') sanitized = config.blankFallbackName;
 
