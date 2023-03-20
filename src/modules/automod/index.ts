@@ -32,8 +32,8 @@ export type WorkerResults<Content, Config extends Readonly<GuildConfig>, Context
     severity: ContentSeverity
 }
 
-export type WorkerSendResultsOpts<Content, Config extends Readonly<GuildConfig>, Context extends Readonly<AutoModContext<Content, Config>>> = {
-    results: WorkerResults<Content, Config, Context>
+export type WorkerSendResultsOpts<Content, Config extends Readonly<GuildConfig>, Context extends Readonly<AutoModContext<Content, Config>>, Results extends WorkerResults<Content, Config, Context>> = {
+    results: Results
     channel: GuildTextBasedChannel
 }
 
@@ -50,7 +50,7 @@ type WorkerProcessInput<Content, Config extends Readonly<GuildConfig>> = Omit<Au
  * Worker are responsible for determining how the content is to be processed given a number of parameters
  * wrapped in what's called its `context`.
  */
-export abstract class AutoModWorker<Content, Config extends Readonly<GuildConfig>, Context extends AutoModContext<Content, Config>> {
+export abstract class AutoModWorker<Content, Config extends Readonly<GuildConfig>, Context extends AutoModContext<Content, Config>, Results extends WorkerResults<Content, Config, Context>> {
     /**
      * Returns the name of the worker.
      */
@@ -59,7 +59,7 @@ export abstract class AutoModWorker<Content, Config extends Readonly<GuildConfig
     /**
      * Sends the provided worker results into the appropriate channel.
      */
-    protected abstract sendResults(opts: WorkerSendResultsOpts<Content, Config, Context>): Promise<void>
+    protected abstract sendResults(opts: WorkerSendResultsOpts<Content, Config, Context, Results>): Promise<void>
 
     /**
      * Gets the color that corresponds to a given severety level.
@@ -110,7 +110,7 @@ export abstract class AutoModWorker<Content, Config extends Readonly<GuildConfig
      * Runs the worker on the given context and returns the results.
      * @param ctx The input context.
      */
-    protected abstract run(ctx: WorkerRunInput<Content, Config>): Promise<WorkerResults<Content, Config, Context>>;
+    protected abstract run(ctx: WorkerRunInput<Content, Config>): Promise<Results>;
 
     private async _runPrechecks(ctx: Context, logChannelOverride: GuildTextBasedChannel | null) {
         if (!logChannelOverride || (!ctx.config.enabled && !ctx.isTest)) return false;
@@ -162,7 +162,7 @@ export abstract class AutoModWorker<Content, Config extends Readonly<GuildConfig
 /**
  * Represents an automod worker that handles content based in Discord messages.
  */
-export abstract class AutoModMessageBasedWorker<Config extends Readonly<GuildConfig>, Context extends AutoModMessageContext<Message<true>, Config>> extends AutoModWorker<Message<true>, Config, Context> {
+export abstract class AutoModMessageBasedWorker<Config extends Readonly<GuildConfig>, Context extends AutoModMessageContext<Message<true>, Config>, Results extends WorkerResults<Message<true>, Config, Context>> extends AutoModWorker<Message<true>, Config, Context, Results> {
     protected override getLogChannelKey(): LogEventType {
         return 'textFilter';
     }
