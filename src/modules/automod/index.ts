@@ -24,21 +24,22 @@ export type AutoModMessageContext<Content, Config extends Readonly<GuildConfig>>
     content: Message<true>
 }
 
-type WorkerProcessInput<Content, Config extends Readonly<GuildConfig>> = Omit<AutoModContext<Content, Config>, 'isTest'> & {
-    isTest?: boolean,
-    logChannelOverride?: GuildTextBasedChannel
-}
-type WorkerRunInput<Content, Config extends Readonly<GuildConfig>> = Omit<WorkerProcessInput<Content, Config>, 'isTest' | 'logChannelOverride'>;
+export type WorkerRunInput<Content, Config extends Readonly<GuildConfig>> = Omit<WorkerProcessInput<Content, Config>, 'isTest' | 'logChannelOverride'>;
 
-type WorkerResults<Content, Config extends Readonly<GuildConfig>, Context extends Readonly<AutoModContext<Content, Config>>> = {
+export type WorkerResults<Content, Config extends Readonly<GuildConfig>, Context extends Readonly<AutoModContext<Content, Config>>> = {
     ctx: Context
     moderated: boolean
     severity: ContentSeverity
 }
 
-type WorkerSendResultsOpts<Content, Config extends Readonly<GuildConfig>, Context extends Readonly<AutoModContext<Content, Config>>> = {
+export type WorkerSendResultsOpts<Content, Config extends Readonly<GuildConfig>, Context extends Readonly<AutoModContext<Content, Config>>> = {
     results: WorkerResults<Content, Config, Context>
     channel: GuildTextBasedChannel
+}
+
+type WorkerProcessInput<Content, Config extends Readonly<GuildConfig>> = Omit<AutoModContext<Content, Config>, 'isTest'> & {
+    isTest?: boolean,
+    logChannelOverride?: GuildTextBasedChannel
 }
 
 /**
@@ -111,13 +112,34 @@ export abstract class AutoModWorker<Content, Config extends Readonly<GuildConfig
      */
     protected abstract run(ctx: WorkerRunInput<Content, Config>): Promise<WorkerResults<Content, Config, Context>>;
 
+    private async _runPrechecks(ctx: Context, logChannelOverride: GuildTextBasedChannel | null) {
+        if (!logChannelOverride || (!ctx.config.enabled && !ctx.isTest)) return false;
+
+        return await this.runPrechecks(ctx);
+    }
+
+    /**
+     * Returns whether the worker should continue to process the input or not.
+     *
+     * By default, by the time this method is called, the worker has already determined to have
+     * been enabled and to have had a valid log channel assigned to it.
+     * @param ctx The worker context.
+     * @returns Whether the prechecks succeeded or not.
+     */
+    // eslint-disable-next-line
+    protected async runPrechecks(ctx: Context) {
+        return true;
+    }
+
     private async _process(opts: WorkerProcessInput<Content, Config>) {
         const ctx = { ...opts, isTest: opts.isTest ?? false } as Context;
         const { logChannelOverride } = opts;
 
         // always ensure that we at least have a channel to log results to
         const logChannel = logChannelOverride ?? await this.retrieveLogChannel(ctx);
-        if (!logChannel || (!ctx.config.enabled && !ctx.isTest)) return;
+
+        const doRun = await this._runPrechecks(ctx, logChannel);
+        if (!doRun || !logChannel) return;
 
         const results = await this.run(ctx);
 
