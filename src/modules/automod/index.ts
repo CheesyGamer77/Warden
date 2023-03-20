@@ -24,8 +24,6 @@ export type AutoModMessageContext<Content, Config extends Readonly<GuildConfig>>
     content: Message<true>
 }
 
-export type WorkerRunInput<Content, Config extends Readonly<GuildConfig>> = Omit<WorkerProcessInput<Content, Config>, 'isTest' | 'logChannelOverride'>;
-
 export type WorkerResults<Content, Config extends Readonly<GuildConfig>, Context extends Readonly<AutoModContext<Content, Config>>> = {
     ctx: Context
     moderated: boolean
@@ -110,7 +108,7 @@ export abstract class AutoModWorker<Content, Config extends Readonly<GuildConfig
      * Runs the worker on the given context and returns the results.
      * @param ctx The input context.
      */
-    protected abstract run(ctx: WorkerRunInput<Content, Config>): Promise<Results>;
+    protected abstract run(ctx: Context): Promise<Results>;
 
     private async _runPrechecks(ctx: Context, logChannelOverride: GuildTextBasedChannel | null) {
         if (!logChannelOverride || (!ctx.config.enabled && !ctx.isTest)) return false;
