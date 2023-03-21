@@ -50,7 +50,7 @@ function getRoleUpdateEmbed(member: GuildMember, roles: Collection<string, Role>
         });
     }
 
-    return getEmbedWithTarget(member.user, lng)
+    return getEmbedWithTarget(member, lng)
         .setTitle(title)
         .setDescription(description)
         .setColor(action == 'add' ? 'Green' : 'Red')
@@ -71,25 +71,24 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
     if (displayNameHasChanged(before, after)) {
         const oldNick = before.nickname;
         const newNick = after.nickname;
-        const user = after.user;
 
         const updateType = displayNameUpdateType(oldNick, newNick);
 
         // check if nickname was added, changed, or removed
         let title: string, description: string, color: number;
-        let embed = getEmbedWithTarget(user, lng);
+        let embed = getEmbedWithTarget(after, lng);
         if (updateType == 'SET') {
             // nickname set
             title = i18next.t('logging.userChanges.nickname.set.title', { lng: lng });
             description = i18next.t('logging.userChanges.nickname.set.description', {
                 lng: lng,
-                userMention: user.toString()
+                userMention: after.toString()
             });
             color = 0x1f8b4c;
 
             embed.addFields([{
                 name: i18next.t('logging.userChanges.nickname.set.fields.nickname.name'),
-                value: newNick ?? user.username
+                value: newNick ?? after.user.username
             }]);
         }
         else if (updateType == 'CLEARED') {
@@ -97,7 +96,7 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
             title = i18next.t('logging.userChanges.nickname.clear.title', { lng: lng });
             description = i18next.t('logging.userChanges.nickname.clear.description', {
                 lng: lng,
-                userMention: user.toString()
+                userMention: after.toString()
             });
             color = 0xf1c40f;
 
@@ -114,7 +113,7 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
             title = i18next.t('logging.userChanges.nickname.change.title', { lng: lng });
             description = i18next.t('logging.userChanges.nickname.change.description', {
                 lng: lng,
-                userMention: user.toString()
+                userMention: after.toString()
             });
             color = 0x1abc9c;
 
@@ -167,7 +166,7 @@ export default async function onGuildMemberUpdate(before: GuildMember | PartialG
     // check guild avatar
     const avatarURL = after.displayAvatarURL();
     if (before.displayAvatarURL() != avatarURL) {
-        const embed = getEmbedWithTarget(after.user, lng)
+        const embed = getEmbedWithTarget(after, lng)
             .setTitle('Display Avatar Changed')
             .setDescription(`${after.toString()} had their display avatar changed`)
             .setColor('Gold')

@@ -3,17 +3,20 @@ import i18next from 'i18next';
 import LoggingModule from '../modules/logging/LoggingModule';
 import { getEmbedWithTarget } from '../util/embed';
 
-export default async function onMessageDelete(message: Message | PartialMessage) {
-    if (message.partial) { return; }
+export default async function onMessageDelete(message: Message<boolean> | PartialMessage) {
+    if (message.partial) return;
 
-    if (message.guild == null || message.content == '') { return; }
+    if (!message.inGuild()) return;
+
+    if (message.content == '') return;
 
     const channel = await LoggingModule.instance.retrieveLogChannel('messageDeletes', message.guild);
     const lng = message.guild.preferredLocale;
 
     const parts = message.content.match(/\b[\w\s]{1024,}?(?=\s)|.+$/g) || [ message.content ];
 
-    const embed = getEmbedWithTarget(message.author, lng)
+    // the below nullish coalescing is needed in case the author is no longer a member of the guild
+    const embed = getEmbedWithTarget(message.member ?? message.author, lng)
         .setTitle(i18next.t('logging.messages.deletes.title', { lng: lng }))
         .setDescription(i18next.t('logging.messages.deletes.description', {
             lng: lng,

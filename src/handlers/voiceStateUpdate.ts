@@ -31,7 +31,7 @@ export default async function onVoiceStateUpdate(before: VoiceState, after: Voic
     if (state == 'JOINED') {
         const channel = after.channel;
 
-        embed = getEmbedWithTarget(member.user, lng)
+        embed = getEmbedWithTarget(member, lng)
             .setTitle(i18next.t('logging.voiceEvents.joins.title', { lng: lng }))
             .setDescription(i18next.t('logging.voiceEvents.joins.description', {
                 lng: lng,
@@ -52,7 +52,7 @@ export default async function onVoiceStateUpdate(before: VoiceState, after: Voic
         // ensure `from` and `to` aren't the same channel (#32)
         if (from != null && to != null && from.id == to.id) return;
 
-        embed = getEmbedWithTarget(member.user, lng)
+        embed = getEmbedWithTarget(member, lng)
             .setTitle(i18next.t('logging.voiceEvents.moves.title', { lng: lng }))
             .setDescription(i18next.t('logging.voiceEvents.moves.description', {
                 lng: lng,
@@ -77,7 +77,7 @@ export default async function onVoiceStateUpdate(before: VoiceState, after: Voic
     else {
         const channel = before.channel;
 
-        embed = getEmbedWithTarget(member.user, lng)
+        embed = getEmbedWithTarget(member, lng)
             .setTitle(i18next.t('logging.voiceEvents.leaves.title', { lng: lng }))
             .setDescription(i18next.t('logging.voiceEvents.leaves.description', {
                 lng: lng,

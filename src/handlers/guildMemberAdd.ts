@@ -7,22 +7,20 @@ export default async function onGuildMemberAdd(member: GuildMember) {
     const channel = await LoggingModule.instance.retrieveLogChannel('joins', member.guild);
     const lng = member.guild.preferredLocale;
 
-    const user = member.user;
-
-    const embed = getEmbedWithTarget(user, lng)
+    const embed = getEmbedWithTarget(member, lng)
         .setTitle(i18next.t('logging.joins.title', { lng: lng }))
         .setDescription(i18next.t('logging.joins.description', {
             lng: lng,
-            userMention: user.toString()
+            userMention: member.toString()
         }))
         .setColor('Green')
         .addFields([{
             name: i18next.t('logging.joins.fields.accountCreated.name', { lng: lng }),
-            value: Formatters.time(user.createdAt, 'R')
+            value: Formatters.time(member.user.createdAt, 'R')
         }]);
 
     await channel?.send({
-        content: user.id,
+        content: member.id,
         embeds: [ embed ],
     });
 }
