@@ -8,7 +8,7 @@ for (const pair of Object.entries(replacements)) {
 export function replaceFancyCharacters(str: string) {
     let sanitized = '';
 
-    for (const char of str) {
+    for (const char of str.trim()) {
         sanitized = sanitized.concat(fancy_replacements.get(char) ?? char);
     }
 
