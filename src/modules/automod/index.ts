@@ -129,6 +129,25 @@ export abstract class AutoModWorker<Content, Config extends Readonly<GuildConfig
         return true;
     }
 
+    /**
+     * Performs escalations on content that is to be moderated, after the content has been logged as moderated.
+     *
+     * This is the last function to be ran in the automod worker lifecycle.
+     *
+     * Examples of escalations can include:
+     * - Deleting incoming message
+     * - Muting/Kicking/Banning the user
+     * - etc.
+     *
+     * Any escalation that is to be ran should have an associated precheck ran beforehand (such as for permissions.)
+     *
+     * Escalations that inhibit the user's ability to post content in the future should have said escalation logged in the
+     * server's escalations channel. Said escalations should not be ran if the server does not have said channel configured.
+     * @param ctx The input context.
+     * @param results The results from moderating content.
+     */
+    protected abstract runEscalations(ctx: Context, results: Results): Promise<void>
+
     private async _process(opts: WorkerProcessInput<Content, Config>) {
         const ctx = { ...opts, isTest: opts.isTest ?? false } as Context;
         const { logChannelOverride } = opts;
@@ -143,6 +162,10 @@ export abstract class AutoModWorker<Content, Config extends Readonly<GuildConfig
 
         if (results.moderated || ctx.isTest) {
             await this.sendResults({ results, channel: logChannel });
+
+            if (!ctx.isTest) {
+                await this.runEscalations(ctx, results);
+            }
         }
     }
 
