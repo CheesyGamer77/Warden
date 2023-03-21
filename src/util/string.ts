@@ -26,11 +26,11 @@ export function capitalizeFirstLetter(input: string) {
     input = input.toLowerCase();
 
     switch (input.length) {
-    case 0:
-        return input;
-    case 1:
-        return input.charAt(0).toUpperCase();
-    default:
-        return input.charAt(0).toUpperCase().concat(input.substring(1));
+        case 0:
+            return input;
+        case 1:
+            return input.charAt(0).toUpperCase();
+        default:
+            return input.charAt(0).toUpperCase().concat(input.substring(1));
     }
 }
