@@ -160,8 +160,17 @@
                             "name": "Reason"
                         }
                     }
+                },
+                "safe": {
+                    "description": "{{- userMention}} has a safe nickname",
+                    "fields": {
+                        "nickname": {
+                            "name": "Nickname"
+                        }
+                    }
                 }
-            }
+            },
+            "test": "Automod Test"
         },
         "modActions": {
             "title": "Case {{- caseNumber}} | {{- actionType}}",

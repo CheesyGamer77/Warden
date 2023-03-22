@@ -98,8 +98,19 @@ export class NameSanitizerWorker extends AutoModWorker<string, NameSanitizerConf
             });
         }
         else {
+            const testText = i18next.t('logging.automod.test', { lng });
             await channel.send({
-                content: results.ctx.isTest ? i18next.t('logging.automod.test', { lng }) : results.ctx.member.id,
+                content: results.ctx.isTest ? testText : results.ctx.member.id,
+                embeds: [ getEmbedWithTarget(member, lng)
+                    .setTitle(testText)
+                    .setDescription(i18next.t('logging.automod.nameSanitizer.safe.description', { lng }))
+                    .setColor(this.getSeverityColor(results.severity))
+                    .setFooter({ text: testText })
+                    .addFields([{
+                        name: i18next.t('logging.automod.nameSanitizer.safe.fields.nickname.name', { lng }),
+                        value: results.ctx.content
+                    }])
+                ]
             });
         }
     }
