@@ -1,4 +1,4 @@
-import { replaceFancyCharacters } from '../src/modules/automod/name_sanitizer/sanitizers';
+import { replaceFancyCharacters, unifySpaceCharacters } from '../src/util/string';
 
 /* eslint-disable no-irregular-whitespace */
 describe('String Sanitizers', () => {
@@ -25,5 +25,13 @@ describe('String Sanitizers', () => {
             const out = replaceFancyCharacters(input).toLowerCase();
             expect(out).toEqual(original);
         }
+    });
+
+    test('Invisble Characters', () => {
+        const normal = 'This is a long sentence! This can potentially contain weird spaces though :eyes: better be really, really careful! What if someone used these weird spaces to bypass stuff? Thatd be bad!!!';
+        const weird = 'This	is a longᅟsentence!ᅠThis can potentially contain weird spaces though :eyes: better be really, really careful! What　if⠀someoneㅤused these﻿weirdﾠspaces to bypass stuff? Thatd be bad!!!';
+
+        const out = unifySpaceCharacters(weird);
+        expect(out).toEqual(normal);
     });
 });

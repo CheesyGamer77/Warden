@@ -56,3 +56,54 @@ export function replaceFancyCharacters(str: string) {
 
     return sanitized.trim();
 }
+
+/**
+ * Returns a set of all unicode space characters.
+ *
+ * Sourced from https://invisible-characters.com/.
+ * @returns A set of all unicode space characters/
+ */
+export function getUnicodeSpaceCharacters() {
+    return new Set([
+        '	',
+        ' ',
+        ' ',
+        'ᅟ',
+        'ᅠ',
+        ' ',
+        ' ',
+        ' ',
+        ' ',
+        ' ',
+        ' ',
+        ' ',
+        ' ',
+        ' ',
+        ' ',
+        ' ',
+        ' ',
+        ' ',
+        '　',
+        '⠀',
+        'ㅤ',
+        '﻿',
+        'ﾠ',
+    ]);
+}
+
+/**
+ * Replaces any unicode codepoints appearing to be spaces as a 'normal' ascii space character.
+ * @param str The input string.
+ * @returns The input string, with all unicode space characters replaced with single ascii space characters.
+ */
+export function unifySpaceCharacters(str: string) {
+    const spaces = getUnicodeSpaceCharacters();
+
+    let sanitized = '';
+
+    for (const char of str) {
+        sanitized = sanitized.concat(spaces.has(char) ? ' ' : char);
+    }
+
+    return sanitized.trim();
+}
