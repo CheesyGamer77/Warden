@@ -1,3 +1,10 @@
+import replacements from '../../data/fancy_replacements.json';
+
+const fancy_replacements = new Map<string, string>();
+for (const pair of Object.entries(replacements)) {
+    fancy_replacements.set(pair[0], pair[1]);
+}
+
 /**
  * Gets the past-tense of a given word.
  *
@@ -33,4 +40,19 @@ export function capitalizeFirstLetter(input: string) {
         default:
             return input.charAt(0).toUpperCase().concat(input.substring(1));
     }
+}
+
+/**
+ * Replaces "fancy" unicode characters with the most appropriate ascii character,
+ * @param str The input string.
+ * @returns The input string with all "fancy" text replaced with standard ascii characters.
+ */
+export function replaceFancyCharacters(str: string) {
+    let sanitized = '';
+
+    for (const char of str.trim()) {
+        sanitized = sanitized.concat(fancy_replacements.get(char) ?? char);
+    }
+
+    return sanitized.trim();
 }
