@@ -35,9 +35,7 @@ export abstract class ConfigHolder<ConfigType extends Config, ConfigCreateParams
     private async fetchConfig(guild: Guild) {
         const config = await this.upsertConfig(guild, this.getDefaultConfig(guild), true);
 
-        if (!fetch) {
-            this.configCache.set(guild.id, config);
-        }
+        this.configCache.set(guild.id, config);
 
         return config;
     }
